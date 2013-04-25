@@ -218,9 +218,13 @@ var TreeFromNewick = Object.create(Tree, {
 	    acceptToken("EQ", true);
 
 	    var value = undefined;
-	    if (acceptToken("NUM") || acceptToken("STRING") || acceptToken("LABEL"))
-		var value = tokenList[idx-1][1]
-	    else
+	    if (acceptToken("NUM", false) || acceptToken("LABEL", false))
+		value = tokenList[idx-1][1]
+	    
+	    else if (acceptToken("STRING", false)) {
+		value = tokenList[idx-1][1].replace(/^"(.*)"$/, "$1");
+		    
+	    } else
 		throw "Expected number, label or string in annotation. Found " + tokenList[idx][0] + " instead.";
 
 	    node.annotation[key] = value;

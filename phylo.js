@@ -3,11 +3,17 @@ var Node = {
 
     parent: undefined,
     children: [],
+    height: 0,
+    label: "",
+    annotation: {},
 
     // Initialiser
     init: function() {
 	this.parent =  undefined;
 	this.children = [];
+	this.height = 0;
+	this.label = "";
+	this.annotation = {};
 
 	return(this);
     },
@@ -45,7 +51,7 @@ var TreeFromNewick = Object.create(Tree, {
 	["SEMI", /;/, false],
 	["OPENA", /\[&/, false],
 	["CLOSEA", /\]/, false],
-	["STRING", "\"\\w+\"", true],
+	["STRING", /"[^"]+"/, true],
 	["EQ", /=/, false],
 	["NUM", /-?\d+(\.\d+)?([Ee]-?\d+)?/, true],
 	["LABEL", /\w+/, true]
@@ -84,10 +90,10 @@ var TreeFromNewick = Object.create(Tree, {
 
 		    if (this.tokens[k][2]) {
 			tokenList.push([this.tokens[k][0],match[0]]);
-			//console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
+			console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
 		    } else {
 			tokenList.push([this.tokens[k][0]]);
-			//console.log(idx + " " + this.tokens[k][0]);
+			console.log(idx + " " + this.tokens[k][0]);
 		    }
 
 		    matchFound = true;
@@ -109,7 +115,22 @@ var TreeFromNewick = Object.create(Tree, {
     doParse: {value: function(tokenList) {
 
 	var idx = 0;
+	var indent = 0;
+
 	var root = ruleT();
+
+	return root;
+
+
+	function indentLog(string) {
+
+	    // String doesn't have a repeat method.  (Seriously!?)
+	    var spaces = "";
+	    for (var i=0; i<indent; i++)
+		spaces += " ";
+
+	    console.log(spaces + string);
+	}
 
 	function acceptToken(token, mandatory) {
 	    if (tokenList[idx][0] == token) {
@@ -141,20 +162,32 @@ var TreeFromNewick = Object.create(Tree, {
 	    ruleL(node);
 	    ruleA(node);
 	    ruleH(node);
+
+	    return node;
 	}
 
 	// C -> (NM)|eps
 	function ruleC(node) {
 	    if (acceptToken("OPENP", false)) {
+
+		indentLog("(");
+		indent += 1;
+
 		ruleN(node);
 		ruleM(node);
 		acceptToken("CLOSEP", true);
+
+		indent -= 1;
+		indentLog(")");
 	    }
 	}
 
 	// M -> ,NM|eps
 	function ruleM(node) {
 	    if (acceptToken("COMMA", false)) {
+		
+		indentLog(",");
+		
 		ruleN(node);
 		ruleM(node);
 	    }
@@ -162,15 +195,57 @@ var TreeFromNewick = Object.create(Tree, {
 
 	// L -> lab|num
 	function ruleL(node) {
+	    if (acceptToken("LABEL", false) || acceptToken("NUM", false)) {
+		node.label = tokenList[idx-1][1];
+
+		indentLog(node.label);
+	    }
 	}
 
 	// A -> [&DE]|eps
+	function ruleA(node) {
+	    if (acceptToken("OPENA", false)) {
+		ruleD(node);
+		ruleE(node);
+		acceptToken("CLOSEA", true);
+	    }
+	}
 
-	// D -> lab=num|lab |eps
+	// D -> lab=V|eps
+	function ruleD(node) {
+	    acceptToken("LABEL", true);
+	    var key = tokenList[idx-1][1];
+	    acceptToken("EQ", true);
 
+	    var value = undefined;
+	    if (acceptToken("NUM") || acceptToken("STRING") || acceptToken("LABEL"))
+		var value = tokenList[idx-1][1]
+	    else
+		throw "Expected number, label or string in annotation. Found " + tokenList[idx][0] + " instead.";
+
+	    node.annotation[key] = value;
+	}
+	
 	// E -> ,DE|eps
+	function ruleE(node) {
+	    if (acceptToken("COMMA", false)) {
+		ruleD(node);
+		ruleE(node);
+	    }
+	}
 
 	// H -> :num|eps
+	function ruleH(node) {
+	    if (acceptToken("COLON", false)) {
+		acceptToken("NUM", true);
+		var parentHeight = 0;
+		if (node.parent != undefined)
+		    parentHeight = node.parent.height;
+		node.height = parentHeight - (1*tokenList[idx-1][1]);
+
+		indentLog(":"+tokenList[idx-1][1]);
+	    }
+	}
     }}
 
 });
@@ -184,5 +259,4 @@ function main() {
     console.log("Done!");
 
     console.log(tree);
-
 }

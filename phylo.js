@@ -25,18 +25,42 @@ var Node = {
 
     isRoot: function() {
 	return (this.parent == undefined);
+    },
+
+    isLeaf: function() {
+	return (this.children.length == 0);
+    },
+
+    getNodesInSubtree: function() {
+	var nodeList = [this];
+	for (var i=0; i<this.children.length; i++)
+	    nodeList = nodeList.concat(this.children[i].getNodesInSubtree())
+
+	return nodeList;
     }
 };
 
 // Tree prototype object
 var Tree = {
     root: undefined,
+    nodeList: [],
 
     // Initialiser
     init: function(root) {
 	this.root = root;
+	this.nodeList = [];
 
 	return(this);
+    },
+
+    // Retrieve list of nodes in tree.
+    // (Should use accessor function for this.)
+    getNodeList: function() {
+	if (this.nodeList.length == 0 && this.root != undefined) {
+	    this.nodeList = this.root.getNodesInSubtree();
+	}
+
+	return this.nodeList;
     }
 }
 
@@ -90,10 +114,10 @@ var TreeFromNewick = Object.create(Tree, {
 
 		    if (this.tokens[k][2]) {
 			tokenList.push([this.tokens[k][0],match[0]]);
-			console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
+			//console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
 		    } else {
 			tokenList.push([this.tokens[k][0]]);
-			console.log(idx + " " + this.tokens[k][0]);
+			//console.log(idx + " " + this.tokens[k][0]);
 		    }
 
 		    matchFound = true;
@@ -114,14 +138,14 @@ var TreeFromNewick = Object.create(Tree, {
     // Assemble tree from token list
     doParse: {value: function(tokenList) {
 
-	var idx = 0;
-	var indent = 0;
+	var youngestHeight = 0.0;
 
+	var idx = 0;
 	var root = ruleT();
 
 	return root;
 
-
+	var indent = 0;
 	function indentLog(string) {
 
 	    // String doesn't have a repeat method.  (Seriously!?)
@@ -170,15 +194,15 @@ var TreeFromNewick = Object.create(Tree, {
 	function ruleC(node) {
 	    if (acceptToken("OPENP", false)) {
 
-		indentLog("(");
-		indent += 1;
+		//indentLog("(");
+		//indent += 1;
 
 		ruleN(node);
 		ruleM(node);
 		acceptToken("CLOSEP", true);
 
-		indent -= 1;
-		indentLog(")");
+		//indent -= 1;
+		//indentLog(")");
 	    }
 	}
 
@@ -186,7 +210,7 @@ var TreeFromNewick = Object.create(Tree, {
 	function ruleM(node) {
 	    if (acceptToken("COMMA", false)) {
 		
-		indentLog(",");
+		//indentLog(",");
 		
 		ruleN(node);
 		ruleM(node);
@@ -198,7 +222,7 @@ var TreeFromNewick = Object.create(Tree, {
 	    if (acceptToken("LABEL", false) || acceptToken("NUM", false)) {
 		node.label = tokenList[idx-1][1];
 
-		indentLog(node.label);
+		//indentLog(node.label);
 	    }
 	}
 
@@ -242,12 +266,15 @@ var TreeFromNewick = Object.create(Tree, {
 	function ruleH(node) {
 	    if (acceptToken("COLON", false)) {
 		acceptToken("NUM", true);
+
 		var parentHeight = 0;
 		if (node.parent != undefined)
 		    parentHeight = node.parent.height;
-		node.height = parentHeight - (1*tokenList[idx-1][1]);
 
-		indentLog(":"+tokenList[idx-1][1]);
+		node.height = parentHeight - (1*tokenList[idx-1][1]);
+		youngestHeight = Math.min(youngestHeight, node.height);
+
+		//indentLog(":"+tokenList[idx-1][1]);
 	    }
 	}
     }}
@@ -260,7 +287,6 @@ function main() {
     var newickString = document.getElementById("newickInput").innerHTML;
     newickString = newickString.replace(/&amp;/g,"&");
     var tree = Object.create(TreeFromNewick).init(newickString);
-    console.log("Done!");
 
-    console.log(tree);
+    console.log("Successfully parsed tree with " + tree.getNodeList().length + " nodes.");
 }

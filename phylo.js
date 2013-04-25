@@ -90,6 +90,13 @@ var TreeFromNewick = Object.create(Tree, {
 	// Parse
 	this.root = this.doParse(tokenList);
 
+	// Make node heights positive:
+	var youngestHeight = 0;
+	for (var i=0; i<this.getNodeList().length; i++)
+	    youngestHeight = Math.min(youngestHeight, this.getNodeList()[i].height);
+	for (var i=0; i<this.getNodeList().length; i++)
+	    this.getNodeList()[i].height -= youngestHeight;
+
 	return (this);
     }},
 
@@ -138,13 +145,10 @@ var TreeFromNewick = Object.create(Tree, {
     // Assemble tree from token list
     doParse: {value: function(tokenList) {
 
-	var youngestHeight = 0.0;
-
 	var idx = 0;
-	var root = ruleT();
-
-	return root;
-
+	return ruleT();
+	
+	/*
 	var indent = 0;
 	function indentLog(string) {
 
@@ -155,6 +159,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 	    console.log(spaces + string);
 	}
+	*/
 
 	function acceptToken(token, mandatory) {
 	    if (tokenList[idx][0] == token) {
@@ -272,7 +277,6 @@ var TreeFromNewick = Object.create(Tree, {
 		    parentHeight = node.parent.height;
 
 		node.height = parentHeight - (1*tokenList[idx-1][1]);
-		youngestHeight = Math.min(youngestHeight, node.height);
 
 		//indentLog(":"+tokenList[idx-1][1]);
 	    }
@@ -289,4 +293,6 @@ function main() {
     var tree = Object.create(TreeFromNewick).init(newickString);
 
     console.log("Successfully parsed tree with " + tree.getNodeList().length + " nodes.");
+
+    console.log(tree);
 }

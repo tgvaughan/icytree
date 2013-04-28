@@ -3,11 +3,18 @@
 <html>
   <head>
     <script src="phylo.js"></script>
+    <script src="phylo.vis.js"></script>
+    <script src="debug.js"></script>
   </head>
   <body>
     <textarea rows="5" cols="80" id="newickInput">
       ((((2[&type="X",time=0.0]:0.07772803504665432,4[&type="X",time=0.0]:0.07772803504665432)[&type="X",reaction="Coalescence",time=0.07772803504665432]:0.16373963298272784,1[&type="X",time=0.0]:0.24146766802938216)[&type="X",reaction="Coalescence",time=0.24146766802938216]:0.09495850967242744,5[&type="X",time=0.0]:0.3364261777018096)[&type="X",reaction="Coalescence",time=0.3364261777018096]:0.25462325234796634,3[&type="X",time=0.0]:0.591049430049776)[&type="X",reaction="Coalescence",time=0.591049430049776]:0.0;
     </textarea><br/>
     <button type="button" onclick="main()">Parse</button>
+
+    <hr/>
+
+    <div id="output"></div>
+
   </body>
 </html>

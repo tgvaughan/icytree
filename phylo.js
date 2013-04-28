@@ -6,16 +6,23 @@ var Node = Object.create({}, {
     height: {value: 0, writable: true, configurable: true, enumerable: true},
     label: {value: "", writable: true, configurable: true, enumerable: true},
     annotation: {value: {}, writable: true, configurable: true, enumerable: true},
+    idString: {value: "", writable: true, configurable: true, enumerable: true},
 
     // Initialiser
-    init: {value: function() {
+    init: {value: function(id) {
 	this.parent =  undefined;
 	this.children = [];
 	this.height = 0;
 	this.label = "";
 	this.annotation = {};
+	this.idString = "node#" + id;
 
 	return(this);
+    }},
+
+    // Ensure nodes with unique IDs have unique hashes.
+    toString: {value: function() {
+	return this.idString;
     }},
 
     addChild: {value: function(child) {
@@ -99,22 +106,12 @@ var TreeFromNewick = Object.create(Tree, {
 	// Parse
 	this.root = this.doParse(tokenList);
 
-	// Make node heights positive:
-	var heights = this.root.applyPreOrder(function(node) {
-	    if (node.parent == undefined)
-		node.height = 0.0;
-	    else
-		node.height = node.parent.height - node.height;
-
-	    return node.height;
-	});
-	var youngestHeight = Math.min.apply(null, heights);
-
-	for (var i=0; i<this.getNodeList().length; i++)
-	    this.getNodeList()[i].height -= youngestHeight;
+	// Branch lengths to node heights
+	this.branchLengthsToNodeHeights();
 
 	return this;
     }},
+
 
     tokens: {value: [
 	["OPENP", /\(/, false],
@@ -175,10 +172,13 @@ var TreeFromNewick = Object.create(Tree, {
     // Assemble tree from token list
     doParse: {value: function(tokenList) {
 
+	var thisNodeID = 0;
+
 	var idx = 0;
-	var indent = 0;
+	//var indent = 0;
 	return ruleT();
 
+/*
 	function indentLog(string) {
 
 	    // String doesn't have a repeat method.  (Seriously!?)
@@ -188,6 +188,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 	    console.log(spaces + string);
 	}
+*/
 
 	function acceptToken(token, mandatory) {
 	    if (tokenList[idx][0] == token) {
@@ -211,7 +212,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 	// N -> CLAH
 	function ruleN(parent) {
-	    var node = Object.create(Node).init();
+	    var node = Object.create(Node).init(thisNodeID++);
 	    if (parent != undefined)
 		parent.addChild(node);
 
@@ -227,15 +228,15 @@ var TreeFromNewick = Object.create(Tree, {
 	function ruleC(node) {
 	    if (acceptToken("OPENP", false)) {
 
-		indentLog("(");
-		indent += 1;
+		//indentLog("(");
+		//indent += 1;
 
 		ruleN(node);
 		ruleM(node);
 		acceptToken("CLOSEP", true);
 
-		indent -= 1;
-		indentLog(")");
+		//indent -= 1;
+		//indentLog(")");
 	    }
 	}
 
@@ -243,7 +244,7 @@ var TreeFromNewick = Object.create(Tree, {
 	function ruleM(node) {
 	    if (acceptToken("COMMA", false)) {
 		
-		indentLog(",");
+		//indentLog(",");
 		
 		ruleN(node);
 		ruleM(node);
@@ -255,7 +256,7 @@ var TreeFromNewick = Object.create(Tree, {
 	    if (acceptToken("LABEL", false) || acceptToken("NUM", false)) {
 		node.label = tokenList[idx-1][1];
 
-		indentLog(node.label);
+		//indentLog(node.label);
 	    }
 	}
 
@@ -302,24 +303,26 @@ var TreeFromNewick = Object.create(Tree, {
 
 		node.height = 1*tokenList[idx-1][1];
 
-		indentLog(":"+tokenList[idx-1][1]);
+		//indentLog(":"+tokenList[idx-1][1]);
 	    }
 	}
+    }},
+
+
+    // Convert branch lengths to node heights
+    branchLengthsToNodeHeights: {value: function() {
+	var heights = this.root.applyPreOrder(function(node) {
+	    if (node.parent == undefined)
+		node.height = 0.0;
+	    else
+		node.height = node.parent.height - node.height;
+
+	    return node.height;
+	});
+	var youngestHeight = Math.min.apply(null, heights);
+
+	for (var i=0; i<this.getNodeList().length; i++)
+	    this.getNodeList()[i].height -= youngestHeight;
     }}
 
 });
-
-// Main for testing
-function main() {
-    
-    var newickString = document.getElementById("newickInput").innerHTML;
-    newickString = newickString.replace(/&amp;/g,"&");
-    var tree = Object.create(TreeFromNewick).init(newickString);
-
-    console.log("Successfully parsed tree with "
-		+ tree.getNodeList().length + " nodes and "
-		+ tree.getLeafList().length + " leaves.");
-
-    console.log(tree);
-
-}

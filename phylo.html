@@ -4,19 +4,45 @@
   <head>
     <script src="phylo.js"></script>
     <script src="phylo.vis.js"></script>
-    <script src="debug.js"></script>
+
+    <script>
+      function main() {
+    
+        var newickString = document.getElementById("newickInput").value;
+        newickString = newickString.replace(/&amp;/g,"&");
+        var tree = Object.create(TreeFromNewick).init(newickString);
+
+        console.log("Successfully parsed tree with "
+                + tree.getNodeList().length + " nodes and "
+                + tree.getLeafList().length + " leaves.");
+
+        var layout = Object.create(Layout).init(tree).standard();
+      
+        var oldElement = document.getElementById("SVG");
+        if (oldElement != null)
+          oldElement.parentNode.removeChild(oldElement);
+
+        var width = Math.max(window.innerWidth*0.9, 100);
+        var height = Math.max(window.innerHeight-200, 200);
+
+        var svg = layout.display(width, height);
+        document.getElementById("output").appendChild(svg);
+        console.log(svg.innerHTML);
+      }
+    </script>
+
   </head>
   <body>
-    <textarea rows="5" cols="80" id="newickInput">
+    <div id="controls">
+    <textarea  id="newickInput">
       ((((2[&type="X",time=0.0]:0.07772803504665432,4[&type="X",time=0.0]:0.07772803504665432)[&type="X",reaction="Coalescence",time=0.07772803504665432]:0.16373963298272784,1[&type="X",time=0.0]:0.24146766802938216)[&type="X",reaction="Coalescence",time=0.24146766802938216]:0.09495850967242744,5[&type="X",time=0.0]:0.3364261777018096)[&type="X",reaction="Coalescence",time=0.3364261777018096]:0.25462325234796634,3[&type="X",time=0.0]:0.591049430049776)[&type="X",reaction="Coalescence",time=0.591049430049776]:0.0;
     </textarea><br/>
-    <button type="button" onclick="main()">Parse</button>
+    <button type="button" onclick="main()">Update</button>
+    </div>
 
     <hr/>
 
-    <center>
     <div id="output"></div>
-    </center>
 
   </body>
 </html>

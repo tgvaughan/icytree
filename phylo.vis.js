@@ -82,6 +82,17 @@ var Layout = Object.create({}, {
 	    var ypos = (1-nodePos[0])*(height - 2*ymargin) + ymargin;
 	    return [xpos, ypos];
 	}
+
+	function newLine(x1,y1,x2,y2,linecol,linewidth) {
+	    var line = document.createElementNS(NS, "line");
+	    line.setAttribute("x1", x1);
+	    line.setAttribute("y1", y1);
+	    line.setAttribute("x2", x2);
+	    line.setAttribute("y2", y2);
+	    line.setAttribute("stroke", linecol);
+	    line.setAttribute("stroke-width", linewidth);
+	    return line;
+	}
 	
 	for (var i=0; i<this.tree.getNodeList().length; i++) {
 	    var thisNode = this.tree.getNodeList()[i];
@@ -89,23 +100,13 @@ var Layout = Object.create({}, {
 
 	    if (!thisNode.isRoot()) {
 		var parentPos = nodePosXform(this.nodePositions[thisNode.parent]);
-		var line = document.createElementNS(NS, "line");
-		line.setAttribute("x1", thisPos[0]);
-		line.setAttribute("y1", thisPos[1]);
-		line.setAttribute("x2", parentPos[0]);
-		line.setAttribute("y2", thisPos[1]);
-		line.setAttribute("stroke", "black");
-		line.setAttribute("stroke-width", "2");
-		svg.appendChild(line);
 
-		line = document.createElementNS(NS, "line");
-		line.setAttribute("x1", parentPos[0]);
-		line.setAttribute("y1", thisPos[1]);
-		line.setAttribute("x2", parentPos[0]);
-		line.setAttribute("y2", parentPos[1]);
-		line.setAttribute("stroke", "black");
-		line.setAttribute("stroke-width", "2");
-		svg.appendChild(line);
+		svg.appendChild(newLine(
+		    thisPos[0], thisPos[1], parentPos[0], thisPos[1],
+		    "black", 2));
+		svg.appendChild(newLine(
+		    parentPos[0], thisPos[1], parentPos[0], parentPos[1],
+		    "black", 2));
 	    }
 	}
 

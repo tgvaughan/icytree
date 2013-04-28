@@ -14,12 +14,14 @@ var Layout = Object.create({}, {
 
 	this.nodePositions = {};
 
+	var treeHeight = this.tree.root.height;
+
 	// Position leaves
 	var leaves = this.tree.getLeafList();
 	for (var i=0; i<leaves.length; i++) {
 	    this.nodePositions[leaves[i]] = [
 		i/(leaves.length-1),
-		leaves[i].height
+		leaves[i].height/treeHeight
 	    ];
 	}
 
@@ -36,7 +38,7 @@ var Layout = Object.create({}, {
  
 	    nodePositions[node] = [
 		xpos,
-		node.height
+		node.height/treeHeight
 	    ];
 
 	    return xpos;
@@ -47,7 +49,12 @@ var Layout = Object.create({}, {
     }},
 
     // Visualize tree on SVG object
+    // Currently assumes landscape, rectangular style.
+    // Need to generalise.
     display: {value: function(width, height) {
+
+	var xmargin = 0.05*width;
+	var ymargin = 0.05*height;
 
 	var NS="http://www.w3.org/2000/svg";
 
@@ -59,12 +66,48 @@ var Layout = Object.create({}, {
 
 	// Create border:
 	var border = document.createElementNS(NS, "rect");
-	border.setAttribute('width', 100);
-	border.setAttribute('height', 100);
+	border.setAttribute('width', width);
+	border.setAttribute('height', height);
 	border.setAttribute('fill', "none");
 	border.setAttribute('stroke', "gray");
-	border.setAttribute("stroke-width", "2");
+	border.setAttribute("stroke-width", "1");
 	svg.appendChild(border);
+
+	// Draw axis:
+
+	// Draw tree:
+
+	function nodePosXform(nodePos) {
+	    var xpos = (1-nodePos[1])*(width - 2*xmargin) + xmargin;
+	    var ypos = (1-nodePos[0])*(height - 2*ymargin) + ymargin;
+	    return [xpos, ypos];
+	}
+	
+	for (var i=0; i<this.tree.getNodeList().length; i++) {
+	    var thisNode = this.tree.getNodeList()[i];
+	    var thisPos = nodePosXform(this.nodePositions[thisNode]);
+
+	    if (!thisNode.isRoot()) {
+		var parentPos = nodePosXform(this.nodePositions[thisNode.parent]);
+		var line = document.createElementNS(NS, "line");
+		line.setAttribute("x1", thisPos[0]);
+		line.setAttribute("y1", thisPos[1]);
+		line.setAttribute("x2", parentPos[0]);
+		line.setAttribute("y2", thisPos[1]);
+		line.setAttribute("stroke", "black");
+		line.setAttribute("stroke-width", "2");
+		svg.appendChild(line);
+
+		line = document.createElementNS(NS, "line");
+		line.setAttribute("x1", parentPos[0]);
+		line.setAttribute("y1", thisPos[1]);
+		line.setAttribute("x2", parentPos[0]);
+		line.setAttribute("y2", parentPos[1]);
+		line.setAttribute("stroke", "black");
+		line.setAttribute("stroke-width", "2");
+		svg.appendChild(line);
+	    }
+	}
 
 	return svg;
     }}

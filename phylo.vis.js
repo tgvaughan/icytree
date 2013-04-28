@@ -62,9 +62,9 @@ var Layout = Object.create({}, {
 	var svg = document.createElementNS(NS, "svg");
 	svg.setAttribute('width', width);
 	svg.setAttribute('height', height);
-	svg.setAttribute("id", "SVG");
 
 	// Create border:
+	/*
 	var border = document.createElementNS(NS, "rect");
 	border.setAttribute('width', width);
 	border.setAttribute('height', height);
@@ -72,6 +72,7 @@ var Layout = Object.create({}, {
 	border.setAttribute('stroke', "gray");
 	border.setAttribute("stroke-width", "1");
 	svg.appendChild(border);
+	*/
 
 	// Draw axis:
 

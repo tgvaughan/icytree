@@ -2,15 +2,71 @@
 <meta charset="utf-8"/>
 <html>
   <head>
+    <title>DendrOgle</title>
+
     <script src="phylo.parse.js"></script>
     <script src="phylo.vis.js"></script>
-
     <script>
+      function deleteOldSVGElement() {
+        var oldElement = document.getElementById("SVG");
+        if (oldElement != null)
+          oldElement.parentNode.removeChild(oldElement);
+      }
+
+      function displayFrameWithText(string) {
+          deleteOldSVGElement();
+
+          var NS="http://www.w3.org/2000/svg";
+          var svg = document.createElementNS(NS, "svg");
+          svg.setAttribute("width", Math.max(window.innerWidth-250-5, 200));
+          svg.setAttribute("height", Math.max(window.innerHeight-5, 200));
+          svg.setAttribute("id", "SVG");
+
+          var rect = document.createElementNS(NS, "rect");
+          rect.setAttribute("x", 30);
+          rect.setAttribute("y", 30);
+          rect.setAttribute("width", Math.max(window.innerWidth-250-60, 200));
+          rect.setAttribute("height", Math.max(window.innerHeight-60, 200));
+          rect.setAttribute("rx", 15);
+          rect.setAttribute("ry", 15);
+          rect.setAttribute("fill", "none");
+          rect.setAttribute("stroke", "gray");
+          rect.setAttribute("stroke-width", 5);
+          rect.setAttribute("stroke-dasharray", "10,10");
+          svg.appendChild(rect);
+
+          var text = document.createElementNS(NS, "text");
+          var cx = Math.round((window.innerWidth-250)/2);
+          var cy = Math.round(window.innerHeight/2);
+          text.setAttribute("x", cx);
+          text.setAttribute("y", cy);
+          text.setAttribute("text-anchor", "middle");
+          text.setAttribute("fill", "gray");
+          text.setAttribute("font-family", "sans-serif");
+          text.setAttribute("font-size", "40pt");
+          text.textContent = string;
+          svg.appendChild(text);
+
+          document.getElementById("output").appendChild(svg);
+      }
+
       function main() {
     
         var newickString = document.getElementById("newickInput").value;
+
+        if (newickString.replace(/\s+/g,"").length==0) {
+          displayFrameWithText("no tree loaded");
+          return;
+        }
+
         newickString = newickString.replace(/&amp;/g,"&");
-        var tree = Object.create(TreeFromNewick).init(newickString);
+
+        try {
+          var tree = Object.create(TreeFromNewick).init(newickString);
+        } catch (e) {
+          displayFrameWithText("error parsing Newick string");
+          return;
+        }
 
         console.log("Successfully parsed tree with "
                 + tree.getNodeList().length + " nodes and "
@@ -18,29 +74,56 @@
 
         var layout = Object.create(Layout).init(tree).standard();
       
-        var oldElement = document.getElementById("SVG");
-        if (oldElement != null)
-          oldElement.parentNode.removeChild(oldElement);
-
-        var width = Math.max(window.innerWidth*0.9, 100);
-        var height = Math.max(window.innerHeight-200, 200);
+        var width = Math.max(window.innerWidth-250-5, 200);
+        var height = Math.max(window.innerHeight-5, 200);
 
         var svg = layout.display(width, height);
+
+        deleteOldSVGElement();
+        svg.setAttribute("id", "SVG");
         document.getElementById("output").appendChild(svg);
         console.log(svg.innerHTML);
       }
     </script>
 
-  </head>
-  <body>
-    <div id="controls">
-    <textarea  id="newickInput">
-      ((((2[&type="X",time=0.0]:0.07772803504665432,4[&type="X",time=0.0]:0.07772803504665432)[&type="X",reaction="Coalescence",time=0.07772803504665432]:0.16373963298272784,1[&type="X",time=0.0]:0.24146766802938216)[&type="X",reaction="Coalescence",time=0.24146766802938216]:0.09495850967242744,5[&type="X",time=0.0]:0.3364261777018096)[&type="X",reaction="Coalescence",time=0.3364261777018096]:0.25462325234796634,3[&type="X",time=0.0]:0.591049430049776)[&type="X",reaction="Coalescence",time=0.591049430049776]:0.0;
-    </textarea><br/>
-    <button type="button" onclick="main()">Update</button>
-    </div>
+    <style>
+      body {
+      margin: 0px;
+      }
 
-    <hr/>
+      #controls {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 250px;
+      height: 100%;
+      background-color: #f0f0f0;
+      }
+
+      ul {
+      list-style-type: none;
+      padding-left: 10px;
+      }
+
+      textarea {
+	width: 220px;
+      }
+
+      #output {
+      position: absolute;
+      top: 0px;
+      left: 250px;
+      }
+    </style>
+
+  </head>
+  <body onload="main()">
+    <div id="controls">
+      <ul>
+      <li><textarea id="newickInput" onchange="main()"></textarea></li>
+      <!--<li><button type="button" onclick="main()">Update</button></li>-->
+      </ul>
+    </div>
 
     <div id="output"></div>
 

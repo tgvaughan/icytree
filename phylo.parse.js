@@ -91,6 +91,36 @@ var Tree = Object.create({}, {
 	}
 
 	return this.leafList;
+    }},
+
+    // Sort nodes according to clade sizes.
+    sortNodes: {value: function(decending) {
+	if (this.root == undefined)
+	    return;
+
+	function sortNodesRecurse(node) {
+	    var size = 1;
+	    var childSizes = {};
+	    for (var i=0; i<node.children.length; i++) {
+		var thisChildSize = sortNodesRecurse(node.children[i]);
+		size += thisChildSize;
+		childSizes[node.children[i]] = thisChildSize;
+	    }
+
+	    node.children.sort(function(a,b) {
+		if (decending)
+		    return childSizes[b]-childSizes[a];
+		else
+		    return childSizes[a]-childSizes[b];
+	    })
+
+	    return size;
+	}
+	
+	sortNodesRecurse(this.root);
+
+	// Clear out-of-date leaf list
+	this.leafList = [];
     }}
 });
 

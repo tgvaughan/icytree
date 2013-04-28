@@ -50,7 +50,23 @@
           document.getElementById("output").appendChild(svg);
       }
 
+      function updateControls() {
+        // Update form elements:
+        if (!document.getElementById("sort").checked) {
+          document.getElementById("sortOrder").disabled = true;
+        } else {
+          document.getElementById("sortOrder").disabled = false;
+        }
+      }
+
+
+      /*******
+      * MAIN *
+      ********/
+
       function main() {
+
+        updateControls();
     
         var newickString = document.getElementById("newickInput").value;
 
@@ -72,6 +88,15 @@
                 + tree.getNodeList().length + " nodes and "
                 + tree.getLeafList().length + " leaves.");
 
+        if (document.getElementById("sort").checked) {
+          var sortOrderElement = document.getElementById("sortOrder");
+          console.log(sortOrderElement.selectedIndex);
+          if (sortOrderElement.options[sortOrderElement.selectedIndex].value=="ascending")
+            tree.sortNodes(false);
+          else
+            tree.sortNodes(true);
+        }
+
         var layout = Object.create(Layout).init(tree).standard();
       
         var width = Math.max(window.innerWidth-250-5, 200);
@@ -82,7 +107,7 @@
         deleteOldSVGElement();
         svg.setAttribute("id", "SVG");
         document.getElementById("output").appendChild(svg);
-        console.log(svg.innerHTML);
+
       }
     </script>
 
@@ -121,7 +146,11 @@
     <div id="controls">
       <ul>
       <li><textarea id="newickInput" onchange="main()"></textarea></li>
-      <!--<li><button type="button" onclick="main()">Update</button></li>-->
+      <li><input type="checkbox" checked="checked" onchange="main()" id="sort"/>sort nodes:
+	<select name="sortOrder" id="sortOrder" onchange="main()">
+	  <option value="decending">decending</option>
+	  <option value="ascending">ascending</option>
+	</select></li>
       </ul>
     </div>
 

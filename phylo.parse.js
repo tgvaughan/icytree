@@ -121,7 +121,36 @@ var Tree = Object.create({}, {
 
 	// Clear out-of-date leaf list
 	this.leafList = [];
+    }},
+
+    // Retrieve list of traits covering the entire tree:
+    getTraitList: {value: function() {
+	if (this.root == undefined)
+	    return [];
+
+	var traitList = [];
+
+	for (var trait in this.getLeafList()[0].annotation) {
+	    traitList = traitList.concat(trait);
+	}
+
+	for (var i=1; i<this.getLeafList().length; i++) {
+	    var thisTraitList = []
+	    for (var t=0; t<traitList.length; t++) {
+		if (this.getLeafList()[i].annotation.hasOwnProperty(traitList[t]))
+		    thisTraitList = thisTraitList.concat(traitList[t]);
+	    }
+	    traitList = thisTraitList;
+	    
+	    if (traitList.length==0) {
+		// Can stop here - no traits left.
+		break;
+	    }
+	}
+
+	return traitList;
     }}
+
 });
 
 // Prototype for trees constructed from Newick strings

@@ -57,6 +57,35 @@
         } else {
           document.getElementById("sortOrder").disabled = false;
         }
+
+       if (!document.getElementById("colour").checked) {
+          document.getElementById("colourTrait").disabled = true;
+       } else {
+          document.getElementById("colourTrait").disabled = false;
+       }
+      }
+
+      function updateTraitSelectors(traitList) {
+        // Update form elements containing trait selectors
+
+        var el = document.getElementById("colourTrait");
+
+        // Save currently selected element index:
+        var idx = el.selectedIndex;
+
+        // Clear old traits:
+        el.innerHTML = "";
+
+        for (var i=0; i<traitList.length; i++) {
+          var selector = document.createElement("option");
+          selector.setAttribute("value", traitList[i]);
+          selector.textContent = traitList[i];
+          el.appendChild(selector);
+        }
+
+        // Restore selected index:
+        if (idx>=0)
+          el.selectedIndex = idx;				  
       }
 
 
@@ -88,21 +117,34 @@
                 + tree.getNodeList().length + " nodes and "
                 + tree.getLeafList().length + " leaves.");
 
+        // Sort tree nodes
         if (document.getElementById("sort").checked) {
           var sortOrderElement = document.getElementById("sortOrder");
-          console.log(sortOrderElement.selectedIndex);
           if (sortOrderElement.options[sortOrderElement.selectedIndex].value=="ascending")
             tree.sortNodes(false);
           else
             tree.sortNodes(true);
         }
 
+        // Update trait selectors:
+        updateTraitSelectors(tree.getTraitList());
+
+	// Determine whether colouring required:
+	var colourTraitElement = document.getElementById("colourTrait");
+	var colourTrait = undefined;
+	if (document.getElementById("colour").checked) {
+	  if (colourTraitElement.selectedIndex>=0) {
+	    colourTrait = colourTraitElement.options[colourTraitElement.selectedIndex].value;
+	  }
+	}
+	
+
         var layout = Object.create(Layout).init(tree).standard();
       
         var width = Math.max(window.innerWidth-250-5, 200);
         var height = Math.max(window.innerHeight-5, 200);
 
-        var svg = layout.display(width, height);
+        var svg = layout.display(width, height, colourTrait);
 
         deleteOldSVGElement();
         svg.setAttribute("id", "SVG");
@@ -130,6 +172,10 @@
       padding-left: 10px;
       }
 
+      li {
+      padding-bottom: 10px;
+      }
+
       textarea {
 	width: 220px;
       }
@@ -151,6 +197,11 @@
 	  <option value="decending">decending</option>
 	  <option value="ascending">ascending</option>
 	</select></li>
+      <li><input type="checkbox" onchange="main()" id="colour"/>colour
+      by trait:
+	<select name="colourTrait" id="colourTrait" onchange="main()"
+		disabled="disabled">
+	</select>
       </ul>
     </div>
 

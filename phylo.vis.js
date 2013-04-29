@@ -2,9 +2,11 @@
 var Layout = Object.create({}, {
     tree: {value: undefined, writable: true, configurable: true, enumerable: true},
     nodePositions: {value: {}, writable: true, configurable: true, enumerable: true},
+    colourPallet: {value: [], writable: true, configurable: true, enumerable: true},
 
     init: {value: function(tree) {
 	this.tree = tree;
+	this.colourPallet = ["blue", "red", "green", "purple"];
 
 	return this;
     }},
@@ -51,10 +53,12 @@ var Layout = Object.create({}, {
     // Visualize tree on SVG object
     // Currently assumes landscape, rectangular style.
     // Need to generalise.
-    display: {value: function(width, height) {
+    display: {value: function(width, height, colourTrait) {
 
 	var xmargin = 0.05*width;
 	var ymargin = 0.05*height;
+
+	var seenTraitValues = [];
 
 	var NS="http://www.w3.org/2000/svg";
 
@@ -84,6 +88,21 @@ var Layout = Object.create({}, {
 	    return [xpos, ypos];
 	}
 
+	function selectColour(node, pallet) {
+	    if (colourTrait == undefined)
+		return "black";
+
+	    var traitValue = node.annotation[colourTrait];
+	    var idx = seenTraitValues.indexOf(traitValue);
+
+	    if (idx<0) {
+		seenTraitValues = seenTraitValues.concat(traitValue);
+		idx = seenTraitValues.length-1;
+	    }
+
+	    return pallet[idx%pallet.length];
+	}
+
 	function newLine(x1,y1,x2,y2,linecol,linewidth) {
 	    var line = document.createElementNS(NS, "line");
 	    line.setAttribute("x1", x1);
@@ -104,10 +123,10 @@ var Layout = Object.create({}, {
 
 		svg.appendChild(newLine(
 		    thisPos[0], thisPos[1], parentPos[0], thisPos[1],
-		    "black", 2));
+		    selectColour(thisNode, this.colourPallet), 2));
 		svg.appendChild(newLine(
 		    parentPos[0], thisPos[1], parentPos[0], parentPos[1],
-		    "black", 2));
+		    selectColour(thisNode, this.colourPallet), 2));
 	    }
 	}
 

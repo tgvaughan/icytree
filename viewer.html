@@ -95,10 +95,17 @@
 	<select name="colourTrait" id="colourTrait" onchange="update()"
 		disabled="disabled">
 	</select></li>
-      <li><input type="checkbox" id="tipText" checked="checked"
+      <li><input type="checkbox" id="tipText" checked="true"
 		 onchange="document.getElementById('tipTextTrait').disabled=!this.checked;
 			   update();"/>tip text:
 	<select name="tipTextTrait" id="tipTextTrait" onchange="update()">
+	  <option value="label">label</option>
+      </select></li>
+      <li><input type="checkbox" id="nodeText"
+		 onchange="document.getElementById('nodeTextTrait').disabled=!this.checked;
+			   update();"/>int. node text:
+	<select name="nodeTextTrait" id="nodeTextTrait" onchange="update()"
+		disabled="disabled">
 	  <option value="label">label</option>
       </select></li>
       <li>

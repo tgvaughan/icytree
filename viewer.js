@@ -65,7 +65,7 @@ function displayFrameWithText(string) {
 // Update form elements containing trait selectors
 function updateTraitSelectors(traitList) {
     
-    var elementIDs = ["colourTrait", "tipTextTrait"];
+    var elementIDs = ["colourTrait", "tipTextTrait", "nodeTextTrait"];
     for (var eidx=0; eidx<elementIDs.length; eidx++) {
         var el = document.getElementById(elementIDs[eidx]);
 	
@@ -76,7 +76,7 @@ function updateTraitSelectors(traitList) {
         el.innerHTML = "";
 	
         // Ensure first element is "label" if this is a text trait
-        if (elementIDs[eidx] == "tipTextTrait") {
+        if (elementIDs[eidx] != "colourTrait") {
             var selector = document.createElement("option");
             selector.setAttribute("value", "label");
             selector.textContent = "label";
@@ -190,6 +190,15 @@ function update() {
         }
     }
 
+    // Determine whether internal node labels are required:
+    var nodeTextTrait = undefined;
+    if (document.getElementById("nodeText").checked) {
+        var nodeTextTraitElement = document.getElementById("nodeTextTrait");
+        if (nodeTextTraitElement.selectedIndex>=0) {
+            nodeTextTrait = nodeTextTraitElement.options[nodeTextTraitElement.selectedIndex].value;
+        }
+    }
+
     // Create layout object:
     var layout = Object.create(Layout).init(tree).standard();
     
@@ -198,6 +207,7 @@ function update() {
     layout.height = Math.max(window.innerHeight-5, 200);
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
+    layout.nodeTextTrait = nodeTextTrait;
     
     // Display!
     var outputElement = document.getElementById("output");

@@ -2,12 +2,19 @@
 var Layout = Object.create({}, {
     tree: {value: undefined, writable: true, configurable: true, enumerable: true},
     nodePositions: {value: {}, writable: true, configurable: true, enumerable: true},
-    colourPallet: {value: [], writable: true, configurable: true, enumerable: true},
+
+    width: {value: 640, writable: true, configurable: true, enumerable: true},
+    height: {value: 480, writable: true, configurable: true, enumerable: true},
+
+    colourTrait: {value: undefined, writable: true, configurable: true, enumerable: true},
+    colourPallet: {value: ["blue", "red", "green", "purple"],
+		   writable: true, configurable: true, enumerable: true},
+
+    tipTextTrait: {value: "label", writable: true, configurable: true, enumerable: true},
+    nodeTextTrait: {value: "", writable: true, configurable: true, enumerable: true},
 
     init: {value: function(tree) {
 	this.tree = tree;
-	this.colourPallet = ["blue", "red", "green", "purple"];
-
 	return this;
     }},
 
@@ -53,51 +60,43 @@ var Layout = Object.create({}, {
     // Visualize tree on SVG object
     // Currently assumes landscape, rectangular style.
     // Need to generalise.
-    display: {value: function(width, height, colourTrait) {
+    display: {value: function() {
 
-	var xmargin = 0.05*width;
-	var ymargin = 0.05*height;
+	// Save this for inline functions:
+	var savedThis = this;
 
-	var seenTraitValues = [];
-
-	var NS="http://www.w3.org/2000/svg";
+	// Margins are 5% of total dimension.
+	var xmargin = 0.05*this.width;
+	var ymargin = 0.05*this.height;
 
 	// Create SVG element:
+	var NS="http://www.w3.org/2000/svg";
 	var svg = document.createElementNS(NS, "svg");
-	svg.setAttribute('width', width);
-	svg.setAttribute('height', height);
-
-	// Create border:
-	/*
-	var border = document.createElementNS(NS, "rect");
-	border.setAttribute('width', width);
-	border.setAttribute('height', height);
-	border.setAttribute('fill', "none");
-	border.setAttribute('stroke', "gray");
-	border.setAttribute("stroke-width", "1");
-	svg.appendChild(border);
-	*/
+	svg.setAttribute('width', this.width);
+	svg.setAttribute('height', this.height);
 
 	// Draw axis:
 
 	// Draw tree:
 
+	var seenColourTraitValues = [];
+
 	function nodePosXform(nodePos) {
-	    var xpos = (1-nodePos[1])*(width - 2*xmargin) + xmargin;
-	    var ypos = (1-nodePos[0])*(height - 2*ymargin) + ymargin;
+	    var xpos = (1-nodePos[1])*(savedThis.width - 2*xmargin) + xmargin;
+	    var ypos = (1-nodePos[0])*(savedThis.height - 2*ymargin) + ymargin;
 	    return [xpos, ypos];
 	}
 
 	function selectColour(node, pallet) {
-	    if (colourTrait == undefined)
+	    if (savedThis.colourTrait == undefined)
 		return "black";
 
-	    var traitValue = node.annotation[colourTrait];
-	    var idx = seenTraitValues.indexOf(traitValue);
+	    var traitValue = node.annotation[savedThis.colourTrait];
+	    var idx = seenColourTraitValues.indexOf(traitValue);
 
 	    if (idx<0) {
-		seenTraitValues = seenTraitValues.concat(traitValue);
-		idx = seenTraitValues.length-1;
+		seenColourTraitValues = seenColourTraitValues.concat(traitValue);
+		idx = seenColourTraitValues.length-1;
 	    }
 
 	    return pallet[idx%pallet.length];
@@ -127,6 +126,32 @@ var Layout = Object.create({}, {
 		svg.appendChild(newLine(
 		    parentPos[0], thisPos[1], parentPos[0], parentPos[1],
 		    selectColour(thisNode, this.colourPallet), 2));
+	    }
+	}
+
+	// Draw tip labels:
+
+	function newNodeText(node, string) {
+	    var pos = nodePosXform(savedThis.nodePositions[node]);
+
+	    var text = document.createElementNS(NS, "text");
+	    text.setAttribute("x", pos[0]);
+	    text.setAttribute("y", pos[1]);
+	    text.setAttribute("style", "vertical-align: middle");
+	    text.textContent = string;
+	    return text;
+	}
+
+	if (this.tipTextTrait != undefined) {
+	    for (var i=0; i<this.tree.getLeafList().length; i++) {
+		var thisNode = this.tree.getLeafList()[i];
+		var traitValue;
+		if (this.tipTextTrait == "label")
+		    traitValue = thisNode.label
+		else
+		    traitValue = thisNode.annotation[this.tipTextTrait];
+
+		svg.appendChild(newNodeText(thisNode, traitValue));
 	    }
 	}
 

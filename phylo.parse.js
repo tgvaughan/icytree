@@ -432,6 +432,9 @@ var getTreesFromString = function(string) {
 	    if (thisLine.toLowerCase() == "end;")
 		break;
 
+	    if (thisLine.toLowerCase().indexOf("tree") != 0)
+		continue;
+
 	    var eqIdx = thisLine.indexOf("=");
 	    if (eqIdx<0)
 		throw "Error parsing NEXUS";

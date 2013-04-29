@@ -6,7 +6,7 @@ var Node = Object.create({}, {
     height: {value: 0, writable: true, configurable: true, enumerable: true},
     label: {value: "", writable: true, configurable: true, enumerable: true},
     annotation: {value: {}, writable: true, configurable: true, enumerable: true},
-    idString: {value: "", writable: true, configurable: true, enumerable: true},
+    id: {value: undefined, writable: true, configurable: true, enumerable: true},
 
     // Initialiser
     init: {value: function(id) {
@@ -15,14 +15,14 @@ var Node = Object.create({}, {
 	this.height = 0;
 	this.label = "";
 	this.annotation = {};
-	this.idString = "node#" + id;
+	this.id = id;
 
 	return(this);
     }},
 
     // Ensure nodes with unique IDs have unique hashes.
     toString: {value: function() {
-	return this.idString;
+	return "node#" + this.id;
     }},
 
     addChild: {value: function(child) {
@@ -36,6 +36,22 @@ var Node = Object.create({}, {
 
     isLeaf: {value: function() {
 	return (this.children.length == 0);
+    }},
+
+    // Produce a deep copy of the clade below this node
+    copy: {value: function() {
+	
+	var nodeCopy = Object.create(Node).init(this.id);
+	nodeCopy.height = this.height;
+	nodeCopy.label = this.label;
+	for (var key in this.annotation)
+	    nodeCopy.annotation[key] = this.annotation[key];
+	nodeCopy.id = this.id;
+
+	for (var i=0; i<this.children.length; i++)
+	    nodeCopy.addChild(this.children[i].copy());
+
+	return nodeCopy;
     }},
 
     // Apply f() to each node in subtree
@@ -131,14 +147,14 @@ var Tree = Object.create({}, {
 	var traitList = [];
 
 	for (var trait in this.getLeafList()[0].annotation) {
-	    traitList = traitList.concat(trait);
+	    traitList.push(trait);
 	}
 
 	for (var i=1; i<this.getLeafList().length; i++) {
 	    var thisTraitList = []
 	    for (var t=0; t<traitList.length; t++) {
 		if (this.getLeafList()[i].annotation.hasOwnProperty(traitList[t]))
-		    thisTraitList = thisTraitList.concat(traitList[t]);
+		    thisTraitList.push(traitList[t]);
 	    }
 	    traitList = thisTraitList;
 	    
@@ -149,6 +165,11 @@ var Tree = Object.create({}, {
 	}
 
 	return traitList;
+    }},
+
+    // Return deep copy of tree:
+    copy: {value: function() {
+	return Object.create(Tree).init(this.root.copy());
     }}
 
 });
@@ -385,3 +406,49 @@ var TreeFromNewick = Object.create(Tree, {
     }}
 
 });
+
+// Function to read one or more trees from
+// a NEXUS or (as fall-back) a Newick formatted string
+var getTreesFromString = function(string) {
+
+    var trees = [];
+
+    var lines = string.split('\n');
+
+    if (lines[0].trim().toLowerCase() == "#nexus") {
+	// Parse as NEXUS file
+	var inTrees = false;
+	for (var i=0; i<lines.length; i++) {
+	    var thisLine = lines[i].trim();
+	    if (thisLine.length == 0)
+		continue;
+
+	    if (!inTrees) {
+		if (thisLine.toLowerCase() == "begin trees;")
+		    inTrees = true;
+		continue;
+	    }
+
+	    if (thisLine.toLowerCase() == "end;")
+		break;
+
+	    var eqIdx = thisLine.indexOf("=");
+	    if (eqIdx<0)
+		throw "Error parsing NEXUS";
+	    
+	    trees.push(Object.create(TreeFromNewick).init(thisLine.slice(eqIdx+1)));
+	}
+
+    } else {
+	// Parse as newline-delimited Newick strings
+	for (var i=0; i<lines.length; i++) {
+	    var thisLine = lines[i].trim();
+	    if (thisLine.length == 0)
+		continue;
+
+	    trees.push(Object.create(TreeFromNewick).init(thisLine));
+	}
+    }
+
+    return trees;
+}

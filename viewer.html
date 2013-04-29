@@ -56,37 +56,60 @@
       padding: 5px;
       text-align: center;
       }
+
+      #treeSelect {
+      border-top: solid gray 1px;
+      padding-top: 10px;
+      text-align: center;
+      }
     </style>
 
   </head>
-  <body onload="main()">
+  <body onload="update()">
     <div id="controls">
       <ul>
-      <li><div id="source">
-	  Paste Newick string here:
-	  <textarea id="pasteInput" onchange="main()" placeholder="newick string..."></textarea>
+      <li>
+	<div id="source">
+	  Paste NEXUS/Newick tree string here:
+	  <textarea id="pasteInput" placeholder="newick string..."
+		    onchange="pasteInputHandler()"></textarea>
 	  <div id="or">
 	    - OR -
 	  </div>
-	  Select NEXUS tree file here:
-	  <input type="file" id="fileInput" size="15" onchange="handleFileSelect()"/>
-	  </div>
+	  Select NEXUS/Newick tree file here:
+	  <input id="fileInput" type="file" size="15" style="width: 220px"
+		 onchange="fileInputHandler()"/>
+	</div>
       </li>
-      <li><input type="checkbox" checked="checked" onchange="main()" id="sort"/>sort nodes:
-	<select name="sortOrder" id="sortOrder" onchange="main()">
+      <li><input type="checkbox" checked="checked" id="sort"
+		 onchange="document.getElementById('sortOrder').disabled=!this.checked;
+			   update();"/>sort nodes:
+	<select name="sortOrder" id="sortOrder" onchange="update()">
 	  <option value="decending">decending</option>
 	  <option value="ascending">ascending</option>
 	</select>
       </li>
-      <li><input type="checkbox" onchange="main()" id="colour"/>colour
-      by trait:
-	<select name="colourTrait" id="colourTrait" onchange="main()"
+      <li><input type="checkbox" id="colour"
+		 onchange="document.getElementById('colourTrait').disabled=!this.checked;
+			   update();"/>colour by trait:
+	<select name="colourTrait" id="colourTrait" onchange="update()"
 		disabled="disabled">
 	</select></li>
-      <li><input type="checkbox" onchange="main()" id="tipText"/>tip text:
-	<select name="tipTextTrait" id="tipTextTrait" onchange="main()">
+      <li><input type="checkbox" id="tipText" checked="checked"
+		 onchange="document.getElementById('tipTextTrait').disabled=!this.checked;
+			   update();"/>tip text:
+	<select name="tipTextTrait" id="tipTextTrait" onchange="update()">
 	  <option value="label">label</option>
       </select></li>
+      <li>
+	<div id="treeSelect">
+	  <div id="treeCounter"></div>
+	  <button id="prevTree" type="button" disabled="true"
+		  onclick="currentTreeIdx-=1; update()">Prev</button>
+	  <button id="nextTree" type="button" disabled="true"
+		  onclick="currentTreeIdx+=1; update()">Next</button>
+	</div>
+      </li>
       </ul>
     </div>
 

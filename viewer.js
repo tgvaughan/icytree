@@ -1,14 +1,33 @@
-window.onresize = main;
-      
-function deleteOldSVGElement() {
-    var oldElement = document.getElementById("SVG");
-    if (oldElement != null)
-        oldElement.parentNode.removeChild(oldElement);
+window.onresize = update;
+
+// Global variables
+var treeData = "";
+var trees = [];
+var currentTreeIdx = 0;
+
+function fileInputHandler() {
+    var reader = new FileReader();
+    reader.onload = fileLoaded;
+    reader.readAsText(document.getElementById("fileInput").files[0]);
+
+    function fileLoaded(evt) {
+	treeData = evt.target.result;
+	reloadTreeData();
+    }
 }
 
+function pasteInputHandler() {
+    treeData = document.getElementById("pasteInput").value;
+    reloadTreeData();
+}
+
+// Display space-filling frame with big text
 function displayFrameWithText(string) {
-    deleteOldSVGElement();
+
+    // Delete old SVG element
+    document.getElementById("output").innerHTML = "";
     
+    // Create new element:
     var NS="http://www.w3.org/2000/svg";
     var svg = document.createElementNS(NS, "svg");
     svg.setAttribute("width", Math.max(window.innerWidth-250-5, 200));
@@ -43,29 +62,8 @@ function displayFrameWithText(string) {
     document.getElementById("output").appendChild(svg);
 }
 
-function updateControls() {
-    // Update form elements:
-    if (!document.getElementById("sort").checked) {
-        document.getElementById("sortOrder").disabled = true;
-    } else {
-        document.getElementById("sortOrder").disabled = false;
-    }
-    
-    if (!document.getElementById("colour").checked) {
-        document.getElementById("colourTrait").disabled = true;
-    } else {
-        document.getElementById("colourTrait").disabled = false;
-    }
-    
-    if (!document.getElementById("tipText").checked) {
-        document.getElementById("tipTextTrait").disabled = true;
-    } else {
-        document.getElementById("tipTextTrait").disabled = false;
-    }
-}
-
+// Update form elements containing trait selectors
 function updateTraitSelectors(traitList) {
-    // Update form elements containing trait selectors
     
     var elementIDs = ["colourTrait", "tipTextTrait"];
     for (var eidx=0; eidx<elementIDs.length; eidx++) {
@@ -98,34 +96,69 @@ function updateTraitSelectors(traitList) {
     }
 }
 
+// Ensure current tree index is within bounds and
+// keeps "spin control" up to date
+function updateCurrentTreeIdx() {
 
-/*******
- * MAIN *
- ********/
+    if (currentTreeIdx>trees.length-1)
+	currentTreeIdx = trees.length-1;
+    else if (currentTreeIdx<0)
+	currentTreeIdx = 0;
 
-function main() {
+    if (currentTreeIdx<=0)
+	document.getElementById("prevTree").disabled = true;
+    else
+	document.getElementById("prevTree").disabled = false;
 
-    updateControls();
-    
-    var newickString = document.getElementById("pasteInput").value;
-    
-    if (newickString.replace(/\s+/g,"").length==0) {
-        displayFrameWithText("no tree loaded");
-        return;
+    if (currentTreeIdx>=trees.length-1)
+	document.getElementById("nextTree").disabled = true;
+    else
+	document.getElementById("nextTree").disabled = false;
+
+    var counterEl = document.getElementById("treeCounter")
+    if (trees.length>1)
+	counterEl.textContent = "Tree number: " +
+	(currentTreeIdx+1) + " of " + trees.length;
+    else
+	counterEl.textContent = "";
+}
+
+
+function reloadTreeData() {
+
+    if (treeData.replace(/\s+/g,"").length==0) {
+        trees = [];
+	update();
     }
 
-    newickString = newickString.replace(/&amp;/g,"&");
-    
+    treeData = treeData.replace(/&amp;/g,"&");
+
     try {
-        var tree = Object.create(TreeFromNewick).init(newickString);
+        trees = getTreesFromString(treeData);
     } catch (e) {
-        displayFrameWithText("error parsing Newick string");
+        displayFrameWithText("error parsing tree data");
         return;
     }
 
-    console.log("Successfully parsed tree with "
-                + tree.getNodeList().length + " nodes and "
-                + tree.getLeafList().length + " leaves.");
+    console.log("Successfully parsed " + trees.length + " trees.");
+    update();
+}
+
+
+function update() {
+
+
+    // Update tree index selector:
+    updateCurrentTreeIdx();
+
+    if (trees.length == 0) {
+	displayFrameWithText("no tree loaded");
+	return;
+    }
+
+    // Generate _copy_ of tree to draw.
+    // (Allows us to revert sorting operation.)
+    var tree = trees[currentTreeIdx].copy();
 
     // Sort tree nodes
     if (document.getElementById("sort").checked) {
@@ -140,7 +173,6 @@ function main() {
     updateTraitSelectors(tree.getTraitList());
     
     // Determine whether colouring is required:
-    
     var colourTrait = undefined;
     if (document.getElementById("colour").checked) {
         var colourTraitElement = document.getElementById("colourTrait");
@@ -157,17 +189,21 @@ function main() {
             tipTextTrait = tipTextTraitElement.options[tipTextTraitElement.selectedIndex].value;
         }
     }
-	
+
+    // Create layout object:
     var layout = Object.create(Layout).init(tree).standard();
     
+    // Assign chosen layout properties:
     layout.width = Math.max(window.innerWidth-250-5, 200);
     layout.height = Math.max(window.innerHeight-5, 200);
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     
+    // Display!
+    var outputElement = document.getElementById("output");
+    outputElement.innerHTML = "";
     var svg = layout.display();
-    deleteOldSVGElement();
     svg.setAttribute("id", "SVG");
-    document.getElementById("output").appendChild(svg);
+    outputElement.appendChild(svg);
     
 }

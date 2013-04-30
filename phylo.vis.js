@@ -104,16 +104,20 @@ var Layout = Object.create({}, {
 	    return pallet[idx%pallet.length];
 	}
 
-	function newLine(x1,y1,x2,y2,linecol,linewidth) {
-	    var line = document.createElementNS(NS, "line");
-	    line.setAttribute("x1", x1);
-	    line.setAttribute("y1", y1);
-	    line.setAttribute("x2", x2);
-	    line.setAttribute("y2", y2);
-	    line.setAttribute("stroke", linecol);
-	    line.setAttribute("stroke-width", linewidth);
-	    return line;
+	function newBranch(childPos, parentPos, linecol, linewidth) {
+	    var pathStr = "M " + childPos[0] + " " + childPos[1];
+	    pathStr += " H " + parentPos[0]
+	    pathStr += " V" + parentPos[1];
+	    var path = document.createElementNS(NS, "path");
+	    path.setAttribute("d", pathStr);
+	    path.setAttribute("fill", "none");
+	    path.setAttribute("stroke", linecol);
+	    path.setAttribute("stroke-width", linewidth);
+	    return path;
 	}
+
+
+	// Draw tree edges:
 	
 	for (var i=0; i<this.tree.getNodeList().length; i++) {
 	    var thisNode = this.tree.getNodeList()[i];
@@ -121,13 +125,8 @@ var Layout = Object.create({}, {
 
 	    if (!thisNode.isRoot()) {
 		var parentPos = nodePosXform(this.nodePositions[thisNode.parent]);
-
-		svg.appendChild(newLine(
-		    thisPos[0], thisPos[1], parentPos[0], thisPos[1],
-		    selectColour(thisNode, this.colourPallet), 2));
-		svg.appendChild(newLine(
-		    parentPos[0], thisPos[1], parentPos[0], parentPos[1],
-		    selectColour(thisNode, this.colourPallet), 2));
+		svg.appendChild(newBranch(thisPos, parentPos,
+					  selectColour(thisNode, this.colourPallet), 2));
 	    }
 	}
 

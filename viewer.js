@@ -14,6 +14,9 @@ function fileInputHandler() {
 	treeData = evt.target.result;
 	reloadTreeData();
     }
+
+    // Enable reload button:
+    document.getElementById("fileReload").disabled = false;
 }
 
 function pasteInputHandler() {

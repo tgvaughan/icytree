@@ -70,7 +70,7 @@
 
   </head>
 
-  <body onload="update()">
+  <body onload="initialise()">
 
     <!-- Control pannel -->
     <div id="controls">
@@ -87,7 +87,7 @@
 	  <input id="fileInput" type="file" size="15" style="width: 220px"
 		 onchange="fileInputHandler()"/>
 	  <button id="fileReload" type="button" disabled="true"
-		  onclick="fileInputHandler()">Reload File</button>
+		  onclick="loadFile()">Reload File</button>
 	</div>
       </li>
       <li><input type="checkbox" checked="checked" id="sort"

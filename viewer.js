@@ -1,14 +1,45 @@
 window.onresize = update;
 
 // Global variables
+var treeFile = undefined;;
 var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
 
 function fileInputHandler() {
+    treeFile = document.getElementById("fileInput").files[0];
+
+    // Enable reload button:
+    document.getElementById("fileReload").disabled = false;
+
+    loadFile();
+}
+
+function pasteInputHandler() {
+    treeData = document.getElementById("pasteInput").value;
+
+    // Disable reload button:
+    document.getElementById("fileReload").disabled = true;
+
+    reloadTreeData();
+}
+
+function dropInputHandler(event) {
+    event.preventDefault();
+
+    treeFile = event.dataTransfer.files[0];
+
+    // Enable reload
+    document.getElementById("fileReload").disabled = false;
+
+    loadFile();
+}
+
+// Load tree data from file object treeFile
+function loadFile() {
     var reader = new FileReader();
     reader.onload = fileLoaded;
-    reader.readAsText(document.getElementById("fileInput").files[0]);
+    reader.readAsText(treeFile);
 
     function fileLoaded(evt) {
 	treeData = evt.target.result;
@@ -17,14 +48,11 @@ function fileInputHandler() {
 
     // Enable reload button:
     document.getElementById("fileReload").disabled = false;
-}
 
-function pasteInputHandler() {
-    treeData = document.getElementById("pasteInput").value;
-    reloadTreeData();
 }
 
 // Display space-filling frame with big text
+// TODO: replace this with CSS - SVG is overkill
 function displayFrameWithText(string) {
 
     // Delete old SVG element
@@ -126,7 +154,7 @@ function updateCurrentTreeIdx() {
 	counterEl.textContent = "";
 }
 
-
+// Update object representation of tree data from string
 function reloadTreeData() {
 
     if (treeData.replace(/\s+/g,"").length==0) {
@@ -154,8 +182,8 @@ function exportSVG() {
     window.open(dataURI);
 }
 
+// Update display according to current tree model and display settings
 function update() {
-
 
     // Update tree index selector:
     updateCurrentTreeIdx();
@@ -228,4 +256,22 @@ function update() {
 
     // Enable export button:
     document.getElementById("exportSVG").disabled = false;
+}
+
+// Add event listeners, call first update()
+function initialise() {
+
+	var output = document.getElementById("output");
+
+	output.addEventListener("dragover", function(event) {
+		event.preventDefault();
+		return false;
+	});
+	output.addEventListener("dragend", function(event) {
+		event.preventDefault();
+		return false;
+	});
+	output.addEventListener("drop", dropInputHandler);
+
+	update();
 }

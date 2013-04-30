@@ -20,11 +20,13 @@
       width: 250px;
       height: 100%;
       background-color: #f0f0f0;
+      padding-left: 10px;
+      padding-right: 10px;
       }
 
       ul {
       list-style-type: none;
-      padding-left: 10px;
+      padding: 0px;
       }
 
       li {
@@ -38,22 +40,16 @@
         width: 320px;
       }
 
-      #output {
-      position: absolute;
-      top: 0px;
-      left: 250px;
-      }
-
       #source {
-      padding-bottom: 10px;
-      padding-right: 10px;
-      margin-right: 10px;
       border-bottom: solid gray 1px;
+      padding-bottom: 10px;
       font-size: small;
       }
 
       #or {
-      padding: 5px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      padding-right: 10px;
       text-align: center;
       }
 
@@ -64,10 +60,19 @@
       padding-bottom: 10px;
       text-align: center;
       }
+
+      #output {
+      position: absolute;
+      top: 0px;
+      left: 250px;
+      }
     </style>
 
   </head>
+
   <body onload="update()">
+
+    <!-- Control pannel -->
     <div id="controls">
       <ul>
       <li>
@@ -127,6 +132,7 @@
       </ul>
     </div>
 
+    <!-- Main output element -->
     <div id="output"></div>
 
   </body>

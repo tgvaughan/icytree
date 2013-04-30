@@ -11,7 +11,7 @@ var Layout = Object.create({}, {
 		   writable: true, configurable: true, enumerable: true},
 
     tipTextTrait: {value: "label", writable: true, configurable: true, enumerable: true},
-    nodeTextTrait: {value: "", writable: true, configurable: true, enumerable: true},
+    nodeTextTrait: {value: undefined, writable: true, configurable: true, enumerable: true},
 
     init: {value: function(tree) {
 	this.tree = tree;
@@ -72,6 +72,8 @@ var Layout = Object.create({}, {
 	// Create SVG element:
 	var NS="http://www.w3.org/2000/svg";
 	var svg = document.createElementNS(NS, "svg");
+	svg.setAttribute("xmlns", NS);
+	svg.setAttribute("version","1.1");
 	svg.setAttribute('width', this.width);
 	svg.setAttribute('height', this.height);
 
@@ -129,8 +131,6 @@ var Layout = Object.create({}, {
 	    }
 	}
 
-	// Draw tip labels:
-
 	function newNodeText(node, string) {
 	    var pos = nodePosXform(savedThis.nodePositions[node]);
 
@@ -142,6 +142,9 @@ var Layout = Object.create({}, {
 	    return text;
 	}
 
+
+	// Draw tip labels:
+
 	if (this.tipTextTrait != undefined) {
 	    for (var i=0; i<this.tree.getLeafList().length; i++) {
 		var thisNode = this.tree.getLeafList()[i];
@@ -150,6 +153,25 @@ var Layout = Object.create({}, {
 		    traitValue = thisNode.label
 		else
 		    traitValue = thisNode.annotation[this.tipTextTrait];
+
+		svg.appendChild(newNodeText(thisNode, traitValue));
+	    }
+	}
+
+
+	// Draw internal node labels:
+
+	if (this.nodeTextTrait != undefined) {
+	    for (var i=0; i<this.tree.getNodeList().length; i++) {
+		var thisNode = this.tree.getNodeList()[i];
+		if (thisNode.isLeaf())
+		    continue;
+
+		var traitValue;
+		if (this.nodeTextTrait == "label")
+		    traitValue = thisNode.label
+		else
+		    traitValue = thisNode.annotation[this.nodeTextTrait];
 
 		svg.appendChild(newNodeText(thisNode, traitValue));
 	    }

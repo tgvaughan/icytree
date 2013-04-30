@@ -72,6 +72,8 @@ var Layout = Object.create({}, {
 	// Create SVG element:
 	var NS="http://www.w3.org/2000/svg";
 	var svg = document.createElementNS(NS, "svg");
+	svg.setAttribute("xmlns", NS);
+	svg.setAttribute("version","1.1");
 	svg.setAttribute('width', this.width);
 	svg.setAttribute('height', this.height);
 

@@ -59,7 +59,9 @@
 
       #treeSelect {
       border-top: solid gray 1px;
+      border-bottom: solid gray 1px;
       padding-top: 10px;
+      padding-bottom: 10px;
       text-align: center;
       }
     </style>
@@ -117,6 +119,9 @@
 		  onclick="currentTreeIdx+=1; update()">Next</button>
 	</div>
       </li>
+	<button id="exportSVG" type="button" disabled="true"
+		onclick="exportSVG()">Export SVG</button>
+      <li>
       </ul>
     </div>
 

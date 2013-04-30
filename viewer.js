@@ -144,6 +144,12 @@ function reloadTreeData() {
     update();
 }
 
+// Converts SVG in output element to data URI for saving
+function exportSVG() {
+    var outputEl = document.getElementById("output");
+    var dataURI = "data:image/svg+xml;base64," + window.btoa(outputEl.innerHTML);
+    window.open(dataURI);
+}
 
 function update() {
 
@@ -153,6 +159,7 @@ function update() {
 
     if (trees.length == 0) {
 	displayFrameWithText("no tree loaded");
+	document.getElementById("exportSVG").disabled = true;
 	return;
     }
 
@@ -215,5 +222,7 @@ function update() {
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
     outputElement.appendChild(svg);
-    
+
+    // Enable export button:
+    document.getElementById("exportSVG").disabled = false;
 }

@@ -160,6 +160,7 @@ function reloadTreeData() {
     if (treeData.replace(/\s+/g,"").length==0) {
         trees = [];
 	update();
+	return;
     }
 
     treeData = treeData.replace(/&amp;/g,"&");

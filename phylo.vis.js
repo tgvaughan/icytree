@@ -27,11 +27,20 @@ var Layout = Object.create({}, {
 
 	// Position leaves
 	var leaves = this.tree.getLeafList();
-	for (var i=0; i<leaves.length; i++) {
-	    this.nodePositions[leaves[i]] = [
-		i/(leaves.length-1),
-		leaves[i].height/treeHeight
+
+	if (leaves.length==1) {
+	    // Special case for single-leaf trees
+	    this.nodePositions[leaves[0]] = [
+		0.5,
+		leaves[0].height/treeHeight
 	    ];
+	} else {
+	    for (var i=0; i<leaves.length; i++) {
+		this.nodePositions[leaves[i]] = [
+		    i/(leaves.length-1),
+		    leaves[i].height/treeHeight
+		];
+	    }
 	}
 
 	// Position internal nodes

@@ -384,6 +384,10 @@ var TreeFromNewick = Object.create(Tree, {
 		node.height = 1*tokenList[idx-1][1];
 
 		//indentLog(":"+tokenList[idx-1][1]);
+	    } else {
+
+		// Default branch length if none given
+		node.height = 1;
 	    }
 	}
     }},

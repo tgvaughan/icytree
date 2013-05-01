@@ -201,10 +201,12 @@ var TreeFromNewick = Object.create(Tree, {
 	["SEMI", /;/, false],
 	["OPENA", /\[&/, false],
 	["CLOSEA", /\]/, false],
+	["OPENV", /{/, false],
+	["CLOSEV", /}/, false],
 	["STRING", /"[^"]+"/, true],
 	["EQ", /=/, false],
 	["NUM", /-?\d+(\.\d+)?([Ee]-?\d+)?/, true],
-	["LABEL", /\w+/, true]
+	["LABEL", /[\w%.]+/, true]
     ], writeable: false, configurable: false},
 
     // Lexical analysis
@@ -258,7 +260,8 @@ var TreeFromNewick = Object.create(Tree, {
 	//var indent = 0;
 	return ruleT();
 
-/*
+
+	/*
 	function indentLog(string) {
 
 	    // String doesn't have a repeat method.  (Seriously!?)
@@ -268,7 +271,8 @@ var TreeFromNewick = Object.create(Tree, {
 
 	    console.log(spaces + string);
 	}
-*/
+	*/
+
 
 	function acceptToken(token, mandatory) {
 	    if (tokenList[idx][0] == token) {
@@ -349,23 +353,44 @@ var TreeFromNewick = Object.create(Tree, {
 	    }
 	}
 
-	// D -> lab=V|eps
+	// D -> lab=Q|eps
 	function ruleD(node) {
 	    acceptToken("LABEL", true);
 	    var key = tokenList[idx-1][1];
 	    acceptToken("EQ", true);
+	    var value = ruleQ();
 
+	    node.annotation[key] = value;
+
+	    //indentLog(key + "=" + value);
+	}
+
+	// Q -> num|string|[&QW]
+	function ruleQ() {
 	    var value = undefined;
+
 	    if (acceptToken("NUM", false) || acceptToken("LABEL", false))
 		value = tokenList[idx-1][1]
 	    
-	    else if (acceptToken("STRING", false)) {
+	    else if (acceptToken("STRING", false))
 		value = tokenList[idx-1][1].replace(/^"(.*)"$/, "$1");
 		    
+	    else if (acceptToken("OPENV", false)) {
+		value = [ruleQ()].concat(ruleW());
+		acceptToken("CLOSEV", true);
 	    } else
-		throw "Expected number, label or string in annotation. Found " + tokenList[idx][0] + " instead.";
+		throw "Expected number, label, string or vector in annotation. Found " + tokenList[idx][0] + " instead.";
 
-	    node.annotation[key] = value;
+	    return value;
+	}
+
+	// W -> ,QW|eps
+	function ruleW() {
+	    if (acceptToken("COMMA", false)) {
+		return [ruleQ()].concat(ruleW());
+	    }
+	    else
+		return [];
 	}
 	
 	// E -> ,DE|eps
@@ -439,11 +464,11 @@ var getTreesFromString = function(string) {
 	    if (thisLine.toLowerCase().indexOf("tree") != 0)
 		continue;
 
-	    var eqIdx = thisLine.indexOf("=");
+	    var eqIdx = thisLine.indexOf("(");
 	    if (eqIdx<0)
 		throw "Error parsing NEXUS";
 	    
-	    trees.push(Object.create(TreeFromNewick).init(thisLine.slice(eqIdx+1)));
+	    trees.push(Object.create(TreeFromNewick).init(thisLine.slice(eqIdx)));
 	}
 
     } else {

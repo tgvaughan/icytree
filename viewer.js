@@ -169,6 +169,7 @@ function reloadTreeData() {
         trees = getTreesFromString(treeData);
     } catch (e) {
         displayFrameWithText("error parsing tree data");
+	console.log(e);
         return;
     }
 

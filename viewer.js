@@ -165,9 +165,6 @@ function reloadTreeData() {
 
     treeData = treeData.replace(/&amp;/g,"&");
 
-    // Display loading screen
-
-
     // Parse tree string (can take a while)
     try {
         trees = getTreesFromString(treeData);

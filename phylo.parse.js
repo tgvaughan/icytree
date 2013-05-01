@@ -194,19 +194,19 @@ var TreeFromNewick = Object.create(Tree, {
 
 
     tokens: {value: [
-	["OPENP", /\(/, false],
-	["CLOSEP", /\)/, false],
-	["COLON", /:/, false],
-	["COMMA", /,/, false],
-	["SEMI", /;/, false],
-	["OPENA", /\[&/, false],
-	["CLOSEA", /\]/, false],
-	["OPENV", /{/, false],
-	["CLOSEV", /}/, false],
-	["STRING", /"[^"]+"/, true],
-	["EQ", /=/, false],
-	["NUM", /-?\d+(\.\d+)?([Ee]-?\d+)?/, true],
-	["LABEL", /[\w%.]+/, true]
+	["OPENP", /^\(/, false],
+	["CLOSEP", /^\)/, false],
+	["COLON", /^:/, false],
+	["COMMA", /^,/, false],
+	["SEMI", /^;/, false],
+	["OPENA", /^\[&/, false],
+	["CLOSEA", /^\]/, false],
+	["OPENV", /^{/, false],
+	["CLOSEV", /^}/, false],
+	["STRING", /^"[^"]+"/, true],
+	["EQ", /^=/, false],
+	["NUM", /^-?\d+(\.\d+)?([Ee]-?\d+)?/, true],
+	["LABEL", /^[\w%.]+/, true]
     ], writeable: false, configurable: false},
 
     // Lexical analysis
@@ -217,7 +217,7 @@ var TreeFromNewick = Object.create(Tree, {
 	while (idx<newick.length) {
 
 	    // Skip over whitespace:
-	    var wsMatch = newick.slice(idx).match(/\s/);
+	    var wsMatch = newick.slice(idx).match(/^\s/);
 	    if (wsMatch != null && wsMatch.index == 0) {
 		idx += wsMatch[0].length;
 		continue;

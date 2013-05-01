@@ -31,11 +31,11 @@ var Node = Object.create({}, {
     }},
 
     isRoot: {value: function() {
-	return (this.parent == undefined);
+	return (this.parent === undefined);
     }},
 
     isLeaf: {value: function() {
-	return (this.children.length == 0);
+	return (this.children.length === 0);
     }},
 
     // Produce a deep copy of the clade below this node
@@ -59,7 +59,7 @@ var Node = Object.create({}, {
 	var res = [];
 
 	var thisRes = f(this);
-	if (thisRes != null)
+	if (thisRes !== null)
 	    res = res.concat(thisRes);
 
 	for (var i=0; i<this.children.length; i++)
@@ -86,7 +86,7 @@ var Tree = Object.create({}, {
     // Retrieve list of nodes in tree.
     // (Should maybe use accessor function for this.)
     getNodeList: {value: function() {
-	if (this.nodeList.length == 0 && this.root != undefined) {
+	if (this.nodeList.length === 0 && this.root !== undefined) {
 	    this.nodeList = this.root.applyPreOrder(function(node) {
 		return node;
 	    });
@@ -97,7 +97,7 @@ var Tree = Object.create({}, {
 
     // Retrieve list of leaves in tree, in correct order.
     getLeafList: {value: function() {
-	if (this.leafList.length == 0 && this.root != undefined) {
+	if (this.leafList.length === 0 && this.root !== undefined) {
 	    this.leafList = this.root.applyPreOrder(function(node) {
 		if (node.isLeaf())
 		    return node;
@@ -111,7 +111,7 @@ var Tree = Object.create({}, {
 
     // Sort nodes according to clade sizes.
     sortNodes: {value: function(decending) {
-	if (this.root == undefined)
+	if (this.root === undefined)
 	    return;
 
 	function sortNodesRecurse(node) {
@@ -128,7 +128,7 @@ var Tree = Object.create({}, {
 		    return childSizes[b]-childSizes[a];
 		else
 		    return childSizes[a]-childSizes[b];
-	    })
+	    });
 
 	    return size;
 	}
@@ -141,7 +141,7 @@ var Tree = Object.create({}, {
 
     // Retrieve list of traits covering the entire tree:
     getTraitList: {value: function() {
-	if (this.root == undefined)
+	if (this.root === undefined)
 	    return [];
 
 	var traitList = [];
@@ -151,14 +151,14 @@ var Tree = Object.create({}, {
 	}
 
 	for (var i=1; i<this.getLeafList().length; i++) {
-	    var thisTraitList = []
+	    var thisTraitList = [];
 	    for (var t=0; t<traitList.length; t++) {
 		if (this.getLeafList()[i].annotation.hasOwnProperty(traitList[t]))
 		    thisTraitList.push(traitList[t]);
 	    }
 	    traitList = thisTraitList;
 	    
-	    if (traitList.length==0) {
+	    if (traitList.length===0) {
 		// Can stop here - no traits left.
 		break;
 	    }
@@ -218,7 +218,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 	    // Skip over whitespace:
 	    var wsMatch = newick.slice(idx).match(/^\s/);
-	    if (wsMatch != null && wsMatch.index == 0) {
+	    if (wsMatch !== null && wsMatch.index === 0) {
 		idx += wsMatch[0].length;
 		continue;
 	    }
@@ -226,7 +226,7 @@ var TreeFromNewick = Object.create(Tree, {
 	    var matchFound = false;
 	    for (var k = 0; k<this.tokens.length; k++) {
 		var match = newick.slice(idx).match(this.tokens[k][1]);
-		if (match != null && match.index == 0) {
+		if (match !== null && match.index === 0) {
 
 		    if (this.tokens[k][2]) {
 			tokenList.push([this.tokens[k][0],match[0]]);
@@ -237,7 +237,7 @@ var TreeFromNewick = Object.create(Tree, {
 		    }
 
 		    matchFound = true;
-		    idx += match[0].length
+		    idx += match[0].length;
 		    break;
 		}
 	    }
@@ -275,7 +275,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 
 	function acceptToken(token, mandatory) {
-	    if (tokenList[idx][0] == token) {
+	    if (tokenList[idx][0] === token) {
 		idx += 1;
 		return true;
 	    } else {
@@ -297,7 +297,7 @@ var TreeFromNewick = Object.create(Tree, {
 	// N -> CLAH
 	function ruleN(parent) {
 	    var node = Object.create(Node).init(thisNodeID++);
-	    if (parent != undefined)
+	    if (parent !== undefined)
 		parent.addChild(node);
 
 	    ruleC(node);
@@ -370,7 +370,7 @@ var TreeFromNewick = Object.create(Tree, {
 	    var value = undefined;
 
 	    if (acceptToken("NUM", false) || acceptToken("LABEL", false))
-		value = tokenList[idx-1][1]
+		value = tokenList[idx-1][1];
 	    
 	    else if (acceptToken("STRING", false))
 		value = tokenList[idx-1][1].replace(/^"(.*)"$/, "$1");
@@ -421,7 +421,7 @@ var TreeFromNewick = Object.create(Tree, {
     // Convert branch lengths to node heights
     branchLengthsToNodeHeights: {value: function() {
 	var heights = this.root.applyPreOrder(function(node) {
-	    if (node.parent == undefined)
+	    if (node.parent === undefined)
 		node.height = 0.0;
 	    else
 		node.height = node.parent.height - node.height;
@@ -444,24 +444,24 @@ var getTreesFromString = function(string) {
 
     var lines = string.split('\n');
 
-    if (lines[0].trim().toLowerCase() == "#nexus") {
+    if (lines[0].trim().toLowerCase() === "#nexus") {
 	// Parse as NEXUS file
 	var inTrees = false;
 	for (var i=0; i<lines.length; i++) {
 	    var thisLine = lines[i].trim();
-	    if (thisLine.length == 0)
+	    if (thisLine.length === 0)
 		continue;
 
 	    if (!inTrees) {
-		if (thisLine.toLowerCase() == "begin trees;")
+		if (thisLine.toLowerCase() === "begin trees;")
 		    inTrees = true;
 		continue;
 	    }
 
-	    if (thisLine.toLowerCase() == "end;")
+	    if (thisLine.toLowerCase() === "end;")
 		break;
 
-	    if (thisLine.toLowerCase().indexOf("tree") != 0)
+	    if (thisLine.toLowerCase().indexOf("tree") !== 0)
 		continue;
 
 	    var eqIdx = thisLine.indexOf("(");
@@ -475,7 +475,7 @@ var getTreesFromString = function(string) {
 	// Parse as newline-delimited Newick strings
 	for (var i=0; i<lines.length; i++) {
 	    var thisLine = lines[i].trim();
-	    if (thisLine.length == 0)
+	    if (thisLine.length === 0)
 		continue;
 
 	    trees.push(Object.create(TreeFromNewick).init(thisLine));
@@ -483,4 +483,4 @@ var getTreesFromString = function(string) {
     }
 
     return trees;
-}
+};

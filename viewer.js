@@ -107,7 +107,7 @@ function updateTraitSelectors(traitList) {
         el.innerHTML = "";
 	
         // Ensure first element is "label" if this is a text trait
-        if (elementIDs[eidx] != "colourTrait") {
+        if (elementIDs[eidx] !== "colourTrait") {
             var selector = document.createElement("option");
             selector.setAttribute("value", "label");
             selector.textContent = "label";
@@ -146,7 +146,7 @@ function updateCurrentTreeIdx() {
     else
 	document.getElementById("nextTree").disabled = false;
 
-    var counterEl = document.getElementById("treeCounter")
+    var counterEl = document.getElementById("treeCounter");
     if (trees.length>1)
 	counterEl.textContent = "Tree number: " +
 	(currentTreeIdx+1) + " of " + trees.length;
@@ -157,7 +157,7 @@ function updateCurrentTreeIdx() {
 // Update object representation of tree data from string
 function reloadTreeData() {
 
-    if (treeData.replace(/\s+/g,"").length==0) {
+    if (treeData.replace(/\s+/g,"").length === 0) {
         trees = [];
 	update();
 	return;
@@ -165,6 +165,10 @@ function reloadTreeData() {
 
     treeData = treeData.replace(/&amp;/g,"&");
 
+    // Display loading screen
+
+
+    // Parse tree string (can take a while)
     try {
         trees = getTreesFromString(treeData);
     } catch (e) {
@@ -190,7 +194,7 @@ function update() {
     // Update tree index selector:
     updateCurrentTreeIdx();
 
-    if (trees.length == 0) {
+    if (trees.length === 0) {
 	displayFrameWithText("no tree loaded");
 	document.getElementById("exportSVG").disabled = true;
 	return;
@@ -203,7 +207,7 @@ function update() {
     // Sort tree nodes
     if (document.getElementById("sort").checked) {
         var sortOrderElement = document.getElementById("sortOrder");
-        if (sortOrderElement.options[sortOrderElement.selectedIndex].value=="ascending")
+        if (sortOrderElement.options[sortOrderElement.selectedIndex].value === "ascending")
             tree.sortNodes(false);
         else
             tree.sortNodes(true);

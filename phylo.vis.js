@@ -28,7 +28,7 @@ var Layout = Object.create({}, {
 	// Position leaves
 	var leaves = this.tree.getLeafList();
 
-	if (leaves.length==1) {
+	if (leaves.length === 1) {
 	    // Special case for single-leaf trees
 	    this.nodePositions[leaves[0]] = [
 		0.5,
@@ -99,7 +99,7 @@ var Layout = Object.create({}, {
 	}
 
 	function selectColour(node, pallet) {
-	    if (savedThis.colourTrait == undefined)
+	    if (savedThis.colourTrait === undefined)
 		return "black";
 
 	    var traitValue = node.annotation[savedThis.colourTrait];
@@ -115,7 +115,7 @@ var Layout = Object.create({}, {
 
 	function newBranch(childPos, parentPos, linecol, linewidth) {
 	    var pathStr = "M " + childPos[0] + " " + childPos[1];
-	    pathStr += " H " + parentPos[0]
+	    pathStr += " H " + parentPos[0];
 	    pathStr += " V" + parentPos[1];
 	    var path = document.createElementNS(NS, "path");
 	    path.setAttribute("d", pathStr);
@@ -153,12 +153,12 @@ var Layout = Object.create({}, {
 
 	// Draw tip labels:
 
-	if (this.tipTextTrait != undefined) {
+	if (this.tipTextTrait !== undefined) {
 	    for (var i=0; i<this.tree.getLeafList().length; i++) {
 		var thisNode = this.tree.getLeafList()[i];
 		var traitValue;
-		if (this.tipTextTrait == "label")
-		    traitValue = thisNode.label
+		if (this.tipTextTrait === "label")
+		    traitValue = thisNode.label;
 		else
 		    traitValue = thisNode.annotation[this.tipTextTrait];
 
@@ -169,15 +169,15 @@ var Layout = Object.create({}, {
 
 	// Draw internal node labels:
 
-	if (this.nodeTextTrait != undefined) {
+	if (this.nodeTextTrait !== undefined) {
 	    for (var i=0; i<this.tree.getNodeList().length; i++) {
 		var thisNode = this.tree.getNodeList()[i];
 		if (thisNode.isLeaf())
 		    continue;
 
 		var traitValue;
-		if (this.nodeTextTrait == "label")
-		    traitValue = thisNode.label
+		if (this.nodeTextTrait === "label")
+		    traitValue = thisNode.label;
 		else
 		    traitValue = thisNode.annotation[this.nodeTextTrait];
 

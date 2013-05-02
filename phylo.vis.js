@@ -135,12 +135,17 @@ var Layout = Object.create({}, {
 	    if (!thisNode.isRoot()) {
 		var parentPos = nodePosXform(this.nodePositions[thisNode.parent]);
 		svg.appendChild(newBranch(thisPos, parentPos,
-					  selectColour(thisNode, this.colourPallet), 2));
+					  selectColour(thisNode, this.colourPallet), 1));
 	    }
 	}
 
 	function newNodeText(node, string) {
 	    var pos = nodePosXform(savedThis.nodePositions[node]);
+
+	    if (node.children.length === 1)
+		pos[1] -= 2;
+	    else if (node.isLeaf())
+		pos[0] += 2;
 
 	    var text = document.createElementNS(NS, "text");
 	    text.setAttribute("x", pos[0]);

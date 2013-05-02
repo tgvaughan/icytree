@@ -13,6 +13,37 @@
       margin: 0px;
       }
 
+      #controlRestorer {
+      display:none;
+      position: fixed;
+      top: 0px;
+      left: 0px;
+      border: none;
+      padding: none;
+      margin: none;
+      background-color: transparent;
+      color: blue;
+      z-index: 1000;
+      }
+      #controlRestorer:hover {
+      text-decoration: underline;
+      }
+
+      #controlHider {
+      border: none;
+      padding: none;
+      margin: none;
+      background-color: transparent;
+      position: absolute;
+      top: 0px;
+      width: 260px;
+      text-align: right;
+      color: blue;
+      }
+      #controlHider:hover {
+      text-decoration: underline;
+      }
+
       #controls {
       position: absolute;
       top: 0px;
@@ -65,7 +96,6 @@
       position: absolute;
       top: 0px;
       left: 270px;
-
       }
 
     </style>
@@ -76,6 +106,7 @@
 
     <!-- Control panel -->
     <div id="controls">
+      <button id="controlHider" onclick="toggleControls()">&lt;-</button>
       <ul>
       <li>
 	<div id="source">
@@ -137,6 +168,7 @@
       <li>
       </ul>
     </div>
+    <button id="controlRestorer" onclick="toggleControls()">-&gt;</button>
 
     <!-- Main output element -->
     <div id="output"></div>

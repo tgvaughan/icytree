@@ -5,6 +5,21 @@ var treeFile = undefined;;
 var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
+var controlsHidden = false;
+
+function toggleControls() {
+    controlsHidden = !controlsHidden;
+
+    if (controlsHidden) {
+	document.getElementById("controls").style.display = "none";
+	document.getElementById("controlRestorer").style.display = "block";
+    } else {
+	document.getElementById("controls").style.display = "block";
+	document.getElementById("controlRestorer").style.display = "none";
+    }
+
+    update();
+}
 
 function fileInputHandler() {
     treeFile = document.getElementById("fileInput").files[0];
@@ -54,13 +69,20 @@ function loadFile() {
 // Display space-filling frame with big text
 function displayFrameWithText(string, isError) {
 
+    var controlsOffset;
+    if (!controlsHidden)
+	controlsOffset = 270;
+    else
+	controlsOffset = 0;
+
     var output = document.getElementById("output");
     output.innerHTML = string;
     output.style.margin = "20px";
     output.style.border = "dashed gray 5px";
     output.style.borderRadius = "10px";
 
-    output.style.width = Math.max(window.innerWidth-270-10-40, 200) + "px";
+    output.style.left = controlsOffset + "px";
+    output.style.width = Math.max(window.innerWidth-controlsOffset-10-40, 200) + "px";
     output.style.height = "100px";
     var pad = Math.max(Math.floor((window.innerHeight-10-40-100)/2), 0) + "px";
     output.style.paddingTop = pad;
@@ -90,6 +112,12 @@ function prepareOutputForTree(string) {
     output.style.textAlign = "inherit";
 
     output.style.color = "inherit";
+
+    if (!controlsHidden)
+	output.style.left = "270px";
+    else
+	output.style.left = "0px";
+
 }
 
 // Update form elements containing trait selectors
@@ -274,7 +302,14 @@ function update() {
     var layout = Object.create(Layout).init(tree).standard();
     
     // Assign chosen layout properties:
-    layout.width = Math.max(window.innerWidth-270-5, 200);
+
+    var controlsOffset;
+    if (!controlsHidden)
+	controlsOffset = 270;
+    else
+	controlsOffset = 0;
+
+    layout.width = Math.max(window.innerWidth-controlsOffset-5, 200);
     layout.height = Math.max(window.innerHeight-5, 200);
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;

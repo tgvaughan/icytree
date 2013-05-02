@@ -52,45 +52,44 @@ function loadFile() {
 }
 
 // Display space-filling frame with big text
-// TODO: replace this with CSS - SVG is overkill
-function displayFrameWithText(string) {
+function displayFrameWithText(string, isError) {
 
-    // Delete old SVG element
-    document.getElementById("output").innerHTML = "";
-    
-    // Create new element:
-    var NS="http://www.w3.org/2000/svg";
-    var svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("width", Math.max(window.innerWidth-250-5, 200));
-    svg.setAttribute("height", Math.max(window.innerHeight-5, 200));
-    svg.setAttribute("id", "SVG");
+    var output = document.getElementById("output");
+    output.innerHTML = string;
+    output.style.margin = "20px";
+    output.style.border = "dashed gray 5px";
+    output.style.borderRadius = "10px";
 
-    var rect = document.createElementNS(NS, "rect");
-    rect.setAttribute("x", 30);
-    rect.setAttribute("y", 30);
-    rect.setAttribute("width", Math.max(window.innerWidth-250-60, 200));
-    rect.setAttribute("height", Math.max(window.innerHeight-60, 200));
-    rect.setAttribute("rx", 15);
-    rect.setAttribute("ry", 15);
-    rect.setAttribute("fill", "none");
-    rect.setAttribute("stroke", "gray");
-    rect.setAttribute("stroke-width", 5);
-    rect.setAttribute("stroke-dasharray", "10,10");
-    svg.appendChild(rect);
+    output.style.width = Math.max(window.innerWidth-270-10-40, 200) + "px";
+    output.style.height = "100px";
+    var pad = Math.max(Math.floor((window.innerHeight-10-40-100)/2), 0) + "px";
+    output.style.paddingTop = pad;
+    output.style.paddingBottom = pad;
 
-    var text = document.createElementNS(NS, "text");
-    var cx = Math.round((window.innerWidth-250)/2);
-    var cy = Math.round(window.innerHeight/2);
-    text.setAttribute("x", cx);
-    text.setAttribute("y", cy);
-    text.setAttribute("text-anchor", "middle");
-    text.setAttribute("fill", "gray");
-    text.setAttribute("font-family", "sans-serif");
-    text.setAttribute("font-size", "40pt");
-    text.textContent = string;
-    svg.appendChild(text);
-    
-    document.getElementById("output").appendChild(svg);
+    output.style.font = "50px sans-serif";
+    output.style.textAlign = "center";
+
+    if (isError)
+	output.style.color = "red";
+    else
+	output.style.color = "gray";
+}
+
+// Clear all output element styles.
+function prepareOutputForTree(string) {
+    var output = document.getElementById("output");
+    output.innerHTML = "";
+    output.style.margin = "0px";
+    output.style.border = "none";
+
+    output.style.width = "auto";
+    output.style.height = "auto";
+    output.style.padding = "0px";
+
+    output.style.font = "inherit";
+    output.style.textAlign = "inherit";
+
+    output.style.color = "inherit";
 }
 
 // Update form elements containing trait selectors
@@ -136,15 +135,21 @@ function updateCurrentTreeIdx() {
     else if (currentTreeIdx<0)
 	currentTreeIdx = 0;
 
-    if (currentTreeIdx<=0)
+    if (currentTreeIdx<=0) {
 	document.getElementById("prevTree").disabled = true;
-    else
+	document.getElementById("firstTree").disabled = true;
+    } else {
 	document.getElementById("prevTree").disabled = false;
+	document.getElementById("firstTree").disabled = false;
+    }
 
-    if (currentTreeIdx>=trees.length-1)
+    if (currentTreeIdx>=trees.length-1) {
 	document.getElementById("nextTree").disabled = true;
-    else
+	document.getElementById("lastTree").disabled = true;
+    } else {
 	document.getElementById("nextTree").disabled = false;
+	document.getElementById("lastTree").disabled = false;
+    }
 
     var counterEl = document.getElementById("treeCounter");
     if (trees.length>1)
@@ -165,17 +170,40 @@ function reloadTreeData() {
 
     treeData = treeData.replace(/&amp;/g,"&");
 
-    // Parse tree string (can take a while)
-    try {
-        trees = getTreesFromString(treeData);
-    } catch (e) {
-        displayFrameWithText("error parsing tree data");
-	console.log(e);
-        return;
-    }
+    if (treeData.length>500000) {
 
-    console.log("Successfully parsed " + trees.length + " trees.");
-    update();
+	// Parse large data set asynchronously and display loading screen
+	
+	displayFrameWithText("loading...");
+
+	setTimeout(function() {
+
+	    try {
+		trees = getTreesFromString(treeData);
+	    } catch (e) {
+		displayFrameWithText("error parsing tree data", true);
+		console.log(e);
+		return;
+	    }
+	    
+	    console.log("Successfully parsed " + trees.length + " trees.");
+	    update();
+	}, 50);
+    } else {
+
+	// Parse small data set NOW. (No loading screen.)
+
+	try {
+	    trees = getTreesFromString(treeData);
+	} catch (e) {
+	    displayFrameWithText("error parsing tree data", true);
+	    console.log(e);
+	    return;
+	}
+	    
+	console.log("Successfully parsed " + trees.length + " trees.");
+	update();
+    }
 }
 
 // Converts SVG in output element to data URI for saving
@@ -195,6 +223,8 @@ function update() {
 	displayFrameWithText("no tree loaded");
 	document.getElementById("exportSVG").disabled = true;
 	return;
+    } else {
+	prepareOutputForTree();
     }
 
     // Generate _copy_ of tree to draw.
@@ -244,7 +274,7 @@ function update() {
     var layout = Object.create(Layout).init(tree).standard();
     
     // Assign chosen layout properties:
-    layout.width = Math.max(window.innerWidth-250-5, 200);
+    layout.width = Math.max(window.innerWidth-270-5, 200);
     layout.height = Math.max(window.innerHeight-5, 200);
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;

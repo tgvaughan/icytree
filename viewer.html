@@ -64,7 +64,8 @@
       #output {
       position: absolute;
       top: 0px;
-      left: 250px;
+      left: 270px;
+
       }
 
     </style>
@@ -121,10 +122,14 @@
       <li>
 	<div id="treeSelect">
 	  <div id="treeCounter"></div>
-	  <button id="prevTree" type="button" disabled="true"
-		  onclick="currentTreeIdx-=1; update()">Prev</button>
-	  <button id="nextTree" type="button" disabled="true"
-		  onclick="currentTreeIdx+=1; update()">Next</button>
+	  <button id="firstTree" type="button" disabled="disabled"
+		  onclick="currentTreeIdx=0; update()">&lt;&lt;</button>
+	  <button id="prevTree" type="button" disabled="disabled"
+		  onclick="currentTreeIdx-=1; update()">&lt;</button>
+	  <button id="nextTree" type="button" disabled="disabled"
+		  onclick="currentTreeIdx+=1; update()">&gt;</button>
+	  <button id="lastTree" type="button" disabled="disabled"
+		  onclick="currentTreeIdx=trees.length-1; update()">&gt;&gt;</button>
 	</div>
       </li>
 	<button id="exportSVG" type="button" disabled="true"

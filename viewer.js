@@ -188,7 +188,7 @@ function reloadTreeData() {
 	    
 	    console.log("Successfully parsed " + trees.length + " trees.");
 	    update();
-	}, 100);
+	}, 300);
     } else {
 
 	// Parse small data set NOW. (No loading screen.)

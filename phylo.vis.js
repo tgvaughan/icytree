@@ -13,6 +13,9 @@ var Layout = Object.create({}, {
     tipTextTrait: {value: "label", writable: true, configurable: true, enumerable: true},
     nodeTextTrait: {value: undefined, writable: true, configurable: true, enumerable: true},
 
+    axis: {value: false, writable: true, configurable: true, enumerable: true},
+    minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
+
     init: {value: function(tree) {
 	this.tree = tree;
 	return this;
@@ -24,6 +27,7 @@ var Layout = Object.create({}, {
 	this.nodePositions = {};
 
 	var treeHeight = this.tree.root.height;
+	var treeWidth;
 
 	// Position leaves
 	var leaves = this.tree.getLeafList();
@@ -34,6 +38,7 @@ var Layout = Object.create({}, {
 		0.5,
 		leaves[0].height/treeHeight
 	    ];
+	    treeWidth = 1.0;
 	} else {
 	    for (var i=0; i<leaves.length; i++) {
 		this.nodePositions[leaves[i]] = [
@@ -41,6 +46,7 @@ var Layout = Object.create({}, {
 		    leaves[i].height/treeHeight
 		];
 	    }
+	    treeWidth = leaves.length-1;
 	}
 
 	// Position internal nodes
@@ -78,6 +84,12 @@ var Layout = Object.create({}, {
 	var xmargin = 0.05*this.width;
 	var ymargin = 0.05*this.height;
 
+	function posXform(treePos) {
+	    var xpos = (1-treePos[1])*(savedThis.width - 2*xmargin) + xmargin;
+	    var ypos = (1-treePos[0])*(savedThis.height - 2*ymargin) + ymargin;
+	    return [xpos, ypos];
+	}
+
 	// Create SVG element:
 	var NS="http://www.w3.org/2000/svg";
 	var svg = document.createElementNS(NS, "svg");
@@ -87,16 +99,50 @@ var Layout = Object.create({}, {
 	svg.setAttribute('height', this.height);
 
 	// Draw axis:
+	if (this.axis) {
+	    
+	    // Select number of ticks:
+	    var treeHeight = this.tree.root.height;
+	    var maxDelta = treeHeight/(this.minAxisTicks-1);
+	    var deltaT = Math.pow(10,Math.floor(Math.log(maxDelta)/Math.log(10)))
+
+	    // Function for drawing one tick:
+	    function axisLine(thisT) {
+		var thisH = thisT/treeHeight;
+		var bot = [posXform([0, thisH])[0], savedThis.height];
+		var top = [posXform([0, thisH])[0], 0];
+		console.log(bot + " " + top);
+		
+		var axLine = document.createElementNS(NS, "line");
+		axLine.setAttribute("x1", bot[0]);
+		axLine.setAttribute("y1", bot[1]);
+		axLine.setAttribute("x2", top[0]);
+		axLine.setAttribute("y2", top[1]);
+		axLine.setAttribute("stroke", "gray");
+		axLine.setAttribute("stroke-width", 1);
+		svg.appendChild(axLine);
+
+		var axLabel = document.createElementNS(NS, "text");
+		axLabel.setAttribute("x", bot[0]);
+		axLabel.setAttribute("y", bot[1]);
+		axLabel.setAttribute("fill", "gray");
+		axLabel.textContent = thisT;
+		svg.appendChild(axLabel);
+	    }
+
+	    // Draw ticks:
+	    var t = 0;
+	    while (t <= treeHeight) {
+		axisLine(t);
+		console.log(t);
+		t += deltaT;
+	    }
+	    
+	}
 
 	// Draw tree:
 
 	var seenColourTraitValues = [];
-
-	function nodePosXform(nodePos) {
-	    var xpos = (1-nodePos[1])*(savedThis.width - 2*xmargin) + xmargin;
-	    var ypos = (1-nodePos[0])*(savedThis.height - 2*ymargin) + ymargin;
-	    return [xpos, ypos];
-	}
 
 	function selectColour(node, pallet) {
 	    if (savedThis.colourTrait === undefined)
@@ -122,7 +168,7 @@ var Layout = Object.create({}, {
 	    path.setAttribute("fill", "none");
 	    path.setAttribute("stroke", linecol);
 	    path.setAttribute("stroke-width", linewidth);
-	    return path;
+	    svg.appendChild(path);
 	}
 
 
@@ -130,17 +176,16 @@ var Layout = Object.create({}, {
 	
 	for (var i=0; i<this.tree.getNodeList().length; i++) {
 	    var thisNode = this.tree.getNodeList()[i];
-	    var thisPos = nodePosXform(this.nodePositions[thisNode]);
+	    var thisPos = posXform(this.nodePositions[thisNode]);
 
 	    if (!thisNode.isRoot()) {
-		var parentPos = nodePosXform(this.nodePositions[thisNode.parent]);
-		svg.appendChild(newBranch(thisPos, parentPos,
-					  selectColour(thisNode, this.colourPallet), 1));
+		var parentPos = posXform(this.nodePositions[thisNode.parent]);
+		newBranch(thisPos, parentPos, selectColour(thisNode, this.colourPallet), 1);
 	    }
 	}
 
 	function newNodeText(node, string) {
-	    var pos = nodePosXform(savedThis.nodePositions[node]);
+	    var pos = posXform(savedThis.nodePositions[node]);
 
 	    if (node.children.length === 1)
 		pos[1] -= 2;
@@ -150,9 +195,8 @@ var Layout = Object.create({}, {
 	    var text = document.createElementNS(NS, "text");
 	    text.setAttribute("x", pos[0]);
 	    text.setAttribute("y", pos[1]);
-	    text.setAttribute("style", "vertical-align: middle");
 	    text.textContent = string;
-	    return text;
+	    svg.appendChild(text);
 	}
 
 
@@ -167,7 +211,7 @@ var Layout = Object.create({}, {
 		else
 		    traitValue = thisNode.annotation[this.tipTextTrait];
 
-		svg.appendChild(newNodeText(thisNode, traitValue));
+		newNodeText(thisNode, traitValue);
 	    }
 	}
 
@@ -186,7 +230,7 @@ var Layout = Object.create({}, {
 		else
 		    traitValue = thisNode.annotation[this.nodeTextTrait];
 
-		svg.appendChild(newNodeText(thisNode, traitValue));
+		newNodeText(thisNode, traitValue);
 	    }
 	}
 

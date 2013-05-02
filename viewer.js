@@ -298,6 +298,9 @@ function update() {
         }
     }
 
+    // Determine whether axis should be displayed:
+    var showAxis = document.getElementById("axis").checked;
+
     // Create layout object:
     var layout = Object.create(Layout).init(tree).standard();
     
@@ -314,6 +317,7 @@ function update() {
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;
+    layout.axis = showAxis;
     
     // Display!
     var outputElement = document.getElementById("output");

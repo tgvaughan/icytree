@@ -106,6 +106,10 @@ var Layout = Object.create({}, {
 	    var maxDelta = treeHeight/(this.minAxisTicks-1);
 	    var deltaT = Math.pow(10,Math.floor(Math.log(maxDelta)/Math.log(10)))
 
+	    function cleanNum(num) {
+		return parseFloat(num.toPrecision(12));
+	    }
+
 	    // Function for drawing one tick:
 	    function axisLine(thisT) {
 		var thisH = thisT/treeHeight;
@@ -126,7 +130,7 @@ var Layout = Object.create({}, {
 		axLabel.setAttribute("x", bot[0]);
 		axLabel.setAttribute("y", bot[1]);
 		axLabel.setAttribute("fill", "gray");
-		axLabel.textContent = thisT;
+		axLabel.textContent = cleanNum(thisT);
 		svg.appendChild(axLabel);
 	    }
 

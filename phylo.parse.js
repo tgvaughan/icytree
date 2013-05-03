@@ -203,10 +203,12 @@ var TreeFromNewick = Object.create(Tree, {
 	["CLOSEA", /^\]/, false],
 	["OPENV", /^{/, false],
 	["CLOSEV", /^}/, false],
-	["STRING", /^"[^"]+"/, true],
 	["EQ", /^=/, false],
 	["NUM", /^-?\d+(\.\d+)?([Ee]-?\d+)?/, true],
-	["LABEL", /^[\w%.]+/, true]
+	["STRING", /^"[^"]+"/, true],
+	["STRING",/^'[^']+'/, true],
+	["STRING", /^[\w*%.]+/, true]
+
     ], writeable: false, configurable: false},
 
     // Lexical analysis
@@ -229,23 +231,26 @@ var TreeFromNewick = Object.create(Tree, {
 		if (match !== null && match.index === 0) {
 
 		    if (this.tokens[k][2]) {
-			tokenList.push([this.tokens[k][0],match[0]]);
+			var value = match[0];
+			if (this.tokens[k][0] === "STRING")
+			    value = value.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
+			tokenList.push([this.tokens[k][0], value]);
 			//console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
 		    } else {
 			tokenList.push([this.tokens[k][0]]);
 			//console.log(idx + " " + this.tokens[k][0]);
 		    }
-
+		    
 		    matchFound = true;
 		    idx += match[0].length;
 		    break;
 		}
 	    }
-
+	    
 	    if (!matchFound) {
 		throw "Error reading character " + newick[idx] + " at position " + idx;
 	    }
-
+	    
 	}
 
 	return tokenList;
@@ -337,7 +342,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 	// L -> lab|num
 	function ruleL(node) {
-	    if (acceptToken("LABEL", false) || acceptToken("NUM", false)) {
+	    if (acceptToken("STRING", false) || acceptToken("NUM", false)) {
 		node.label = tokenList[idx-1][1];
 
 		//indentLog(node.label);
@@ -355,7 +360,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 	// D -> lab=Q|eps
 	function ruleD(node) {
-	    acceptToken("LABEL", true);
+	    acceptToken("STRING", true);
 	    var key = tokenList[idx-1][1];
 	    acceptToken("EQ", true);
 	    var value = ruleQ();
@@ -369,17 +374,14 @@ var TreeFromNewick = Object.create(Tree, {
 	function ruleQ() {
 	    var value = undefined;
 
-	    if (acceptToken("NUM", false) || acceptToken("LABEL", false))
+	    if (acceptToken("NUM", false) || acceptToken("STRING", false))
 		value = tokenList[idx-1][1];
 	    
-	    else if (acceptToken("STRING", false))
-		value = tokenList[idx-1][1].replace(/^"(.*)"$/, "$1");
-		    
 	    else if (acceptToken("OPENV", false)) {
 		value = [ruleQ()].concat(ruleW());
 		acceptToken("CLOSEV", true);
 	    } else
-		throw "Expected number, label, string or vector in annotation. Found " + tokenList[idx][0] + " instead.";
+		throw "Expected number, string or vector in annotation. Found " + tokenList[idx][0] + " instead.";
 
 	    return value;
 	}

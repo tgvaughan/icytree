@@ -324,6 +324,7 @@ function update() {
     outputElement.innerHTML = "";
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
+    svg.style.shapeRendering = "crispEdges";
     outputElement.appendChild(svg);
 
     // Enable export button:

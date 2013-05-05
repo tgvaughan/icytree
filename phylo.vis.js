@@ -15,6 +15,8 @@ var Layout = Object.create({}, {
 
     axis: {value: false, writable: true, configurable: true, enumerable: true},
     minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
+    
+    includeZoomControl: {value: true, writable: true, configurable: true, enumerable: true},
 
     init: {value: function(tree) {
 	this.tree = tree;
@@ -97,6 +99,7 @@ var Layout = Object.create({}, {
 	svg.setAttribute("version","1.1");
 	svg.setAttribute('width', this.width);
 	svg.setAttribute('height', this.height);
+	svg.style.strokeWidth = "1";
 
 	// Draw axis:
 	if (this.axis) {
@@ -104,7 +107,7 @@ var Layout = Object.create({}, {
 	    // Select number of ticks:
 	    var treeHeight = this.tree.root.height;
 	    var maxDelta = treeHeight/(this.minAxisTicks-1);
-	    var deltaT = Math.pow(10,Math.floor(Math.log(maxDelta)/Math.log(10)))
+	    var deltaT = Math.pow(10,Math.floor(Math.log(maxDelta)/Math.log(10)));
 
 	    function cleanNum(num) {
 		return parseFloat(num.toPrecision(12));
@@ -115,7 +118,6 @@ var Layout = Object.create({}, {
 		var thisH = thisT/treeHeight;
 		var bot = [posXform([0, thisH])[0], savedThis.height];
 		var top = [posXform([0, thisH])[0], 0];
-		console.log(bot + " " + top);
 		
 		var axLine = document.createElementNS(NS, "line");
 		axLine.setAttribute("x1", bot[0]);
@@ -123,7 +125,6 @@ var Layout = Object.create({}, {
 		axLine.setAttribute("x2", top[0]);
 		axLine.setAttribute("y2", top[1]);
 		axLine.setAttribute("stroke", "gray");
-		axLine.setAttribute("stroke-width", 1);
 		svg.appendChild(axLine);
 
 		var axLabel = document.createElementNS(NS, "text");
@@ -138,7 +139,6 @@ var Layout = Object.create({}, {
 	    var t = 0;
 	    while (t <= treeHeight) {
 		axisLine(t);
-		console.log(t);
 		t += deltaT;
 	    }
 	    
@@ -171,7 +171,6 @@ var Layout = Object.create({}, {
 	    path.setAttribute("d", pathStr);
 	    path.setAttribute("fill", "none");
 	    path.setAttribute("stroke", linecol);
-	    path.setAttribute("stroke-width", linewidth);
 	    svg.appendChild(path);
 	}
 
@@ -218,27 +217,147 @@ var Layout = Object.create({}, {
 		newNodeText(thisNode, traitValue);
 	    }
 	}
-
+        
 
 	// Draw internal node labels:
-
+        
 	if (this.nodeTextTrait !== undefined) {
 	    for (var i=0; i<this.tree.getNodeList().length; i++) {
 		var thisNode = this.tree.getNodeList()[i];
 		if (thisNode.isLeaf())
 		    continue;
-
+                
 		var traitValue;
 		if (this.nodeTextTrait === "label")
 		    traitValue = thisNode.label;
 		else
 		    traitValue = thisNode.annotation[this.nodeTextTrait];
-
+                
 		newNodeText(thisNode, traitValue);
 	    }
 	}
+
+	// Attach event handlers for pan and zoom:
+
+	if (this.includeZoomControl)
+	    ZoomControl.init(svg);
 
 	return svg;
     }}
 });
 
+// ZoomControl object
+// (Just a tidy way to package up these event handlers.)
+var ZoomControl = Object.create({}, {
+
+    svg: {value: undefined, writable: true, configurable: true, enumerable: true},
+    zoomFactor: {value: 1, writable: true, configurable: true, enumerable: true},
+    centre: {value: [0,0], writable: true, configurable: true, enumerable: true},
+
+    dragging: {value: false, writable: true, configurable: true, enumerable: false},
+    dragOrigin: {value: [0,0], writable: true, configurable: true, enumerable: false},
+    oldCentre: {value: [0,0], writable: true, configurable: true, enumerable: false},
+
+    init: {value: function(svg) {
+        this.svg = svg;
+
+	// Set initial view box:
+	this.centre = [Math.round(svg.getAttribute("width")/2),
+		       Math.round(svg.getAttribute("height")/2)];
+
+	this.updateView();
+
+	// Add mouse event handlers
+	svg.addEventListener("mousewheel",
+			     this.zoomEventHandler.bind(this)); // Chrome
+	svg.addEventListener("DOMMouseScroll",
+			     this.zoomEventHandler.bind(this)); // FF (!!)
+
+	svg.addEventListener("mousemove",
+			     this.panEventHandler.bind(this));
+	svg.addEventListener("mousedown",
+			     this.panEventHandler.bind(this));
+	svg.addEventListener("mouseup",
+			     this.panEventHandler.bind(this));
+	svg.addEventListener("mouseout",
+			     this.panEventHandler.bind(this));
+
+    }},
+
+    updateView: {value: function() {
+
+	var width = this.svg.getAttribute("width");
+	var height = this.svg.getAttribute("height");
+
+	var widthZoomed = width/this.zoomFactor;
+	var heightZoomed = height/this.zoomFactor;
+
+	this.centre[0] = Math.max(0.5*widthZoomed, this.centre[0]);
+	this.centre[0] = Math.min(width-0.5*widthZoomed, this.centre[0]);
+
+	this.centre[1] = Math.max(0.5*heightZoomed, this.centre[1]);
+	this.centre[1] = Math.min(height-0.5*heightZoomed, this.centre[1]);
+	
+	var x = Math.max(0, Math.round(this.centre[0] - 0.5*widthZoomed));
+	var y = Math.max(0, Math.round(this.centre[1] - 0.5*heightZoomed));
+
+	this.svg.setAttribute("viewBox", x + " " + y + " "
+			      + widthZoomed + " " + heightZoomed);
+
+	// Update stroke width
+	this.svg.style.strokeWidth = 1/this.zoomFactor;
+    }},
+
+    zoomEventHandler: {value: function(event) {
+	event.preventDefault();
+
+	var dir = (event.wheelDelta || -event.detail);
+	var zoomFactorP = this.zoomFactor;
+	
+	if (dir>0) {
+	    // Zoom nin
+	    zoomFactorP *= 1.1;
+	    
+	} else {
+	    // Zoom out
+	    zoomFactorP = Math.max(1, zoomFactorP/1.1);
+	}
+
+	// Update centre so that tree coordinates under mouse don't
+	// change:
+	var width = this.svg.getAttribute("width");
+	var height = this.svg.getAttribute("height");
+	this.centre[0] += (1/this.zoomFactor - 1/zoomFactorP)*(event.layerX - 0.5*width);
+	this.centre[1] += (1/this.zoomFactor - 1/zoomFactorP)*(event.layerY - 0.5*height);
+
+	this.zoomFactor = zoomFactorP;
+
+	this.updateView();
+    }},
+
+    panEventHandler: {value: function(event) {
+	event.preventDefault();
+	
+	if (!this.dragging) {
+	    if (event.type === "mousedown") {
+		this.dragging = true;
+		this.dragOrigin = [event.layerX, event.layerY];
+		this.oldCentre = [this.centre[0], this.centre[1]];
+	    }
+	    return;
+	}
+
+	if (event.type === "mouseup" || event.type === "mouseout") {
+	    this.dragging = false;
+	    return;
+	}
+
+	// Move centre so that coordinate under mouse don't change:
+	this.centre[0] = this.oldCentre[0] -
+	    (event.layerX - this.dragOrigin[0])/this.zoomFactor;
+	this.centre[1] = this.oldCentre[1] -
+	    (event.layerY - this.dragOrigin[1])/this.zoomFactor;
+
+	this.updateView();
+    }}
+});

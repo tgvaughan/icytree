@@ -250,11 +250,12 @@ var Layout = Object.create({}, {
 // (Just a tidy way to package up these event handlers.)
 var ZoomControl = Object.create({}, {
 
+    initialised: {value: false, writable: true, configurable: true, enumerable: true},
+
     svg: {value: undefined, writable: true, configurable: true, enumerable: true},
     zoomFactor: {value: 1, writable: true, configurable: true, enumerable: true},
     centre: {value: [0,0], writable: true, configurable: true, enumerable: true},
 
-    dragging: {value: false, writable: true, configurable: true, enumerable: false},
     dragOrigin: {value: [0,0], writable: true, configurable: true, enumerable: false},
     oldCentre: {value: [0,0], writable: true, configurable: true, enumerable: false},
 
@@ -264,6 +265,7 @@ var ZoomControl = Object.create({}, {
 	// Set initial view box:
 	this.centre = [Math.round(svg.getAttribute("width")/2),
 		       Math.round(svg.getAttribute("height")/2)];
+	this.zoomFactor = 1.0;
 
 	this.updateView();
 
@@ -274,12 +276,6 @@ var ZoomControl = Object.create({}, {
 			     this.zoomEventHandler.bind(this)); // FF (!!)
 
 	svg.addEventListener("mousemove",
-			     this.panEventHandler.bind(this));
-	svg.addEventListener("mousedown",
-			     this.panEventHandler.bind(this));
-	svg.addEventListener("mouseup",
-			     this.panEventHandler.bind(this));
-	svg.addEventListener("mouseout",
 			     this.panEventHandler.bind(this));
 
     }},
@@ -336,22 +332,21 @@ var ZoomControl = Object.create({}, {
     }},
 
     panEventHandler: {value: function(event) {
+
+	var b;
+	if (event.buttons !== undefined)
+	    b = event.buttons; // FF
+	else
+	    b = event.which;   // Chrome
+
+	if (b == 0) {
+	    this.dragOrigin = [event.layerX, event.layerY];
+	    this.oldCentre = [this.centre[0], this.centre[1]];
+	    return false;
+	}
+
 	event.preventDefault();
 	
-	if (!this.dragging) {
-	    if (event.type === "mousedown") {
-		this.dragging = true;
-		this.dragOrigin = [event.layerX, event.layerY];
-		this.oldCentre = [this.centre[0], this.centre[1]];
-	    }
-	    return;
-	}
-
-	if (event.type === "mouseup" || event.type === "mouseout") {
-	    this.dragging = false;
-	    return;
-	}
-
 	// Move centre so that coordinate under mouse don't change:
 	this.centre[0] = this.oldCentre[0] -
 	    (event.layerX - this.dragOrigin[0])/this.zoomFactor;

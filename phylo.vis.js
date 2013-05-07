@@ -15,6 +15,9 @@ var Layout = Object.create({}, {
 
     axis: {value: false, writable: true, configurable: true, enumerable: true},
     minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
+
+    lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
+    fontSize: {value: 20, writable: true, configurable: true, enumerable: true},
     
     includeZoomControl: {value: true, writable: true, configurable: true, enumerable: true},
 
@@ -99,7 +102,8 @@ var Layout = Object.create({}, {
 	svg.setAttribute("version","1.1");
 	svg.setAttribute('width', this.width);
 	svg.setAttribute('height', this.height);
-	svg.style.strokeWidth = "1";
+	svg.style.strokeWidth = this.lineWidth + "px";
+	svg.style.fontSize = this.fontSize + "px";
 
 	// Draw axis:
 	if (this.axis) {
@@ -240,7 +244,7 @@ var Layout = Object.create({}, {
 	// Attach event handlers for pan and zoom:
 
 	if (this.includeZoomControl)
-	    ZoomControl.init(svg);
+	    ZoomControl.init(svg, this.lineWidth, this.fontSize);
 
 	return svg;
     }}
@@ -253,14 +257,20 @@ var ZoomControl = Object.create({}, {
     initialised: {value: false, writable: true, configurable: true, enumerable: true},
 
     svg: {value: undefined, writable: true, configurable: true, enumerable: true},
+    lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
+    fontSize: {value: 20, writable: true, configurable: true, enumerable: true},
+
     zoomFactor: {value: 1, writable: true, configurable: true, enumerable: true},
     centre: {value: [0,0], writable: true, configurable: true, enumerable: true},
 
     dragOrigin: {value: [0,0], writable: true, configurable: true, enumerable: false},
     oldCentre: {value: [0,0], writable: true, configurable: true, enumerable: false},
 
-    init: {value: function(svg) {
+
+    init: {value: function(svg, lineWidth, fontSize) {
         this.svg = svg;
+	this.lineWidth = lineWidth;
+	this.fontSize = fontSize;
 
 	// Set initial view box:
 	this.centre = [Math.round(svg.getAttribute("width")/2),
@@ -301,7 +311,10 @@ var ZoomControl = Object.create({}, {
 			      + widthZoomed + " " + heightZoomed);
 
 	// Update stroke width
-	this.svg.style.strokeWidth = 1/this.zoomFactor;
+	this.svg.style.strokeWidth = this.lineWidth/this.zoomFactor + "px";
+
+	// Update text scaling
+	this.svg.style.fontSize = this.fontSize/this.zoomFactor + "px";
     }},
 
     zoomEventHandler: {value: function(event) {

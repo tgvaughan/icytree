@@ -334,17 +334,24 @@ function update() {
 // Add event listeners, call first update()
 function initialise() {
 
-	var output = document.getElementById("output");
+    var output = document.getElementById("output");
 
-	output.addEventListener("dragover", function(event) {
-		event.preventDefault();
-		return false;
-	});
-	output.addEventListener("dragend", function(event) {
-		event.preventDefault();
-		return false;
-	});
-	output.addEventListener("drop", dropInputHandler);
+    output.addEventListener("dragover", function(event) {
+	event.preventDefault();
+	return false;
+    });
+    output.addEventListener("dragend", function(event) {
+	event.preventDefault();
+	return false;
+    });
+    output.addEventListener("drop", dropInputHandler);
 
-	update();
+    // Read tree from HTTP GET parameter if available:
+    if (window.location.search.length>0 && window.location.search[0]==="?") {
+	treeData = atob(window.location.search.slice(1));
+	reloadTreeData();
+	return;
+    }
+
+    update();
 }

@@ -15,6 +15,9 @@ var Layout = Object.create({}, {
 
     axis: {value: false, writable: true, configurable: true, enumerable: true},
     minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
+
+    lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
+    fontSize: {value: 20, writable: true, configurable: true, enumerable: true},
     
     includeZoomControl: {value: true, writable: true, configurable: true, enumerable: true},
 
@@ -99,7 +102,8 @@ var Layout = Object.create({}, {
 	svg.setAttribute("version","1.1");
 	svg.setAttribute('width', this.width);
 	svg.setAttribute('height', this.height);
-	svg.style.strokeWidth = "1";
+	svg.style.strokeWidth = this.lineWidth + "px";
+	svg.style.fontSize = this.fontSize + "px";
 
 	// Draw axis:
 	if (this.axis) {
@@ -240,7 +244,7 @@ var Layout = Object.create({}, {
 	// Attach event handlers for pan and zoom:
 
 	if (this.includeZoomControl)
-	    ZoomControl.init(svg);
+	    ZoomControl.init(svg, this.lineWidth, this.fontSize);
 
 	return svg;
     }}
@@ -250,21 +254,30 @@ var Layout = Object.create({}, {
 // (Just a tidy way to package up these event handlers.)
 var ZoomControl = Object.create({}, {
 
+    initialised: {value: false, writable: true, configurable: true, enumerable: true},
+
     svg: {value: undefined, writable: true, configurable: true, enumerable: true},
+    lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
+    fontSize: {value: 20, writable: true, configurable: true, enumerable: true},
+
     zoomFactor: {value: 1, writable: true, configurable: true, enumerable: true},
     centre: {value: [0,0], writable: true, configurable: true, enumerable: true},
 
-    dragging: {value: false, writable: true, configurable: true, enumerable: false},
     dragOrigin: {value: [0,0], writable: true, configurable: true, enumerable: false},
     oldCentre: {value: [0,0], writable: true, configurable: true, enumerable: false},
 
-    init: {value: function(svg) {
-        this.svg = svg;
 
-	// Set initial view box:
-	if (this.centre.toString() === "0,0")
+    init: {value: function(svg, lineWidth, fontSize) {
+        this.svg = svg;
+	this.lineWidth = lineWidth;
+	this.fontSize = fontSize;
+
+	// Set initial view box if undefined:
+	if (this.centre.toString() === "0,0") {
 	    this.centre = [Math.round(svg.getAttribute("width")/2),
 			   Math.round(svg.getAttribute("height")/2)];
+	    this.zoomFactor = 1.0;
+	}
 
 	this.updateView();
 
@@ -275,12 +288,6 @@ var ZoomControl = Object.create({}, {
 			     this.zoomEventHandler.bind(this)); // FF (!!)
 
 	svg.addEventListener("mousemove",
-			     this.panEventHandler.bind(this));
-	svg.addEventListener("mousedown",
-			     this.panEventHandler.bind(this));
-	svg.addEventListener("mouseup",
-			     this.panEventHandler.bind(this));
-	svg.addEventListener("mouseout",
 			     this.panEventHandler.bind(this));
 
     }},
@@ -307,7 +314,10 @@ var ZoomControl = Object.create({}, {
 			      + widthZoomed + " " + heightZoomed);
 
 	// Update stroke width
-	this.svg.style.strokeWidth = 1/this.zoomFactor;
+	this.svg.style.strokeWidth = this.lineWidth/this.zoomFactor + "px";
+
+	// Update text scaling
+	this.svg.style.fontSize = this.fontSize/this.zoomFactor + "px";
     }},
 
     zoomEventHandler: {value: function(event) {
@@ -338,22 +348,21 @@ var ZoomControl = Object.create({}, {
     }},
 
     panEventHandler: {value: function(event) {
+
+	var b;
+	if (event.buttons !== undefined)
+	    b = event.buttons; // FF
+	else
+	    b = event.which;   // Chrome
+
+	if (b == 0) {
+	    this.dragOrigin = [event.layerX, event.layerY];
+	    this.oldCentre = [this.centre[0], this.centre[1]];
+	    return false;
+	}
+
 	event.preventDefault();
 	
-	if (!this.dragging) {
-	    if (event.type === "mousedown") {
-		this.dragging = true;
-		this.dragOrigin = [event.layerX, event.layerY];
-		this.oldCentre = [this.centre[0], this.centre[1]];
-	    }
-	    return;
-	}
-
-	if (event.type === "mouseup" || event.type === "mouseout") {
-	    this.dragging = false;
-	    return;
-	}
-
 	// Move centre so that coordinate under mouse don't change:
 	this.centre[0] = this.oldCentre[0] -
 	    (event.layerX - this.dragOrigin[0])/this.zoomFactor;

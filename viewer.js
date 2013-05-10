@@ -354,5 +354,12 @@ function initialise() {
     // Create new zoomControl object (don't initialise):
     zoomControl = Object.create(ZoomControl, {});
 
+    // Read tree from HTTP GET parameter if available:
+    if (window.location.search.length>0 && window.location.search[0]==="?") {
+	treeData = atob(window.location.search.slice(1));
+	reloadTreeData();
+	return;
+    }
+
     update();
 }

@@ -1,11 +1,13 @@
 window.onresize = update;
 
 // Global variables
-var treeFile = undefined;;
+var treeFile = undefined;
 var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
 var controlsHidden = false;
+var outputEl = undefined;
+var zoomControl = undefined;
 
 function toggleControls() {
     controlsHidden = !controlsHidden;
@@ -320,31 +322,37 @@ function update() {
     layout.axis = showAxis;
     
     // Display!
-    var outputElement = document.getElementById("output");
-    outputElement.innerHTML = "";
+    outputEl.innerHTML = "";
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
     svg.style.shapeRendering = "crispEdges";
-    outputElement.appendChild(svg);
+    outputEl.appendChild(svg);
+
+    // C
 
     // Enable export button:
     document.getElementById("exportSVG").disabled = false;
 }
 
-// Add event listeners, call first update()
+// Page initialisation code:
 function initialise() {
 
-	var output = document.getElementById("output");
+    // Record output element
+    outputEl = document.getElementById("output");
+    
+    // Set up drag and drop event listeners:
+    outputEl.addEventListener("dragover", function(event) {
+	event.preventDefault();
+	return false;
+    });
+    outputEl.addEventListener("dragend", function(event) {
+	event.preventDefault();
+	return false;
+    });
+    outputEl.addEventListener("drop", dropInputHandler);
 
-	output.addEventListener("dragover", function(event) {
-		event.preventDefault();
-		return false;
-	});
-	output.addEventListener("dragend", function(event) {
-		event.preventDefault();
-		return false;
-	});
-	output.addEventListener("drop", dropInputHandler);
+    // Create new zoomControl object (don't initialise):
+    zoomControl = Object.create(ZoomControl, {});
 
-	update();
+    update();
 }

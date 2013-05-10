@@ -262,8 +262,9 @@ var ZoomControl = Object.create({}, {
         this.svg = svg;
 
 	// Set initial view box:
-	this.centre = [Math.round(svg.getAttribute("width")/2),
-		       Math.round(svg.getAttribute("height")/2)];
+	if (this.centre.toString() === "0,0")
+	    this.centre = [Math.round(svg.getAttribute("width")/2),
+			   Math.round(svg.getAttribute("height")/2)];
 
 	this.updateView();
 
@@ -283,6 +284,7 @@ var ZoomControl = Object.create({}, {
 			     this.panEventHandler.bind(this));
 
     }},
+
 
     updateView: {value: function() {
 

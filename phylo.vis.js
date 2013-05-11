@@ -152,29 +152,33 @@ var Layout = Object.create({}, {
 
 	var seenColourTraitValues = [];
 
-	function selectColour(node, pallet) {
+	function selectColourTrait(node) {
 	    if (savedThis.colourTrait === undefined)
-		return "black";
+		return undefined;
 
 	    var traitValue = node.annotation[savedThis.colourTrait];
-	    var idx = seenColourTraitValues.indexOf(traitValue);
 
-	    if (idx<0) {
+	    if (seenColourTraitValues.indexOf(traitValue)<0) {
 		seenColourTraitValues = seenColourTraitValues.concat(traitValue);
-		idx = seenColourTraitValues.length-1;
 	    }
 
-	    return pallet[idx%pallet.length];
+	    return traitValue;
 	}
 
-	function newBranch(childPos, parentPos, linecol, linewidth) {
+	function newBranch(childPos, parentPos, colourTrait) {
 	    var pathStr = "M " + childPos[0] + " " + childPos[1];
 	    pathStr += " H " + parentPos[0];
 	    pathStr += " V" + parentPos[1];
 	    var path = document.createElementNS(NS, "path");
 	    path.setAttribute("d", pathStr);
 	    path.setAttribute("fill", "none");
-	    path.setAttribute("stroke", linecol);
+	    //path.setAttribute("stroke", linecol);
+
+	    if (colourTrait !== undefined)
+		path.className.baseVal = "trait_" + window.btoa(colourTrait);
+	    else
+		path.setAttribute("stroke", "black");
+
 	    svg.appendChild(path);
 	}
 
@@ -187,7 +191,18 @@ var Layout = Object.create({}, {
 
 	    if (!thisNode.isRoot()) {
 		var parentPos = posXform(this.nodePositions[thisNode.parent]);
-		newBranch(thisPos, parentPos, selectColour(thisNode, this.colourPallet), 1);
+		newBranch(thisPos, parentPos, selectColourTrait(thisNode));
+	    }
+	}
+
+	// Assign colours to trait classes:
+	
+	seenColourTraitValues.sort();
+	for (var t=0; t<seenColourTraitValues.length; t++ ){
+	    var thisVal = seenColourTraitValues[t];
+	    var lines = svg.getElementsByClassName("trait_" + window.btoa(thisVal));
+	    for (var l=0; l<lines.length; l++) {
+		lines[l].setAttribute("stroke", this.colourPallet[t%this.colourPallet.length]);
 	    }
 	}
 

@@ -266,6 +266,9 @@ var ZoomControl = Object.create({}, {
     dragOrigin: {value: [0,0], writable: true, configurable: true, enumerable: false},
     oldCentre: {value: [0,0], writable: true, configurable: true, enumerable: false},
 
+    width: {value: undefined, writable: true, configurable: true, enumerable: false},
+    height: {value: undefined, writable: true, configurable: true, enumerable: false},
+
 
     init: {value: function(svg, lineWidth, fontSize) {
         this.svg = svg;
@@ -273,10 +276,24 @@ var ZoomControl = Object.create({}, {
 	this.fontSize = fontSize;
 
 	// Set initial view box if undefined:
-	if (this.centre.toString() === "0,0") {
-	    this.centre = [Math.round(svg.getAttribute("width")/2),
-			   Math.round(svg.getAttribute("height")/2)];
+	if (!this.initialised) {
+	    this.width = svg.getAttribute("width");
+	    this.height = svg.getAttribute("height");
+	    this.centre = [Math.round(this.width/2),
+			   Math.round(this.height/2)];
 	    this.zoomFactor = 1.0;
+	    this.initialised = true;
+	} else {
+	    // Update centre on dimension change
+	    var newWidth = svg.getAttribute("width");
+	    if (this.width != newWidth)
+		this.centre[0] = this.centre[0]*newWidth/this.width;
+	    this.width = newWidth;
+
+	    var newHeight = svg.getAttribute("height");
+	    if (this.height != newHeight)
+		this.centre[1] = this.centre[1]*newHeight/this.height;
+	    this.height = svg.getAttribute("height");
 	}
 
 	this.updateView();
@@ -295,17 +312,18 @@ var ZoomControl = Object.create({}, {
 
     updateView: {value: function() {
 
-	var width = this.svg.getAttribute("width");
-	var height = this.svg.getAttribute("height");
+	// Sanitize zoom factor
+	this.zoomFactor = Math.max(this.zoomFactor,1);
 
-	var widthZoomed = width/this.zoomFactor;
-	var heightZoomed = height/this.zoomFactor;
+	var widthZoomed = this.width/this.zoomFactor;
+	var heightZoomed = this.height/this.zoomFactor;
 
+	// Sanitize centre point
 	this.centre[0] = Math.max(0.5*widthZoomed, this.centre[0]);
-	this.centre[0] = Math.min(width-0.5*widthZoomed, this.centre[0]);
+	this.centre[0] = Math.min(this.width-0.5*widthZoomed, this.centre[0]);
 
 	this.centre[1] = Math.max(0.5*heightZoomed, this.centre[1]);
-	this.centre[1] = Math.min(height-0.5*heightZoomed, this.centre[1]);
+	this.centre[1] = Math.min(this.height-0.5*heightZoomed, this.centre[1]);
 	
 	var x = Math.max(0, Math.round(this.centre[0] - 0.5*widthZoomed));
 	var y = Math.max(0, Math.round(this.centre[1] - 0.5*heightZoomed));

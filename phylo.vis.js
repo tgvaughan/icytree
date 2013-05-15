@@ -360,8 +360,8 @@ var ZoomControl = Object.create({}, {
 	this.centre[1] = Math.max(0.5*heightZoomed, this.centre[1]);
 	this.centre[1] = Math.min(this.height-0.5*heightZoomed, this.centre[1]);
 	
-	var x = Math.max(0, Math.round(this.centre[0] - 0.5*widthZoomed));
-	var y = Math.max(0, Math.round(this.centre[1] - 0.5*heightZoomed));
+	var x = Math.max(0, this.centre[0] - 0.5*widthZoomed);
+	var y = Math.max(0, this.centre[1] - 0.5*heightZoomed);
 
 	this.svg.setAttribute("viewBox", x + " " + y + " "
 			      + widthZoomed + " " + heightZoomed);

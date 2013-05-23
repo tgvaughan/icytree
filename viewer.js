@@ -300,6 +300,9 @@ function update() {
         }
     }
 
+    // Determine whether internal nodes should be marked:
+    var markInternalNodes = document.getElementById("markInternalNodes").checked;
+
     // Determine whether axis should be displayed:
     var showAxis = document.getElementById("axis").checked;
 
@@ -319,6 +322,7 @@ function update() {
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;
+    layout.markInternalNodes = markInternalNodes;
     layout.axis = showAxis;
     
     // Display!
@@ -328,7 +332,6 @@ function update() {
     svg.style.shapeRendering = "crispEdges";
     outputEl.appendChild(svg);
 
-    // C
 
     // Enable export button:
     document.getElementById("exportSVG").disabled = false;

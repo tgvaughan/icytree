@@ -36,6 +36,8 @@ var Layout = Object.create({}, {
     axis: {value: false, writable: true, configurable: true, enumerable: true},
     minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
 
+    markInternalNodes: {value: false, writable: true, configurable: true, enumerable: true},
+
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
     fontSize: {value: 20, writable: true, configurable: true, enumerable: true},
     
@@ -276,6 +278,30 @@ var Layout = Object.create({}, {
 	    }
 	}
 
+	function newNodeMark(node) {
+	    var pos = posXform(savedThis.nodePositions[node]);
+
+	    var dash = document.createElementNS(NS, "line");
+	    dash.setAttribute("x1", pos[0]-2*savedThis.lineWidth);
+	    dash.setAttribute("x2", pos[0]+2*savedThis.lineWidth);
+	    dash.setAttribute("y1", pos[1]-2*savedThis.lineWidth);
+	    dash.setAttribute("y2", pos[1]+2*savedThis.lineWidth);
+	    dash.setAttribute("stroke", "black");
+	    svg.appendChild(dash);
+	}
+
+	// Mark internal nodes:
+
+	if (this.markInternalNodes) {
+	    for (var i=0; i<this.tree.getNodeList().length; i++) {
+		var thisNode = this.tree.getNodeList()[i];
+		if (thisNode.isLeaf())
+		    continue;
+		
+		newNodeMark(thisNode);
+	    }
+	}
+
 	// Attach event handlers for pan and zoom:
 
 	if (this.includeZoomControl)
@@ -371,6 +397,7 @@ var ZoomControl = Object.create({}, {
 
 	// Update text scaling
 	this.svg.style.fontSize = this.fontSize/this.zoomFactor + "px";
+
     }},
 
     zoomEventHandler: {value: function(event) {

@@ -159,33 +159,49 @@ var Tree = Object.create({}, {
 	this.leafList = [];
     }},
 
-    // Retrieve list of traits covering the entire tree:
-    getTraitList: {value: function() {
+    // Retrieve list of traits defined on tree
+    getTraitList: {value: function(onAllNodes) {
 	if (this.root === undefined)
 	    return [];
 
-	var traitList = [];
+	var traitSet = {};
 
-	for (var trait in this.getLeafList()[0].annotation) {
-	    traitList.push(trait);
-	}
+	if (!onAllNodes) {
 
-	for (var i=1; i<this.getLeafList().length; i++) {
-	    var thisTraitList = [];
-	    for (var t=0; t<traitList.length; t++) {
-		if (this.getLeafList()[i].annotation.hasOwnProperty(traitList[t]))
-		    thisTraitList.push(traitList[t]);
+	    for (var i=0; i<this.getNodeList().length; i++) {
+		for (var trait in this.getNodeList()[i].annotation)
+		    traitSet[trait] = true;
 	    }
-	    traitList = thisTraitList;
+		
+	} else {
+
+	    for (var trait in this.getNodeList()[0].annotation) {
+		traitSet[trait] = true;
+	    }
+
+	    for (var i=0; i<this.getNodeList().length; i++) {
+		for (var trait in traitSet) {
+		    if (!(trait in this.getNodeList()[i].annotation)) {
+			delete traitSet[trait];
+		    }
+		}
+
+		if (Object.keys(traitSet).length===0) {
+		    // Can stop here - no traits left.
+		    break;
+		}
+	    }
 	    
-	    if (traitList.length===0) {
-		// Can stop here - no traits left.
-		break;
-	    }
 	}
+	
+	// Create list from set
+	var traitList = [];
+	for (trait in traitSet)
+	    traitList.push(trait);
 
 	return traitList;
     }},
+
 
     // Return deep copy of tree:
     copy: {value: function() {

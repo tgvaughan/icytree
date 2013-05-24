@@ -252,8 +252,12 @@ var Layout = Object.create({}, {
 		var traitValue;
 		if (this.tipTextTrait === "label")
 		    traitValue = thisNode.label;
-		else
-		    traitValue = thisNode.annotation[this.tipTextTrait];
+		else {
+		    if (thisNode.annotation[this.tipTextTrait] !== undefined)
+			traitValue = thisNode.annotation[this.tipTextTrait];
+		    else
+			traitValue = "";
+		}
 
 		newNodeText(thisNode, traitValue);
 	    }
@@ -271,8 +275,12 @@ var Layout = Object.create({}, {
 		var traitValue;
 		if (this.nodeTextTrait === "label")
 		    traitValue = thisNode.label;
-		else
-		    traitValue = thisNode.annotation[this.nodeTextTrait];
+		else {
+		    if (thisNode.annotation[this.tipTextTrait] !== undefined)
+			traitValue = thisNode.annotation[this.nodeTextTrait];
+		    else
+			traitValue = "";
+		}
                 
 		newNodeText(thisNode, traitValue);
 	    }

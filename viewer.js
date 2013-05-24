@@ -123,7 +123,7 @@ function prepareOutputForTree(string) {
 }
 
 // Update form elements containing trait selectors
-function updateTraitSelectors(traitList) {
+function updateTraitSelectors(tree) {
     
     var elementIDs = ["colourTrait", "tipTextTrait", "nodeTextTrait"];
     for (var eidx=0; eidx<elementIDs.length; eidx++) {
@@ -135,14 +135,23 @@ function updateTraitSelectors(traitList) {
         // Clear old traits:
         el.innerHTML = "";
 	
-        // Ensure first element is "label" if this is a text trait
-        if (elementIDs[eidx] !== "colourTrait") {
+        // Selector-dependent stuff:
+	// Colour selector only allows traits common to _all_ nodes on tree.
+	// All other selectors include the node label as an option.
+
+	var traitList;
+        if (elementIDs[eidx] === "colourTrait") {
+	    traitList = tree.getTraitList(true);
+
+	} else {
+	    traitList = tree.getTraitList(false);
             var selector = document.createElement("option");
             selector.setAttribute("value", "label");
             selector.textContent = "label";
             el.appendChild(selector);   
         }
 
+	// Construct selector trait lists:
         for (var i=0; i<traitList.length; i++) {
             var selector = document.createElement("option");
             selector.setAttribute("value", traitList[i]);
@@ -271,7 +280,7 @@ function update() {
     }
 
     // Update trait selectors:
-    updateTraitSelectors(tree.getTraitList());
+    updateTraitSelectors(tree);
     
     // Determine whether colouring is required:
     var colourTrait = undefined;

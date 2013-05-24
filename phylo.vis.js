@@ -276,13 +276,14 @@ var Layout = Object.create({}, {
 		if (this.nodeTextTrait === "label")
 		    traitValue = thisNode.label;
 		else {
-		    if (thisNode.annotation[this.tipTextTrait] !== undefined)
+		    if (thisNode.annotation[this.nodeTextTrait] !== undefined)
 			traitValue = thisNode.annotation[this.nodeTextTrait];
 		    else
 			traitValue = "";
 		}
                 
-		newNodeText(thisNode, traitValue);
+		if (traitValue !== "")
+		    newNodeText(thisNode, traitValue);
 	    }
 	}
 

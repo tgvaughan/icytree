@@ -39,7 +39,7 @@ var Layout = Object.create({}, {
     markInternalNodes: {value: false, writable: true, configurable: true, enumerable: true},
 
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
-    fontSize: {value: 20, writable: true, configurable: true, enumerable: true},
+    fontSize: {value: 15, writable: true, configurable: true, enumerable: true},
     
     includeZoomControl: {value: true, writable: true, configurable: true, enumerable: true},
 
@@ -424,12 +424,23 @@ var ZoomControl = Object.create({}, {
 	    zoomFactorP = Math.max(1, zoomFactorP/1.1);
 	}
 
-	// Update centre so that tree coordinates under mouse don't
-	// change:
 	var width = this.svg.getAttribute("width");
 	var height = this.svg.getAttribute("height");
-	this.centre[0] += (1/this.zoomFactor - 1/zoomFactorP)*(event.layerX - 0.5*width);
-	this.centre[1] += (1/this.zoomFactor - 1/zoomFactorP)*(event.layerY - 0.5*height);
+
+	// Get position of mouse relative to top-left corner.
+	// (This is a hack.  Should modify centre update formula to
+	// make use of SVG coordinates.)
+	var point = this.svg.createSVGPoint();
+	point.x = this.centre[0] - 0.5*width/this.zoomFactor;
+	point.y = this.centre[1] - 0.5*height/this.zoomFactor;
+	point = point.matrixTransform(this.svg.getScreenCTM());
+	point.x = event.clientX - point.x;
+	point.y = event.clientY - point.y;
+
+	// Update centre so that SVG coordinates under mouse don't
+	// change:
+	this.centre[0] += (1/this.zoomFactor - 1/zoomFactorP)*(point.x - 0.5*width);
+	this.centre[1] += (1/this.zoomFactor - 1/zoomFactorP)*(point.y - 0.5*height);
 
 	this.zoomFactor = zoomFactorP;
 

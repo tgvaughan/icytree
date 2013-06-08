@@ -333,14 +333,13 @@ function update() {
     layout.nodeTextTrait = nodeTextTrait;
     layout.markInternalNodes = markInternalNodes;
     layout.axis = showAxis;
-    
+
     // Display!
     outputEl.innerHTML = "";
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
     svg.style.shapeRendering = "crispEdges";
     outputEl.appendChild(svg);
-
 
     // Enable export button:
     document.getElementById("exportSVG").disabled = false;

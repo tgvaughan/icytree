@@ -206,8 +206,18 @@ var Tree = Object.create({}, {
     // Return deep copy of tree:
     copy: {value: function() {
 	return Object.create(Tree).init(this.root.copy());
-    }}
+    }},
 
+    
+    // Translate labels using provided map:
+    translate: {value: function(tmap) {
+
+	var nodeList = this.getNodeList();
+	for (var i=0; i<nodeList.length; i++) {
+	    if (tmap.hasOwnProperty(nodeList[i].label))
+		nodeList[i].label = tmap[nodeList[i].label];
+	}
+    }}
 });
 
 // Prototype for trees constructed from Newick strings
@@ -243,7 +253,7 @@ var TreeFromNewick = Object.create(Tree, {
 	["NUM", /^-?\d+(\.\d+)?([Ee]-?\d+)?/, true],
 	["STRING", /^"[^"]+"/, true],
 	["STRING",/^'[^']+'/, true],
-	["STRING", /^[\w*%.]+/, true]
+	["STRING", /^[\w*%.\-\+]+/, true]
 
     ], writeable: false, configurable: false},
 
@@ -477,39 +487,64 @@ var TreeFromNewick = Object.create(Tree, {
 // Function to read one or more trees from
 // a NEXUS or (as fall-back) a Newick formatted string
 var getTreesFromString = function(string) {
-
+    
     var trees = [];
-
+    
     var lines = string.split('\n');
-
+    
     if (lines[0].trim().toLowerCase() === "#nexus") {
+	
 	// Parse as NEXUS file
 	var inTrees = false;
+	var fullLine = "";
+	var tmap = {};
 	for (var i=0; i<lines.length; i++) {
-	    var thisLine = lines[i].trim();
-	    if (thisLine.length === 0)
+	    
+	    fullLine += lines[i].trim();
+	    if (fullLine[fullLine.length-1] !== ";") {
 		continue;
-
+	    }
+	    
 	    if (!inTrees) {
-		if (thisLine.toLowerCase() === "begin trees;")
+		if (fullLine.toLowerCase() === "begin trees;")
 		    inTrees = true;
+		fullLine = "";
 		continue;
 	    }
 
-	    if (thisLine.toLowerCase() === "end;")
+	    if (fullLine.toLowerCase() === "end;")
 		break;
 
-	    if (thisLine.toLowerCase().indexOf("tree") !== 0)
+	    // Parse translate line:
+	    if (fullLine.toLowerCase().match("^translate")) {
+		var tStringArray = fullLine.slice(9,fullLine.length-1).split(",");
+		for (var j=0; j<tStringArray.length; j++) {
+		    var tvec = tStringArray[j].split(" ");
+		    tmap[tvec[0]] = tvec[1];
+		}
+		fullLine = "";
 		continue;
+	    }
 
-	    var eqIdx = thisLine.indexOf("(");
+	    // Parse tree line:
+
+	    if (fullLine.toLowerCase().indexOf("tree") !== 0) {
+		fullLine = "";
+		continue;
+	    }
+
+	    var eqIdx = fullLine.indexOf("(");
 	    if (eqIdx<0)
 		throw "Error parsing NEXUS";
 	    
-	    trees.push(Object.create(TreeFromNewick).init(thisLine.slice(eqIdx)));
+	    trees.push(Object.create(TreeFromNewick).init(fullLine.slice(eqIdx)));
+	    trees[trees.length-1].translate(tmap);
+
+	    fullLine = "";
 	}
 
     } else {
+
 	// Parse as newline-delimited Newick strings
 	for (var i=0; i<lines.length; i++) {
 	    var thisLine = lines[i].trim();

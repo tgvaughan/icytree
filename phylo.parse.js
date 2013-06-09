@@ -498,7 +498,7 @@ var getTreesFromString = function(string) {
 	var inTrees = false;
 	var fullLine = "";
 	var tmap = {};
-	for (var i=0; i<lines.length; i++) {
+	for (var i=1; i<lines.length; i++) {
 	    
 	    fullLine += lines[i].trim();
 	    if (fullLine[fullLine.length-1] !== ";") {

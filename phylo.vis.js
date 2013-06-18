@@ -36,7 +36,7 @@ var Layout = Object.create({}, {
     axis: {value: false, writable: true, configurable: true, enumerable: true},
     minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
 
-    markInternalNodes: {value: false, writable: true, configurable: true, enumerable: true},
+    markSingletonNodes: {value: false, writable: true, configurable: true, enumerable: true},
 
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
     fontSize: {value: 15, writable: true, configurable: true, enumerable: true},
@@ -299,12 +299,12 @@ var Layout = Object.create({}, {
 	    svg.appendChild(dash);
 	}
 
-	// Mark internal nodes:
+	// Mark singleton nodes:
 
-	if (this.markInternalNodes) {
+	if (this.markSingletonNodes) {
 	    for (var i=0; i<this.tree.getNodeList().length; i++) {
 		var thisNode = this.tree.getNodeList()[i];
-		if (thisNode.isLeaf())
+		if (thisNode.children.length !== 1)
 		    continue;
 		
 		newNodeMark(thisNode);

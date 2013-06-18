@@ -309,8 +309,8 @@ function update() {
         }
     }
 
-    // Determine whether internal nodes should be marked:
-    var markInternalNodes = document.getElementById("markInternalNodes").checked;
+    // Determine whether singleton nodes should be marked:
+    var markSingletonNodes = document.getElementById("markSingletonNodes").checked;
 
     // Determine whether axis should be displayed:
     var showAxis = document.getElementById("axis").checked;
@@ -331,7 +331,7 @@ function update() {
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;
-    layout.markInternalNodes = markInternalNodes;
+    layout.markSingletonNodes = markSingletonNodes;
     layout.axis = showAxis;
 
     // Display!

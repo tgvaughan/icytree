@@ -233,8 +233,6 @@ var Layout = Object.create({}, {
 
 	    if (node.children.length === 1)
 		pos[1] -= 2;
-	    else if (node.isLeaf())
-		pos[0] += 2;
 
 	    var text = document.createElementNS(NS, "text");
 	    text.setAttribute("x", pos[0]);

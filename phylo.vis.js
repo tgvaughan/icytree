@@ -36,12 +36,12 @@ var Layout = Object.create({}, {
     axis: {value: false, writable: true, configurable: true, enumerable: true},
     minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
 
-    markSingletonNodes: {value: false, writable: true, configurable: true, enumerable: true},
+    markInternalNodes: {value: false, writable: true, configurable: true, enumerable: true},
 
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
     fontSize: {value: 15, writable: true, configurable: true, enumerable: true},
     
-    includeZoomControl: {value: true, writable: true, configurable: true, enumerable: true},
+    zoomControl: {value: undefined, writable: true, configurable: true, enumerable: true},
 
     init: {value: function(tree) {
 	this.tree = tree;
@@ -297,12 +297,12 @@ var Layout = Object.create({}, {
 	    svg.appendChild(dash);
 	}
 
-	// Mark singleton nodes:
+	// Mark internal nodes:
 
-	if (this.markSingletonNodes) {
+	if (this.markInternalNodes) {
 	    for (var i=0; i<this.tree.getNodeList().length; i++) {
 		var thisNode = this.tree.getNodeList()[i];
-		if (thisNode.children.length !== 1)
+		if (thisNode.isLeaf())
 		    continue;
 		
 		newNodeMark(thisNode);
@@ -311,8 +311,10 @@ var Layout = Object.create({}, {
 
 	// Attach event handlers for pan and zoom:
 
-	if (this.includeZoomControl)
-	    ZoomControl.init(svg, this.lineWidth, this.fontSize);
+	if (this.zoomControl === undefined)
+	    this.zoomControl = Object.create(ZoomControl);
+
+	this.zoomControl.init(svg, this.lineWidth, this.fontSize);
 
 	return svg;
     }}

@@ -13,12 +13,13 @@
   </head>
 
   <body onload="initialise();">
-
+    
     <!-- Control panel -->
     <div id="topmenu">
-      <div class="sub"><svg height="40" width="15">
+      <div class="sub">
+	<svg height="40" width="15">
 	  <path d="M 0 0 L 15 20 L 0 40" fill="blue"/>
-<!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
+	  <!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
 	</svg>
 	<ul class="sub">
 	  <li>
@@ -26,14 +27,15 @@
 		      onchange="pasteInputHandler();"></textarea>
 	  </li>
 	  <li><input id="fileInput" type="file" size="15" style="width: 220px"
-		   onchange="fileInputHandler();"/>
+		     onchange="fileInputHandler();"/>
 	  </li>
 	  <li><a href="#" id="fileReload" onclick="loadFile();">Reload File</a></li>
 	  <li><a href="#" id="exportSVG" onclick="exportSVG();">Export SVG</a></li>
 	</ul>
       </div>
       
-      <div class="sub"><svg height="40" width="15">
+      <div class="sub">
+	<svg height="40" width="15">
 	  <path d="M 0 0 L 15 20 L 0 40" fill="purple"/>
 	  <!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
 	</svg>
@@ -95,7 +97,7 @@
 	  </li>
 	</ul>
       </div>
-</div>
+    </div>
 </div>
 
 <!-- Main output element -->

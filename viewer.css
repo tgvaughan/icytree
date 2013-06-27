@@ -35,11 +35,8 @@ ul.sub li {
 
 
 #treeSelect {
-    border-top: solid gray 1px;
-    border-bottom: solid gray 1px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    text-align: center;
+    margin: 0px;
+    padding: 0px;
 }
 
 #output {

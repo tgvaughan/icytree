@@ -22,22 +22,14 @@
 	</svg>
 	<ul class="sub">
 	  <li>
-	    Paste NEXUS/Newick tree string here:
 	    <textarea id="pasteInput" placeholder="newick string..."
 		      onchange="pasteInputHandler();"></textarea>
 	  </li>
-	  <li>Select NEXUS/Newick tree file here:
-	    <input id="fileInput" type="file" size="15" style="width: 220px"
+	  <li><input id="fileInput" type="file" size="15" style="width: 220px"
 		   onchange="fileInputHandler();"/>
 	  </li>
-	  <li>
-	    <button id="fileReload" type="button" disabled="true"
-		    onclick="loadFile();">Reload File</button>
-	  </li>
-	  <li>
-	    <button id="exportSVG" type="button" disabled="true"
-		    onclick="exportSVG();">Export SVG</button>
-	  </li>
+	  <li><a href="#" id="fileReload" onclick="loadFile();">Reload File</a></li>
+	  <li><a href="#" id="exportSVG" onclick="exportSVG();">Export SVG</a></li>
 	</ul>
       </div>
       

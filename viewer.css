@@ -12,12 +12,12 @@ body {
     z-index: 1;
 }
 
-#topmenu div:hover > ul { display: block; }
-#topmenu div:after {display: block; }
-
-nav ul:after {
-		content: ""; clear: both; display: block;
+#topmenu div {
+    position: relative;
+    margin-bottom: 25px;
 }
+
+#topmenu div:hover > ul { display: block; position: absolute; top: 0px; left: 15px; }
 
 ul.sub {
     display: none;

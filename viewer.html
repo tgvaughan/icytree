@@ -15,75 +15,93 @@
   <body onload="initialise();">
 
     <!-- Control panel -->
-    <div id="controls">
-      <ul>
-      <li>
-	<div id="source">
-	  Paste NEXUS/Newick tree string here:
-	  <textarea id="pasteInput" placeholder="newick string..."
-		    onchange="pasteInputHandler();"></textarea>
-	  <div id="or">
-	    - OR -
+    <ul id="topmenu">
+      <li>File
+	<ul class="sub">
+	  <li>
+	    <ul>
+	      <li>
+		Paste NEXUS/Newick tree string here:
+		<textarea id="pasteInput" placeholder="newick string..."
+			  onchange="pasteInputHandler();"></textarea>
+	      </li>
+	      <li>Select NEXUS/Newick tree file here:
+		<input id="fileInput" type="file" size="15" style="width: 220px"
+		       onchange="fileInputHandler();"/>
+	      </li>
+	      <li>
+		<button id="fileReload" type="button" disabled="true"
+			onclick="loadFile();">Reload File</button>
+	      </li>
+	      <li>
+		<button id="exportSVG" type="button" disabled="true"
+			onclick="exportSVG();">Export SVG</button>
+	      </li>
+	    </ul>
+	  </li>
+	</ul>
+      </li>
+
+      <li>Style
+	<ul class="sub">
+	  <li>
+	    <ul>
+	      <li><input type="checkbox" checked="checked" id="sort"
+			 onchange="document.getElementById('sortOrder').disabled=!this.checked;
+				   update();"/>sort nodes:
+		<select name="sortOrder" id="sortOrder" onchange="update();">
+		  <option value="decending">descending</option>
+		  <option value="ascending">ascending</option>
+		</select>
+	      </li>
+	      <li><input type="checkbox" id="colour"
+			 onchange="document.getElementById('colourTrait').disabled=!this.checked;
+				   update();"/>colour by trait:
+		<select name="colourTrait" id="colourTrait" onchange="update();"
+			disabled="disabled">
+	      </select></li>
+	      <li><input type="checkbox" id="tipText" checked="true"
+			 onchange="document.getElementById('tipTextTrait').disabled=!this.checked;
+				 update();"/>tip text:
+	      <select name="tipTextTrait" id="tipTextTrait" onchange="update();">
+		<option value="label">label</option>
+	    </select></li>
+	    <li><input type="checkbox" id="nodeText"
+		       onchange="document.getElementById('nodeTextTrait').disabled=!this.checked;
+				 update();"/>int. node text:
+	      <select name="nodeTextTrait" id="nodeTextTrait" onchange="update();"
+		      disabled="disabled">
+		<option value="label">label</option>
+	    </select></li>
+	    <li><input type="checkbox" id="markSingletonNodes" onchange="update();"/>mark singleton nodes</li>
+	    <li><input type="checkbox" id="axis" onchange="update();"/>time axis</li>
+	  </ul>
+	</li>
+	</ul>
+      </li>
+
+      <li>Nav
+	<ul class="sub">
+	  <li>
+	  <div id="treeSelect">
+	    <div id="treeCounter"></div>
+	    <button id="firstTree" type="button" disabled="disabled"
+		    onclick="currentTreeIdx-=Math.round(trees.length/10); update();">&lt;&lt;</button>
+	    <button id="prevTree" type="button" disabled="disabled"
+		    onclick="currentTreeIdx-=1; update();">&lt;</button>
+	    <button id="nextTree" type="button" disabled="disabled"
+		    onclick="currentTreeIdx+=1; update();">&gt;</button>
+	    <button id="lastTree" type="button" disabled="disabled"
+		    onclick="currentTreeIdx+=Math.round(trees.length/10); update();">&gt;&gt;</button>
 	  </div>
-	  Select NEXUS/Newick tree file here:
-	  <input id="fileInput" type="file" size="15" style="width: 220px"
-		 onchange="fileInputHandler();"/>
-	  <button id="fileReload" type="button" disabled="true"
-		  onclick="loadFile();">Reload File</button>
-	</div>
+	  </li>
+	</ul>
       </li>
-      <li><input type="checkbox" checked="checked" id="sort"
-		 onchange="document.getElementById('sortOrder').disabled=!this.checked;
-			   update();"/>sort nodes:
-	<select name="sortOrder" id="sortOrder" onchange="update();">
-	  <option value="decending">descending</option>
-	  <option value="ascending">ascending</option>
-	</select>
-      </li>
-      <li><input type="checkbox" id="colour"
-		 onchange="document.getElementById('colourTrait').disabled=!this.checked;
-			   update();"/>colour by trait:
-	<select name="colourTrait" id="colourTrait" onchange="update();"
-		disabled="disabled">
-	</select></li>
-      <li><input type="checkbox" id="tipText" checked="true"
-		 onchange="document.getElementById('tipTextTrait').disabled=!this.checked;
-			   update();"/>tip text:
-	<select name="tipTextTrait" id="tipTextTrait" onchange="update();">
-	  <option value="label">label</option>
-      </select></li>
-      <li><input type="checkbox" id="nodeText"
-		 onchange="document.getElementById('nodeTextTrait').disabled=!this.checked;
-			   update();"/>int. node text:
-	<select name="nodeTextTrait" id="nodeTextTrait" onchange="update();"
-		disabled="disabled">
-	  <option value="label">label</option>
-      </select></li>
-      <li><input type="checkbox" id="markSingletonNodes"
-		 onchange="update();">mark singleton nodes</input></li>
-      <li><input type="checkbox" id="axis"
-		 onchange="update();">time axis</input></li>
-      <li>
-	<div id="treeSelect">
-	  <div id="treeCounter"></div>
-	  <button id="firstTree" type="button" disabled="disabled"
-		  onclick="currentTreeIdx-=Math.round(trees.length/10); update();">&lt;&lt;</button>
-	  <button id="prevTree" type="button" disabled="disabled"
-		  onclick="currentTreeIdx-=1; update();">&lt;</button>
-	  <button id="nextTree" type="button" disabled="disabled"
-		  onclick="currentTreeIdx+=1; update();">&gt;</button>
-	  <button id="lastTree" type="button" disabled="disabled"
-		  onclick="currentTreeIdx+=Math.round(trees.length/10); update();">&gt;&gt;</button>
-	</div>
-      </li>
-	<button id="exportSVG" type="button" disabled="true"
-		onclick="exportSVG();">Export SVG</button>
-      <li>
-      </ul>
-    </div>
+    </ul>
+</div>
 
-    <!-- Main output element -->
-    <div id="output"></div>
+<!-- Main output element -->
+<div id="output"></div>
 
-  </body>
+</body>
 </html>

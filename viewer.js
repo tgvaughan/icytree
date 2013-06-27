@@ -9,20 +9,6 @@ var controlsHidden = false;
 var outputEl = undefined;
 var zoomControl = undefined;
 
-function toggleControls() {
-    controlsHidden = !controlsHidden;
-
-    if (controlsHidden) {
-	document.getElementById("controls").style.display = "none";
-	document.getElementById("controlRestorer").style.display = "block";
-    } else {
-	document.getElementById("controls").style.display = "block";
-	document.getElementById("controlRestorer").style.display = "none";
-    }
-
-    update();
-}
-
 function fileInputHandler() {
     treeFile = document.getElementById("fileInput").files[0];
 
@@ -117,12 +103,12 @@ function prepareOutputForTree(string) {
 // Update form elements containing trait selectors
 function updateTraitSelectors(tree) {
     
-    var elementIDs = ["colourTrait", "tipTextTrait", "nodeTextTrait"];
+    var elementIDs = ["colourTraitSelector", "tipTextTraitSelector", "nodeTextTraitSelector"];
     for (var eidx=0; eidx<elementIDs.length; eidx++) {
         var el = document.getElementById(elementIDs[eidx]);
 	
-        // Save currently selected element index:
-        var idx = el.selectedIndex;
+        // Save currently selected trait:
+        var selectedTrait =  el.getElementsByClassName("checked")[0].children[0].text;
 	
         // Clear old traits:
         el.innerHTML = "";
@@ -131,29 +117,27 @@ function updateTraitSelectors(tree) {
 	// Colour selector only allows traits common to _all_ nodes on tree.
 	// All other selectors include the node label as an option.
 
-	var traitList;
-        if (elementIDs[eidx] === "colourTrait") {
-	    traitList = tree.getTraitList(true);
+	var traitList = ["None"];
+        if (elementIDs[eidx] === "colourTraitSelector") {
+	    traitList = traitList.concat(tree.getTraitList(true));
 
 	} else {
-	    traitList = tree.getTraitList(false);
-            var selector = document.createElement("option");
-            selector.setAttribute("value", "label");
-            selector.textContent = "label";
-            el.appendChild(selector);   
+	    traitList.push("Node label");
+	    traitList = traitList.concat(tree.getTraitList(false));
         }
 
 	// Construct selector trait lists:
         for (var i=0; i<traitList.length; i++) {
-            var selector = document.createElement("option");
-            selector.setAttribute("value", traitList[i]);
-            selector.textContent = traitList[i];
-            el.appendChild(selector);
+            var selector = document.createElement("li");
+	    var a = document.createElement("a");
+	    a.setAttribute("href","#");
+	    a.textContent = traitList[i];
+	    selector.appendChild(a);
+	    if (traitList[i] === selectedTrait)
+		selector.className = "checked";
+	    el.appendChild(selector);
         }
 
-        // Restore selected index:
-        if (idx>=0)
-            el.selectedIndex = idx;
     }
 }
 
@@ -263,12 +247,15 @@ function update() {
     var tree = trees[currentTreeIdx].copy();
 
     // Sort tree nodes
-    if (document.getElementById("sort").checked) {
-        var sortOrderElement = document.getElementById("sortOrder");
-        if (sortOrderElement.options[sortOrderElement.selectedIndex].value === "ascending")
-            tree.sortNodes(false);
-        else
-            tree.sortNodes(true);
+    switch (document.getElementById("sortSelector").getElementsByClassName("checked")[0].children[0].text) {
+    case "Ascending":
+        tree.sortNodes(false);
+	break;
+    case "Descending":
+        tree.sortNodes(true);
+	break;
+    default:
+	break;
     }
 
     // Update trait selectors:
@@ -276,29 +263,23 @@ function update() {
     
     // Determine whether colouring is required:
     var colourTrait = undefined;
-    if (document.getElementById("colour").checked) {
-        var colourTraitElement = document.getElementById("colourTrait");
-	if (colourTraitElement.selectedIndex>=0) {
-	    colourTrait = colourTraitElement.options[colourTraitElement.selectedIndex].value;
-	}
+    var colourTraitEl = document.getElementById("colourTraitSelector").getElementsByClassName("checked")[0];
+    if (colourTraitEl.text !== "None") {
+	colourTrait = colourTraitEl.text
     }
     
     // Determine whether tip labels are required:
     var tipTextTrait = undefined;
-    if (document.getElementById("tipText").checked) {
-        var tipTextTraitElement = document.getElementById("tipTextTrait");
-        if (tipTextTraitElement.selectedIndex>=0) {
-            tipTextTrait = tipTextTraitElement.options[tipTextTraitElement.selectedIndex].value;
-        }
+    var tipTextTraitEl = document.getElementById("tipTextTraitSelector").getElementsByClassName("checked")[0];
+    if (tipTextTraitEl.text !== "None") {
+	tipTextTrait = tipTextTraitEl.text
     }
 
     // Determine whether internal node labels are required:
     var nodeTextTrait = undefined;
-    if (document.getElementById("nodeText").checked) {
-        var nodeTextTraitElement = document.getElementById("nodeTextTrait");
-        if (nodeTextTraitElement.selectedIndex>=0) {
-            nodeTextTrait = nodeTextTraitElement.options[nodeTextTraitElement.selectedIndex].value;
-        }
+    var nodeTextTraitEl = document.getElementById("nodeTextTraitSelector").getElementsByClassName("checked")[0];
+    if (nodeTextTraitEl.text !== "None") {
+	nodeTextTrait = nodeTextTraitEl.text
     }
 
     // Determine whether internal nodes should be marked:

@@ -26,7 +26,7 @@
 	    <textarea id="pasteInput" placeholder="newick string..."
 		      onchange="pasteInputHandler();"></textarea>
 	  </li>
-	  <li><input id="fileInput" type="file" size="15" style="width: 220px"
+	  <li><input id="fileInput" type="file" size="10"
 		     onchange="fileInputHandler();"/>
 	  </li>
 	  <li><a href="#" id="fileReload" onclick="loadFile();">Reload File</a></li>
@@ -42,32 +42,32 @@
 	<ul class="sub">
 	  <li>Sort nodes
 	    <div class="subsub">
-	      <ul class="subsub">
-		<li><a class="checked" href="#">Ascending</a></li>
-		<li><a href="#">Descending</a></li>
+	      <ul id="sortSelector" class="subsub">
+		<li class="checked"><a href="#">Descending</a></li>
+		<li><a href="#">Ascending</a></li>
 		<li><a href="#">Don't sort</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Colour edges by trait
 	    <div class="subsub">
-	      <ul class="subsub">
-		<li><a class="checked" href="#">Don't colour</a></li>
+	      <ul id="colourTraitSelector" class="subsub">
+		<li class="checked"><a href="#">None</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Tip text
 	    <div class="subsub">
-	      <ul class="subsub">
+	      <ul id="tipTextTraitSelector" class="subsub">
 		<li><a href="#">None</a></li>
-		<li><a class="checked" href="#">Node label</a></li>
+		<li class="checked"><a href="#">Node label</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Internal node text
 	    <div class="subsub">
-	      <ul class="subsub">
-		<li><a class="checked" href="#">None</a></li>
+	      <ul id="nodeTextTraitSelector" class="subsub">
+		<li class="checked"><a href="#">None</a></li>
 		<li><a href="#">Node label</a></li>
 	      </ul>
 	    </div>

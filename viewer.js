@@ -112,11 +112,6 @@ function prepareOutputForTree(string) {
 
     output.style.color = "inherit";
 
-    if (!controlsHidden)
-	output.style.left = "270px";
-    else
-	output.style.left = "0px";
-
 }
 
 // Update form elements containing trait selectors
@@ -307,7 +302,7 @@ function update() {
     }
 
     // Determine whether internal nodes should be marked:
-    var markInternalNodes = document.getElementById("markInternalNodes").checked;
+    var markSingletonNodes = document.getElementById("markSingletonNodes").checked;
 
     // Determine whether axis should be displayed:
     var showAxis = document.getElementById("axis").checked;
@@ -325,7 +320,7 @@ function update() {
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;
-    layout.markInternalNodes = markInternalNodes;
+    layout.markSingletonNodes = markSingletonNodes;
     layout.axis = showAxis;
 
     // Use existing zoom control instance:

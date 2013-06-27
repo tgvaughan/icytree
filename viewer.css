@@ -7,23 +7,29 @@ body {
     position: absolute;
     top: 0px;
     left: 0px;
+    margin: 0px;
+    padding: 0px;
     z-index: 1;
 }
 
-ul#topmenu li {
-    display: inline;
-}
+#topmenu div:hover > ul { display: block; }
+#topmenu div:after {display: block; }
 
-#topmenu li:hover > ul { display: block; }
+nav ul:after {
+		content: ""; clear: both; display: block;
+}
 
 ul.sub {
     display: none;
     border: solid gray 1px;
+    width: 200px;
+    padding: 0px;
+    margin: 0px;
 }
 
-li {
-    margin-right: 10px;
-    padding: 5px;
+ul.sub li {
+    padding: 0px;
+    margin: 0px;
     list-style-type: none;
 }
 

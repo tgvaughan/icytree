@@ -15,89 +15,90 @@
   <body onload="initialise();">
 
     <!-- Control panel -->
-    <ul id="topmenu">
-      <li>File
+    <div id="topmenu">
+      <div id="fileMenu"><svg height="40" width="15">
+	  <path d="M 0 0 L 15 20 L 0 40" fill="blue"/>
+<!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
+	</svg>
 	<ul class="sub">
 	  <li>
-	    <ul>
-	      <li>
-		Paste NEXUS/Newick tree string here:
-		<textarea id="pasteInput" placeholder="newick string..."
-			  onchange="pasteInputHandler();"></textarea>
-	      </li>
-	      <li>Select NEXUS/Newick tree file here:
-		<input id="fileInput" type="file" size="15" style="width: 220px"
-		       onchange="fileInputHandler();"/>
-	      </li>
-	      <li>
-		<button id="fileReload" type="button" disabled="true"
-			onclick="loadFile();">Reload File</button>
-	      </li>
-	      <li>
-		<button id="exportSVG" type="button" disabled="true"
-			onclick="exportSVG();">Export SVG</button>
-	      </li>
-	    </ul>
+	    Paste NEXUS/Newick tree string here:
+	    <textarea id="pasteInput" placeholder="newick string..."
+		      onchange="pasteInputHandler();"></textarea>
+	  </li>
+	  <li>Select NEXUS/Newick tree file here:
+	    <input id="fileInput" type="file" size="15" style="width: 220px"
+		   onchange="fileInputHandler();"/>
+	  </li>
+	  <li>
+	    <button id="fileReload" type="button" disabled="true"
+		    onclick="loadFile();">Reload File</button>
+	  </li>
+	  <li>
+	    <button id="exportSVG" type="button" disabled="true"
+		    onclick="exportSVG();">Export SVG</button>
 	  </li>
 	</ul>
-      </li>
-
-      <li>Style
+      </div>
+      
+      <div id="styleMenu"><svg height="40" width="15">
+	  <path d="M 0 0 L 15 20 L 0 40" fill="purple"/>
+	  <!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
+	</svg>
 	<ul class="sub">
-	  <li>
-	    <ul>
-	      <li><input type="checkbox" checked="checked" id="sort"
-			 onchange="document.getElementById('sortOrder').disabled=!this.checked;
-				   update();"/>sort nodes:
-		<select name="sortOrder" id="sortOrder" onchange="update();">
-		  <option value="decending">descending</option>
-		  <option value="ascending">ascending</option>
-		</select>
-	      </li>
-	      <li><input type="checkbox" id="colour"
-			 onchange="document.getElementById('colourTrait').disabled=!this.checked;
-				   update();"/>colour by trait:
-		<select name="colourTrait" id="colourTrait" onchange="update();"
-			disabled="disabled">
-	      </select></li>
-	      <li><input type="checkbox" id="tipText" checked="true"
-			 onchange="document.getElementById('tipTextTrait').disabled=!this.checked;
-				 update();"/>tip text:
-	      <select name="tipTextTrait" id="tipTextTrait" onchange="update();">
-		<option value="label">label</option>
-	    </select></li>
-	    <li><input type="checkbox" id="nodeText"
-		       onchange="document.getElementById('nodeTextTrait').disabled=!this.checked;
-				 update();"/>int. node text:
-	      <select name="nodeTextTrait" id="nodeTextTrait" onchange="update();"
-		      disabled="disabled">
-		<option value="label">label</option>
-	    </select></li>
-	    <li><input type="checkbox" id="markSingletonNodes" onchange="update();"/>mark singleton nodes</li>
-	    <li><input type="checkbox" id="axis" onchange="update();"/>time axis</li>
-	  </ul>
-	</li>
+	  <li><input type="checkbox" checked="checked" id="sort"
+		     onchange="document.getElementById('sortOrder').disabled=!this.checked;
+			       update();"/>sort nodes:
+	    <select name="sortOrder" id="sortOrder" onchange="update();">
+	      <option value="decending">descending</option>
+	      <option value="ascending">ascending</option>
+	    </select>
+	  </li>
+	  <li><input type="checkbox" id="colour"
+		     onchange="document.getElementById('colourTrait').disabled=!this.checked;
+			       update();"/>colour by trait:
+	    <select name="colourTrait" id="colourTrait" onchange="update();"
+		    disabled="disabled">
+	  </select></li>
+	  <li><input type="checkbox" id="tipText" checked="true"
+		     onchange="document.getElementById('tipTextTrait').disabled=!this.checked;
+			       update();"/>tip text:
+	    <select name="tipTextTrait" id="tipTextTrait" onchange="update();">
+	      <option value="label">label</option>
+	  </select></li>
+	  <li><input type="checkbox" id="nodeText"
+		     onchange="document.getElementById('nodeTextTrait').disabled=!this.checked;
+			       update();"/>int. node text:
+	    <select name="nodeTextTrait" id="nodeTextTrait" onchange="update();"
+		    disabled="disabled">
+	      <option value="label">label</option>
+	  </select></li>
+	  <li><input type="checkbox" id="markSingletonNodes" onchange="update();"/>mark singleton nodes</li>
+	  <li><input type="checkbox" id="axis" onchange="update();"/>time axis</li>
 	</ul>
-      </li>
+      </div>
 
-      <li>Nav
+      <div id="navMenu">
+	<svg height="40" width="15">
+	  <path d="M 0 0 L 15 20 L 0 40" fill="red"/>
+	</svg>
 	<ul class="sub">
 	  <li>
-	  <div id="treeSelect">
-	    <div id="treeCounter"></div>
-	    <button id="firstTree" type="button" disabled="disabled"
-		    onclick="currentTreeIdx-=Math.round(trees.length/10); update();">&lt;&lt;</button>
-	    <button id="prevTree" type="button" disabled="disabled"
-		    onclick="currentTreeIdx-=1; update();">&lt;</button>
-	    <button id="nextTree" type="button" disabled="disabled"
-		    onclick="currentTreeIdx+=1; update();">&gt;</button>
-	    <button id="lastTree" type="button" disabled="disabled"
-		    onclick="currentTreeIdx+=Math.round(trees.length/10); update();">&gt;&gt;</button>
-	  </div>
+	    <div id="treeSelect">
+	      <div id="treeCounter"></div>
+	      <button id="firstTree" type="button" disabled="disabled"
+		      onclick="currentTreeIdx-=Math.round(trees.length/10); update();">&lt;&lt;</button>
+	      <button id="prevTree" type="button" disabled="disabled"
+		      onclick="currentTreeIdx-=1; update();">&lt;</button>
+	      <button id="nextTree" type="button" disabled="disabled"
+		      onclick="currentTreeIdx+=1; update();">&gt;</button>
+	      <button id="lastTree" type="button" disabled="disabled"
+		      onclick="currentTreeIdx+=Math.round(trees.length/10); update();">&gt;&gt;</button>
+	    </div>
 	  </li>
 	</ul>
-      </li>
-    </ul>
+      </div>
+</div>
 </div>
 
 <!-- Main output element -->

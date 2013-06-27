@@ -72,10 +72,7 @@ function loadFile() {
 function displayFrameWithText(string, isError) {
 
     var controlsOffset;
-    if (!controlsHidden)
-	controlsOffset = 270;
-    else
-	controlsOffset = 0;
+    controlsOffset = 0;
 
     var output = document.getElementById("output");
     output.innerHTML = string;
@@ -321,10 +318,7 @@ function update() {
     // Assign chosen layout properties:
 
     var controlsOffset;
-    if (!controlsHidden)
-	controlsOffset = 270;
-    else
-	controlsOffset = 0;
+    controlsOffset = 0;
 
     layout.width = Math.max(window.innerWidth-controlsOffset-5, 200);
     layout.height = Math.max(window.innerHeight-5, 200);

@@ -8,97 +8,7 @@
     <script src="phylo.vis.js"></script>
     <script src="viewer.js"></script>
 
-    <style>
-      body {
-      margin: 0px;
-      }
-
-      #controlRestorer {
-      display:none;
-      position: fixed;
-      top: 0px;
-      left: 0px;
-      border: 0px;
-      padding: 0px;
-      margin: 0px;
-      background-color: transparent;
-      color: blue;
-      z-index: 1000;
-      }
-      #controlRestorer:hover {
-      text-decoration: underline;
-      }
-
-      #controlHider {
-      border: 0px;
-      padding: 0px;
-      margin: 0px;
-      background-color: transparent;
-      position: absolute;
-      top: 0px;
-      width: 260px;
-      text-align: right;
-      color: blue;
-      }
-      #controlHider:hover {
-      text-decoration: underline;
-      }
-
-      #controls {
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      width: 250px;
-      height: 100%;
-      background-color: #f0f0f0;
-      padding-left: 10px;
-      padding-right: 10px;
-      }
-
-      ul {
-      list-style-type: none;
-      padding: 0px;
-      }
-
-      li {
-      padding-bottom: 10px;
-      }
-
-      #pasteInput {
-	width: 220px;
-      }
-      #fileInput {
-        width: 320px;
-      }
-
-      #source {
-      border-bottom: solid gray 1px;
-      padding-bottom: 10px;
-      font-size: small;
-      }
-
-      #or {
-      padding-top: 5px;
-      padding-bottom: 5px;
-      padding-right: 10px;
-      text-align: center;
-      }
-
-      #treeSelect {
-      border-top: solid gray 1px;
-      border-bottom: solid gray 1px;
-      padding-top: 10px;
-      padding-bottom: 10px;
-      text-align: center;
-      }
-
-      #output {
-      position: absolute;
-      top: 0px;
-      left: 270px;
-      }
-
-    </style>
+    <link rel="stylesheet" type="text/css" href="viewer.css">
 
   </head>
 
@@ -106,7 +16,6 @@
 
     <!-- Control panel -->
     <div id="controls">
-      <button id="controlHider" onclick="toggleControls();">&lt;-</button>
       <ul>
       <li>
 	<div id="source">
@@ -172,7 +81,6 @@
       <li>
       </ul>
     </div>
-    <button id="controlRestorer" onclick="toggleControls();">-&gt;</button>
 
     <!-- Main output element -->
     <div id="output"></div>

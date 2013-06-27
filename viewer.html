@@ -16,7 +16,7 @@
 
     <!-- Control panel -->
     <div id="topmenu">
-      <div id="fileMenu"><svg height="40" width="15">
+      <div class="sub"><svg height="40" width="15">
 	  <path d="M 0 0 L 15 20 L 0 40" fill="blue"/>
 <!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
 	</svg>
@@ -33,44 +33,49 @@
 	</ul>
       </div>
       
-      <div id="styleMenu"><svg height="40" width="15">
+      <div class="sub"><svg height="40" width="15">
 	  <path d="M 0 0 L 15 20 L 0 40" fill="purple"/>
 	  <!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
 	</svg>
 	<ul class="sub">
-	  <li><input type="checkbox" checked="checked" id="sort"
-		     onchange="document.getElementById('sortOrder').disabled=!this.checked;
-			       update();"/>sort nodes:
-	    <select name="sortOrder" id="sortOrder" onchange="update();">
-	      <option value="decending">descending</option>
-	      <option value="ascending">ascending</option>
-	    </select>
+	  <li>Sort nodes
+	    <div class="subsub">
+	      <ul class="subsub">
+		<li><a class="checked" href="#">Ascending</a></li>
+		<li><a href="#">Descending</a></li>
+		<li><a href="#">Don't sort</a></li>
+	      </ul>
+	    </div>
 	  </li>
-	  <li><input type="checkbox" id="colour"
-		     onchange="document.getElementById('colourTrait').disabled=!this.checked;
-			       update();"/>colour by trait:
-	    <select name="colourTrait" id="colourTrait" onchange="update();"
-		    disabled="disabled">
-	  </select></li>
-	  <li><input type="checkbox" id="tipText" checked="true"
-		     onchange="document.getElementById('tipTextTrait').disabled=!this.checked;
-			       update();"/>tip text:
-	    <select name="tipTextTrait" id="tipTextTrait" onchange="update();">
-	      <option value="label">label</option>
-	  </select></li>
-	  <li><input type="checkbox" id="nodeText"
-		     onchange="document.getElementById('nodeTextTrait').disabled=!this.checked;
-			       update();"/>int. node text:
-	    <select name="nodeTextTrait" id="nodeTextTrait" onchange="update();"
-		    disabled="disabled">
-	      <option value="label">label</option>
-	  </select></li>
+	  <li>Colour edges by trait
+	    <div class="subsub">
+	      <ul class="subsub">
+		<li><a class="checked" href="#">Don't colour</a></li>
+	      </ul>
+	    </div>
+	  </li>
+	  <li>Tip text
+	    <div class="subsub">
+	      <ul class="subsub">
+		<li><a href="#">None</a></li>
+		<li><a class="checked" href="#">Node label</a></li>
+	      </ul>
+	    </div>
+	  </li>
+	  <li>Internal node text
+	    <div class="subsub">
+	      <ul class="subsub">
+		<li><a class="checked" href="#">None</a></li>
+		<li><a href="#">Node label</a></li>
+	      </ul>
+	    </div>
+	  </li>
 	  <li><input type="checkbox" id="markSingletonNodes" onchange="update();"/>mark singleton nodes</li>
 	  <li><input type="checkbox" id="axis" onchange="update();"/>time axis</li>
 	</ul>
       </div>
 
-      <div id="navMenu">
+      <div class="sub">
 	<svg height="40" width="15">
 	  <path d="M 0 0 L 15 20 L 0 40" fill="red"/>
 	</svg>

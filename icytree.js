@@ -100,6 +100,26 @@ function prepareOutputForTree(string) {
 
 }
 
+// Update checked item in list:
+function selectListItem(el) {
+
+    // el is an <a> within the <li>
+    var li = el.parentElement;
+    var ul = li.parentElement;
+
+    if (li.className === "checked")
+	return;
+
+    // Uncheck old selected element:
+    ul.getElementsByClassName("checked")[0].className = "";
+
+    // Check this element:
+    li.className = "checked";
+
+    // Update
+    update();
+}
+
 // Update form elements containing trait selectors
 function updateTraitSelectors(tree) {
     
@@ -131,6 +151,7 @@ function updateTraitSelectors(tree) {
             var selector = document.createElement("li");
 	    var a = document.createElement("a");
 	    a.setAttribute("href","#");
+	    a.setAttribute("onclick", "selectListItem(this);");
 	    a.textContent = traitList[i];
 	    selector.appendChild(a);
 	    if (traitList[i] === selectedTrait)

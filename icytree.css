@@ -2,14 +2,20 @@ body {
     margin: 0px;
 }
 
-
 #topmenu {
     position: absolute;
-    top: 0px;
-    left: 0px;
-    margin: 0px;
-    padding: 0px;
+    color: white;
+    font: 16px "sans-serif";
     z-index: 1;
+}
+
+#topmenu a {
+    text-decoration: none;
+    color: white;
+}
+
+li.checked {
+    font-weight: bold;
 }
 
 div.sub {
@@ -21,21 +27,24 @@ div.subsub {
 }
 
 div.sub:hover > ul.sub { display: block; position: absolute; top: -1px; left: 15px; }
-ul.sub li:hover > div ul.subsub { display: block; position: absolute; top: -15px; left: 200px; }
+
+ul.sub li:hover > div ul.subsub { display: block; position: absolute; top: -19px; left: 200px; }
 
 ul.sub {
     display: none;
-    border: solid gray 1px;
-    background: white;
+    background-color: rgba(0,0,0,0.7);
     width: 200px;
     padding: 0px;
     margin: 0px;
 }
+ul.sub li:hover {
+    background: gray;
+}
 
 ul.subsub {
     display: none;
-    border: solid gray 1px;
     background: white;
+    background-color: rgba(0,0,0,0.7);
     width: 200px;
     padding: 0px;
     margin: 0px;

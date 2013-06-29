@@ -151,7 +151,7 @@ function updateTraitSelectors(tree) {
             var selector = document.createElement("li");
 	    var a = document.createElement("a");
 	    a.setAttribute("href","#");
-	    a.setAttribute("onclick", "selectListItem(this);");
+	    a.setAttribute("onclick", "selectListItem(this); return false;");
 	    a.textContent = traitList[i];
 	    selector.appendChild(a);
 	    if (traitList[i] === selectedTrait)
@@ -285,22 +285,28 @@ function update() {
     // Determine whether colouring is required:
     var colourTrait = undefined;
     var colourTraitEl = document.getElementById("colourTraitSelector").getElementsByClassName("checked")[0];
-    if (colourTraitEl.text !== "None") {
-	colourTrait = colourTraitEl.text
+    if (colourTraitEl.textContent !== "None") {
+	colourTrait = colourTraitEl.textContent;
     }
     
     // Determine whether tip labels are required:
     var tipTextTrait = undefined;
     var tipTextTraitEl = document.getElementById("tipTextTraitSelector").getElementsByClassName("checked")[0];
-    if (tipTextTraitEl.text !== "None") {
-	tipTextTrait = tipTextTraitEl.text
+    if (tipTextTraitEl.textContent !== "None") {
+	if (tipTextTraitEl.textContent === "Node label")
+	    tipTextTrait = "label";
+	else
+	    tipTextTrait = tipTextTraitEl.textContent;
     }
 
     // Determine whether internal node labels are required:
     var nodeTextTrait = undefined;
     var nodeTextTraitEl = document.getElementById("nodeTextTraitSelector").getElementsByClassName("checked")[0];
-    if (nodeTextTraitEl.text !== "None") {
-	nodeTextTrait = nodeTextTraitEl.text
+    if (nodeTextTraitEl.textContent !== "None") {
+	if (nodeTextTraitEl.textContent === "Node label")
+	    nodeTextTrait = "label";
+	else
+	    nodeTextTrait = nodeTextTraitEl.textContent;
     }
 
     // Determine whether internal nodes should be marked:

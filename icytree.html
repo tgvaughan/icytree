@@ -43,31 +43,31 @@
 	  <li>Sort nodes
 	    <div class="subsub">
 	      <ul id="sortSelector" class="subsub">
-		<li class="checked"><a onclick="selectListItem(this);" href="#">Descending</a></li>
-		<li><a href="#" onclick="selectListItem(this);">Ascending</a></li>
-		<li><a href="#" onclick="selectListItem(this);">Don't sort</a></li>
+		<li class="checked"><a onclick="selectListItem(this); return false;" href="#">Descending</a></li>
+		<li><a href="#" onclick="selectListItem(this); return false;">Ascending</a></li>
+		<li><a href="#" onclick="selectListItem(this); return false;">Don't sort</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Colour edges by trait
 	    <div class="subsub">
 	      <ul id="colourTraitSelector" class="subsub">
-		<li class="checked"><a href="#">None</a></li>
+		<li class="checked"><a href="#" onclick="return false;">None</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Tip text
 	    <div class="subsub">
 	      <ul id="tipTextTraitSelector" class="subsub">
-		<li><a href="#" onclick="selectListItem(this);">None</a></li>
-		<li class="checked"><a href="#" onclick="selectListItem(this);">Node label</a></li>
+		<li><a href="#" onclick="selectListItem(this); return false;">None</a></li>
+		<li class="checked"><a href="#" onclick="selectListItem(this); return false;">Node label</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Internal node text
 	    <div class="subsub">
 	      <ul id="nodeTextTraitSelector" class="subsub">
-		<li class="checked"><a href="#" onclick="selectListItem(this);">None</a></li>
+		<li class="checked"><a href="#" onclick="selectListItem(this); return false;">None</a></li>
 		<li><a href="#" onclick="selectListItem(this);">Node label</a></li>
 	      </ul>
 	    </div>

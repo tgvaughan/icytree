@@ -16,11 +16,8 @@
     
     <!-- Control panel -->
     <div id="topmenu">
-      <div class="sub">
-	<svg height="40" width="15">
-	  <path d="M 0 0 L 15 20 L 0 40" fill="blue"/>
-	  <!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
-	</svg>
+      <div id="filemenu" class="menu">
+	<a class="header">File</a>
 	<ul class="sub">
 	  <li>
 	    <textarea id="pasteInput" placeholder="newick string..."
@@ -34,13 +31,10 @@
 	</ul>
       </div>
       
-      <div class="sub">
-	<svg height="40" width="15">
-	  <path d="M 0 0 L 15 20 L 0 40" fill="purple"/>
-	  <!--	  <text font-size="20px" x="0" y="30" fill="white">F</text>-->
-	</svg>
+      <div id="stylemenu" class="menu">
+	<a class="header">Style</a>
 	<ul class="sub">
-	  <li>Sort nodes
+	  <li>Sort nodes...
 	    <div class="subsub">
 	      <ul id="sortSelector" class="subsub">
 		<li class="checked"><a onclick="selectListItem(this); return false;" href="#">Descending</a></li>
@@ -49,14 +43,14 @@
 	      </ul>
 	    </div>
 	  </li>
-	  <li>Colour edges by trait
+	  <li>Colour edges by...
 	    <div class="subsub">
 	      <ul id="colourTraitSelector" class="subsub">
 		<li class="checked"><a href="#" onclick="return false;">None</a></li>
 	      </ul>
 	    </div>
 	  </li>
-	  <li>Tip text
+	  <li>Tip text...
 	    <div class="subsub">
 	      <ul id="tipTextTraitSelector" class="subsub">
 		<li><a href="#" onclick="selectListItem(this); return false;">None</a></li>
@@ -64,7 +58,7 @@
 	      </ul>
 	    </div>
 	  </li>
-	  <li>Internal node text
+	  <li>Internal node text...
 	    <div class="subsub">
 	      <ul id="nodeTextTraitSelector" class="subsub">
 		<li class="checked"><a href="#" onclick="selectListItem(this); return false;">None</a></li>
@@ -77,6 +71,13 @@
 	</ul>
       </div>
 
+      <div id="helpmenu" class="menu">
+	<a class="header">Help</a>
+	<ul class="sub">
+	  <li><a href="#">Keyboard shortcuts</a></li>
+	  <li><a href="#">About</a></li>
+	</ul>
+      </div>
 
     </div>
 </div>

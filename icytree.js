@@ -57,19 +57,20 @@ function loadFile() {
 // Display space-filling frame with big text
 function displayFrameWithText(string, isError) {
 
-    var controlsOffset;
-    controlsOffset = 0;
+    var margin = 20;
+    var menuHeight = 10;
 
     var output = document.getElementById("output");
     output.innerHTML = string;
-    output.style.margin = "20px";
+    output.style.margin = margin + "px";
     output.style.border = "dashed gray 5px";
-    output.style.borderRadius = "10px";
+    output.style.borderRadius = "30px";
 
-    output.style.left = controlsOffset + "px";
-    output.style.width = Math.max(window.innerWidth-controlsOffset-10-40, 200) + "px";
+    output.style.left = "0px";
+    output.style.top = menuHeight + "px";
+    output.style.width = Math.max(window.innerWidth-10-2*margin, 200) + "px";
     output.style.height = "100px";
-    var pad = Math.max(Math.floor((window.innerHeight-10-40-100)/2), 0) + "px";
+    var pad = Math.max(Math.floor((window.innerHeight-menuHeight-10-2*margin-100)/2), 0) + "px";
     output.style.paddingTop = pad;
     output.style.paddingBottom = pad;
 
@@ -89,6 +90,8 @@ function prepareOutputForTree(string) {
     output.style.margin = "0px";
     output.style.border = "none";
 
+    output.style.left = "0px"
+    output.style.top = "0px"
     output.style.width = "auto";
     output.style.height = "auto";
     output.style.padding = "0px";
@@ -162,8 +165,10 @@ function updateTraitSelectors(tree) {
     }
 }
 
-// Ensure current tree index is within bounds and
-// keeps "spin control" up to date
+// Ensure current tree index is within bounds,
+// keeps "spin control" up to date and alters
+// visibility of control depending on number of
+// trees in current list.
 function updateCurrentTreeIdx() {
 
     if (currentTreeIdx>trees.length-1)

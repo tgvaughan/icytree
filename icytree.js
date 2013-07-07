@@ -187,12 +187,16 @@ function updateCurrentTreeIdx() {
 	document.getElementById("lastTree").disabled = false;
     }
 
+    var selectEl = document.getElementById("treeSelect");
     var counterEl = document.getElementById("treeCounter");
-    if (trees.length>1)
+
+    if (trees.length>1) {
+	selectEl.style.display = "block";
 	counterEl.textContent = "Tree number: " +
 	(currentTreeIdx+1) + " of " + trees.length;
-    else
-	counterEl.textContent = "";
+    } else {
+	selectEl.style.display = "none";
+    }
 }
 
 // Update object representation of tree data from string

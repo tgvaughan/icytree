@@ -43,7 +43,6 @@ ul.sub li:hover {
 
 ul.subsub {
     display: none;
-    background: white;
     background-color: rgba(0,0,0,0.7);
     width: 200px;
     padding: 0px;
@@ -58,8 +57,19 @@ li {
 
 
 #treeSelect {
+    display: none;
+    position: absolute;
+    color: white;
+    background-color: rgba(0,0,0,0.7);
+    opacity: 0.5;
+    left: 5px;
+    bottom: 5px;
     margin: 0px;
-    padding: 0px;
+    padding: 5px;
+}
+
+#treeSelect:hover {
+    opacity: 1.0;
 }
 
 #output {

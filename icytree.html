@@ -77,31 +77,25 @@
 	</ul>
       </div>
 
-      <div class="sub">
-	<svg height="40" width="15">
-	  <path d="M 0 0 L 15 20 L 0 40" fill="red"/>
-	</svg>
-	<ul class="sub">
-	  <li>
-	    <div id="treeSelect">
-	      <div id="treeCounter"></div>
-	      <button id="firstTree" type="button" disabled="disabled"
-		      onclick="currentTreeIdx-=Math.round(trees.length/10); update();">&lt;&lt;</button>
-	      <button id="prevTree" type="button" disabled="disabled"
-		      onclick="currentTreeIdx-=1; update();">&lt;</button>
-	      <button id="nextTree" type="button" disabled="disabled"
-		      onclick="currentTreeIdx+=1; update();">&gt;</button>
-	      <button id="lastTree" type="button" disabled="disabled"
-		      onclick="currentTreeIdx+=Math.round(trees.length/10); update();">&gt;&gt;</button>
-	    </div>
-	  </li>
-	</ul>
-      </div>
+
     </div>
 </div>
 
 <!-- Main output element -->
 <div id="output"></div>
+
+<!-- Tree selector -->
+<div id="treeSelect">
+  <div id="treeCounter"></div>
+  <button id="firstTree" type="button" disabled="disabled"
+	  onclick="currentTreeIdx-=Math.round(trees.length/10); update();">&lt;&lt;</button>
+  <button id="prevTree" type="button" disabled="disabled"
+	  onclick="currentTreeIdx-=1; update();">&lt;</button>
+  <button id="nextTree" type="button" disabled="disabled"
+	  onclick="currentTreeIdx+=1; update();">&gt;</button>
+  <button id="lastTree" type="button" disabled="disabled"
+	  onclick="currentTreeIdx+=Math.round(trees.length/10); update();">&gt;&gt;</button>
+</div>
 
 </body>
 </html>

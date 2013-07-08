@@ -14,20 +14,23 @@
 
   <body onload="initialise();">
     
-    <!-- Control panel -->
+    <!-- Drop down menu -->
     <div id="topmenu">
       <div id="filemenu" class="menu">
 	<a class="header">File</a>
 	<ul class="sub">
 	  <li>
-	    <textarea id="pasteInput" placeholder="newick string..."
-		      onchange="pasteInputHandler();"></textarea>
+	    <a href="#">Enter Newick directly</a>
+	    <!-- <textarea id="pasteInput" placeholder="newick string..."
+		      onchange="pasteInputHandler();"></textarea>-->
 	  </li>
-	  <li><input id="fileInput" type="file" size="10"
-		     onchange="fileInputHandler();"/>
+	  <li><div id="fileInputContainer">
+	      <input id="fileInput" type="file"
+		     onchange="fileInputHandler();"><a href="#" onclick="return false;">Load from file</a></input>
+	    </div>
 	  </li>
-	  <li><a href="#" id="fileReload" onclick="loadFile();">Reload File</a></li>
-	  <li><a href="#" id="exportSVG" onclick="exportSVG();">Export SVG</a></li>
+	  <li><a href="#" onclick="loadFile();">Reload file</a></li>
+	  <li><a href="#" onclick="exportSVG();">Export SVG</a></li>
 	</ul>
       </div>
       

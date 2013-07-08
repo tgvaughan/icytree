@@ -20,13 +20,13 @@
 	<a class="header">File</a>
 	<ul class="sub">
 	  <li>
-	    <a href="#">Enter Newick directly</a>
+	    <a href="#" onclick="directEntryDisplay(true); return false;">Enter Newick directly...</a>
 	    <!-- <textarea id="pasteInput" placeholder="newick string..."
 		      onchange="pasteInputHandler();"></textarea>-->
 	  </li>
 	  <li><div id="fileInputContainer">
 	      <input id="fileInput" type="file"
-		     onchange="fileInputHandler();"><a href="#" onclick="return false;">Load from file</a></input>
+		     onchange="fileInputHandler();"><a href="#" onclick="return false;">Load from file...</a></input>
 	    </div>
 	  </li>
 	  <li><a href="#" onclick="loadFile();">Reload file</a></li>
@@ -37,7 +37,7 @@
       <div id="stylemenu" class="menu">
 	<a class="header">Style</a>
 	<ul class="sub">
-	  <li>Sort nodes...
+	  <li>Sort nodes -&gt;
 	    <div class="subsub">
 	      <ul id="sortSelector" class="subsub">
 		<li class="checked"><a onclick="selectListItem(this); return false;" href="#">Descending</a></li>
@@ -46,14 +46,14 @@
 	      </ul>
 	    </div>
 	  </li>
-	  <li>Colour edges by...
+	  <li>Colour edges by -&gt;
 	    <div class="subsub">
 	      <ul id="colourTraitSelector" class="subsub">
 		<li class="checked"><a href="#" onclick="return false;">None</a></li>
 	      </ul>
 	    </div>
 	  </li>
-	  <li>Tip text...
+	  <li>Tip text -&gt;
 	    <div class="subsub">
 	      <ul id="tipTextTraitSelector" class="subsub">
 		<li><a href="#" onclick="selectListItem(this); return false;">None</a></li>
@@ -61,7 +61,7 @@
 	      </ul>
 	    </div>
 	  </li>
-	  <li>Internal node text...
+	  <li>Internal node text -&gt;
 	    <div class="subsub">
 	      <ul id="nodeTextTraitSelector" class="subsub">
 		<li class="checked"><a href="#" onclick="selectListItem(this); return false;">None</a></li>
@@ -99,6 +99,16 @@
 	  onclick="currentTreeIdx+=1; update();">&gt;</button>
   <button id="lastTree" type="button" disabled="disabled"
 	  onclick="currentTreeIdx+=Math.round(trees.length/10); update();">&gt;&gt;</button>
+</div>
+
+<!-- Newick input element -->
+<div id="directEntry">
+  <div>
+    <textarea id="directEntryInput" placeholder="newick string..."></textarea>
+    <button type="button" onclick="directEntryHandler(); directEntryDisplay(false);">Done</button>
+    <button type="button"
+    onclick="directEntryDisplay(false);">Cancel</button>
+  </div>
 </div>
 
 </body>

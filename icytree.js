@@ -15,8 +15,19 @@ function fileInputHandler() {
     loadFile();
 }
 
-function pasteInputHandler() {
-    treeData = document.getElementById("pasteInput").value;
+function directEntryDisplay(flag) {
+
+    var el = document.getElementById("directEntry");
+
+    if (flag) {
+	el.style.display = "block";
+    } else {
+	el.style.display = "none";
+    }
+}
+
+function directEntryHandler() {
+    treeData = document.getElementById("directEntryInput").value;
 
     reloadTreeData();
 }

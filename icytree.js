@@ -252,8 +252,8 @@ function reloadTreeData() {
 
 // Converts SVG in output element to data URI for saving
 function exportSVG() {
-//    if (currentTreeIndex>=trees.length)
-//	return false;
+    if (currentTreeIndex>=trees.length)
+	return false;
 
     var outputEl = document.getElementById("output");
     var dataURI = "data:image/svg+xml;base64," + window.btoa(outputEl.innerHTML);

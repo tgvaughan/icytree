@@ -47,22 +47,25 @@ div.menu {
 div.sub {
     position: relative;
     margin-bottom: 0px;
+    font: 15px sans-serif;
 }
 div.subsub {
     position: relative;
+    font: 15px sans-serif;
 }
 
 div.menu:hover > ul.sub { display: block; position: relative; top: 3px; left: 5px;}
 
-ul.sub li:hover > div ul.subsub { display: block; position: absolute; top: -19px; left: 200px; }
+ul.sub li:hover > div ul.subsub { display: block; position: absolute; top: -17px; left: 160px; }
 
 ul.sub {
     display: none;
     background: red;
     background-color: rgba(0,0,0,0.7);
-    width: 200px;
+    width: 160px;
     padding: 0px;
     margin: 0px;
+    font: 15px sans-serif;
 }
 ul.sub li:hover {
     background: gray;
@@ -71,9 +74,10 @@ ul.sub li:hover {
 ul.subsub {
     display: none;
     background-color: rgba(0,0,0,0.7);
-    width: 200px;
+    width: 150px;
     padding: 0px;
     margin: 0px;
+    font: 15px sans-serif;
 }
 
 li {
@@ -153,7 +157,8 @@ li.checked {
     padding-top: 20px;
     margin-left: auto;
     margin-right: auto;
-    width: 300px;
+    width: 50%;
+    min-width: 200px;
     height: 100px;
 }
 

@@ -527,16 +527,11 @@ var getTreesFromString = function(string) {
 	    }
 
 	    // Parse tree line:
-
-	    if (fullLine.toLowerCase().indexOf("tree") !== 0) {
-		fullLine = "";
-		continue;
-	    }
-
-	    var eqIdx = fullLine.indexOf("(");
-	    if (eqIdx<0)
+	    var matches = fullLine.toLowerCase().match(/tree \w+ *= *(\[&[^\]]*] *)* */);
+	    if (matches === null)
 		throw "Error parsing NEXUS";
-	    
+
+	    var eqIdx = matches[0].length;
 	    trees.push(Object.create(TreeFromNewick).init(fullLine.slice(eqIdx)));
 	    trees[trees.length-1].translate(tmap);
 

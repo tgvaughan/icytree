@@ -20,9 +20,17 @@ function directEntryDisplay(flag) {
     var el = document.getElementById("directEntry");
 
     if (flag) {
+	// Disable keypress event handler
+	document.removeEventListener("keypress", keyPressHandler, true);
+
+	// Display input elements
 	el.style.display = "block";
     } else {
+	// Hide input elements
 	el.style.display = "none";
+
+	// Enable keypress event handler
+	document.addEventListener("keypress", keyPressHandler, true);
     }
 }
 
@@ -120,6 +128,18 @@ function selectListItem(el) {
 
     // Update
     update();
+}
+
+// Cycle checked item in list:
+function cycleListItem(selectorEl) {
+    var checkedItemEl = selectorEl.getElementsByClassName("checked")[0];
+    var nextItemEl = checkedItemEl.nextElementSibling;
+    
+    if (nextItemEl === null)
+	nextItemEl = selectorEl.children[0];
+
+    // selectListItem() expects <a> within the <li>
+    selectListItem(nextItemEl.children[0]);
 }
 
 // Update form elements containing trait selectors
@@ -352,6 +372,50 @@ function update() {
     outputEl.appendChild(svg);
 }
 
+// Keyboard event handler:
+function keyPressHandler(event) {
+
+    console.log(event);
+
+    if (trees.length == 0)
+	return;
+
+    switch(String.fromCharCode(event.charCode)) {
+    case "r":
+	// Reload:
+	loadFile();
+	break;
+
+    case "t":
+	// Cycle tip text:
+	cycleListItem(document.getElementById("tipTextTraitSelector"));
+	break;
+
+    case "i":
+	// Cycle internal node text:
+	cycleListItem(document.getElementById("nodeTextTraitSelector"));
+	break;
+
+    case "c":
+	// Cycle branch colour:
+	cycleListItem(document.getElementById("colourTraitSelector"));
+	break;
+
+    case "m":
+	// Toggle marking of internal nodes:
+	var checkbox = document.getElementById("markSingletonNodes")
+	checkbox.checked = !checkbox.checked;
+	update();
+	break;
+
+    case "j":
+	// 
+
+    default:
+	break;
+    }
+}
+
 // Page initialisation code:
 function initialise() {
 
@@ -368,6 +432,9 @@ function initialise() {
 	return false;
     });
     outputEl.addEventListener("drop", dropInputHandler);
+
+    // Set up keyboard handler:
+    document.addEventListener("keydown", keyPressHandler, true);
 
     // Create new zoomControl object (don't initialise):
     zoomControl = Object.create(ZoomControl, {});

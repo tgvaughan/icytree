@@ -408,6 +408,18 @@ function keyPressHandler(event) {
 	update();
 	break;
 
+    case "a":
+	// Toggle axis display
+	var checkbox = document.getElementById("axis")
+	checkbox.checked = !checkbox.checked;
+	update();
+	break;
+
+    case "z":
+	// Reset zoom.
+	zoomControl.reset();
+	break;
+
     default:
 	break;
     }

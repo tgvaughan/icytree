@@ -470,5 +470,11 @@ var ZoomControl = Object.create({}, {
 	    (event.layerY - this.dragOrigin[1])/this.zoomFactor;
 
 	this.updateView();
+    }},
+
+    // Method to revert to original (unzoomed) state
+    reset: {value: function() {
+	this.zoomFactor = 1.0;
+	this.updateView();
     }}
 });

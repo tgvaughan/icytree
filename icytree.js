@@ -408,9 +408,6 @@ function keyPressHandler(event) {
 	update();
 	break;
 
-    case "j":
-	// 
-
     default:
 	break;
     }
@@ -434,7 +431,7 @@ function initialise() {
     outputEl.addEventListener("drop", dropInputHandler);
 
     // Set up keyboard handler:
-    document.addEventListener("keydown", keyPressHandler, true);
+    document.addEventListener("keypress", keyPressHandler, true);
 
     // Create new zoomControl object (don't initialise):
     zoomControl = Object.create(ZoomControl, {});

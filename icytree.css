@@ -32,13 +32,12 @@ div.menu {
 
 
 #helpmenu {
-    display: none;
     top: 0px;
-    left: 100px;
+    left: 105px;
 }
 
 .header {
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,0.8);
     font: 15px sans-serif;
     padding: 2px;
     margin: 0px;
@@ -61,7 +60,7 @@ ul.sub li:hover > div ul.subsub { display: block; position: absolute; top: -17px
 ul.sub {
     display: none;
     background: red;
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,0.8);
     width: 160px;
     padding: 0px;
     margin: 0px;
@@ -111,26 +110,54 @@ li.checked {
 /* Output */
 
 #output {
-    display: block;
     position: absolute;
     top: 0px;
     left: 0px;
+    padding: 0px;
+    margin: 0px;
 }
 
 #output.empty {
-    display: block;
-
     margin: 20px;
-    padding: 0px;
-    padding-top: 20px;
     border: dashed gray 5px;
 
     left: 0px;
     top: 10px;
 
     width: calc(100% - 50px);
-    height: calc(100% - 50px - 30px);
-    line-height: calc(100% - 50px - 10px);
+    height: 150px;
+
+    text-align: center;
+}
+
+#output.text {
+    margin: 20px;
+    border: dashed gray 5px;
+
+    left: 0px;
+    top: 10px;
+
+    width: calc(100% - 50px);
+    height: 100px;
+
+    color: gray;
+    font: 50px sans-serif;
+
+    text-align: center;
+}
+
+#output.error {
+    margin: 20px;
+    border: dashed gray 5px;
+
+    left: 0px;
+    top: 10px;
+
+    width: calc(100% - 50px);
+    height: 100px;
+
+    color: red;
+    font: 50px sans-serif;
 
     text-align: center;
 }
@@ -184,4 +211,49 @@ li.checked {
 #directEntryInput {
     width: 100%;
     height: 100%;
+}
+
+
+/* Help and About */
+
+#shortcutHelp {
+    display: none;
+    z-index: 10;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0,0,0,0.7);
+
+    margin: 0px;
+    padding: 0px;
+}
+
+#shortcutHelp div {
+    position: relative;
+    padding: 20px;
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    min-width: 300px;
+
+    color: white;
+    background-color: black;
+    text-align: center;
+}
+
+#shortcutHelp div table {
+    tex-align: left;
+    border: 1px solid white;
+    width: 100%;
+    min-width: 300px;
+    margin-bottom: 20px;
+}
+
+#shortcutHelp div table tr th{
+    color: yellow;
+}
+#shortcutHelp div table tr th, td {
+    width: 50px;
 }

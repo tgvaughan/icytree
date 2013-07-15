@@ -8,6 +8,7 @@ var currentTreeIdx = 0;
 var controlsHidden = false;
 var outputEl = undefined;
 var zoomControl = undefined;
+var lineWidth = 2;
 
 function fileInputHandler() {
     treeFile = document.getElementById("fileInput").files[0];
@@ -62,65 +63,74 @@ function loadFile() {
 }
 
 // Display space-filling frame with big text
-function displayFrameWithText(string, isError) {
-
-    var margin = 20;
-    var menuHeight = 10;
+function displayStartOutput() {
 
     var output = document.getElementById("output");
 
     output.className = "empty";
     output.innerHTML = "";
+
     startEl = document.createElement("img");
     startEl.setAttribute("src","start.svg");
-    startEl.setAttribute("vertical-align", "middle");
+    startEl.setAttribute("height", "150");
     output.appendChild(startEl);
-/*
-    output.innerHTML = string;
-    output.style.margin = margin + "px";
-    output.style.border = "dashed gray 5px";
-    output.style.borderRadius = "30px";
 
-    output.style.left = "0px";
-    output.style.top = menuHeight + "px";
-    output.style.width = Math.max(window.innerWidth-10-2*margin, 200) + "px";
-    output.style.height = "100px";
-    var pad = Math.max(Math.floor((window.innerHeight-menuHeight-10-2*margin-100)/2), 0) + "px";
+    // Pad to centre of page. (Wish I could do this with CSS!)
+    var pad = Math.max(Math.floor((window.innerHeight-60-150)/2), 0) + "px";
     output.style.paddingTop = pad;
     output.style.paddingBottom = pad;
 
-    output.style.font = "50px sans-serif";
-    output.style.textAlign = "center";
+}
 
-    if (isError)
-	output.style.color = "red";
-    else
-	output.style.color = "gray";
-*/
+function displayLoading() {
+    output.className = "text";
+    output.innerHTML = "Loading...";
+
+    // Pad to centre of page. (Wish I could do this with CSS!)
+    var pad = Math.max(Math.floor((window.innerHeight-60-100)/2), 0) + "px";
+    output.style.paddingTop = pad;
+    output.style.paddingBottom = pad;
+}
+
+function displayError(string) {
+    output.className = "error";
+    output.innerHTML = string;
+
+    // Pad to centre of page. (Wish I could do this with CSS!)
+    var pad = Math.max(Math.floor((window.innerHeight-60-100)/2), 0) + "px";
+    output.style.paddingTop = pad;
+    output.style.paddingBottom = pad;
+
+    setTimeout(function() {
+	displayStartOutput();
+    }, 4000);
 }
 
 // Clear all output element styles.
-function prepareOutputForTree(string) {
+function prepareOutputForTree() {
     var output = document.getElementById("output");
     output.className = "";
-
-/*
-    output.innerHTML = "";
-    output.style.margin = "0px";
-    output.style.border = "none";
-
-    output.style.left = "0px"
-    output.style.top = "0px"
-    output.style.width = "auto";
-    output.style.height = "auto";
     output.style.padding = "0px";
+}
 
-    output.style.font = "inherit";
-    output.style.textAlign = "inherit";
+// Display keyboard shortcut help
+function keyboardShortcutHelpDisplay(flag) {
 
-    output.style.color = "inherit";
-*/
+    var el = document.getElementById("shortcutHelp");
 
+    if (flag) {
+	// Disable keypress event handler
+	document.removeEventListener("keypress", keyPressHandler, true);
+
+	// Display input elements
+	el.style.display = "block";
+    } else {
+	// Hide input elements
+	el.style.display = "none";
+
+	// Enable keypress event handler
+	document.addEventListener("keypress", keyPressHandler, true);
+    }
 }
 
 // Update checked item in list:
@@ -197,11 +207,28 @@ function updateTraitSelectors(tree) {
     }
 }
 
+// Alter line width used in visualisation.
+function edgeThicknessChange(inc) {
+    lineWidth = Math.max(1, lineWidth + inc);
+    update();
+}
+
+// Alter currently-displayed tree.
+function currentTreeChange(inc, big) {
+    if (big)
+	inc *= Math.round(trees.length/10)
+    
+    currentTreeIdx = Math.max(0, currentTreeIdx+inc);
+    currentTreeIdx = Math.min(trees.length-1, currentTreeIdx);
+
+    update();
+}
+
 // Ensure current tree index is within bounds,
 // keeps "spin control" up to date and alters
 // visibility of control depending on number of
 // trees in current list.
-function updateCurrentTreeIdx() {
+function updateCurrentTreeControl() {
 
     if (currentTreeIdx>trees.length-1)
 	currentTreeIdx = trees.length-1;
@@ -251,14 +278,14 @@ function reloadTreeData() {
 
 	// Parse large data set asynchronously and display loading screen
 	
-	displayFrameWithText("loading...");
+	displayLoading();
 
 	setTimeout(function() {
 
 	    try {
 		trees = getTreesFromString(treeData);
 	    } catch (e) {
-		displayFrameWithText("error parsing tree data", true);
+		displayError("Error parsing tree data!");
 		console.log(e);
 		return;
 	    }
@@ -273,7 +300,7 @@ function reloadTreeData() {
 	try {
 	    trees = getTreesFromString(treeData);
 	} catch (e) {
-	    displayFrameWithText("error parsing tree data", true);
+	    displayError("Error parsing tree data!");
 	    console.log(e);
 	    return;
 	}
@@ -297,10 +324,10 @@ function exportSVG() {
 function update() {
 
     // Update tree index selector:
-    updateCurrentTreeIdx();
+    updateCurrentTreeControl();
 
     if (trees.length === 0) {
-	displayFrameWithText("no tree loaded");
+	displayStartOutput();
 	return;
     } else {
 	prepareOutputForTree();
@@ -358,6 +385,9 @@ function update() {
     // Determine whether axis should be displayed:
     var showAxis = document.getElementById("axis").checked;
 
+    // Determine whether anti-aliasing should be used:
+    var antialias = document.getElementById("antialias").checked;
+
     // Create layout object:
     var layout = Object.create(Layout).init(tree).standard();
     
@@ -373,6 +403,7 @@ function update() {
     layout.nodeTextTrait = nodeTextTrait;
     layout.markSingletonNodes = markSingletonNodes;
     layout.axis = showAxis;
+    layout.lineWidth = lineWidth;
 
     // Use existing zoom control instance:
     layout.zoomControl = zoomControl;
@@ -381,19 +412,25 @@ function update() {
     outputEl.innerHTML = "";
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
-    svg.style.shapeRendering = "crispEdges";
+    if (!antialias)
+	svg.style.shapeRendering = "crispEdges";
     outputEl.appendChild(svg);
 }
 
 // Keyboard event handler:
 function keyPressHandler(event) {
 
-    console.log(event);
+    var char = String.fromCharCode(event.charCode);
+
+    if (char == "?") {
+	// Keyboard shortcut help
+	keyboardShortcutHelpDisplay(true);
+    }
 
     if (trees.length == 0)
 	return;
 
-    switch(String.fromCharCode(event.charCode)) {
+    switch(char) {
     case "r":
 	// Reload:
 	loadFile();
@@ -431,6 +468,37 @@ function keyPressHandler(event) {
     case "z":
 	// Reset zoom.
 	zoomControl.reset();
+	break;
+
+    case "n":
+	// Next tree
+	currentTreeChange(1, false);
+	break;
+
+    case "p":
+	// Prev tree
+	currentTreeChange(-1, false);
+	break;
+
+    case "N":
+	// Fast-forward tree 
+	currentTreeChange(1, true);
+	break;
+
+    case "P":
+	// Fast-backward tree
+	currentTreeChange(-1, true);
+	break;
+
+    case "+":
+    case "=":
+	// Increase line thickness
+	edgeThicknessChange(1);
+	break;
+
+    case "-":
+	// Decrease line thickness
+	edgeThicknessChange(-1);
 	break;
 
     default:

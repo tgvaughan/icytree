@@ -67,16 +67,25 @@
 	      </ul>
 	    </div>
 	  </li>
+	  <li>Edge thickness -&gt;
+	    <div class="subsub">
+	      <ul class="subsub">
+		<li><a href="#" onclick="edgeThicknessChange(1); return false;">Increase</a></li>
+		<li><a href="#" onclick="edgeThicknessChange(-1);">Decrease</a></li>
+	      </ul>
+	    </div>
+	  </li>
 	  <li><input type="checkbox" id="markSingletonNodes" onchange="update();"/>mark singletons</li>
-	  <li><input type="checkbox" id="axis" onchange="update();"/>time axis</li>
+	  <li><input type="checkbox" id="axis"
+	  onchange="update();"/>time axis</li>
+	  <li><input type="checkbox" id="antialias" onchange="update();"/>anti-alias</li>
 	</ul>
       </div>
 
       <div id="helpmenu" class="menu">
 	<a class="header">Help</a>
 	<ul class="sub">
-	  <li><a href="#">Keyboard shortcuts</a></li>
-	  <li><a href="#">About</a></li>
+	  <li><a href="#" onclick="keyboardShortcutHelpDisplay(true); return false;">Keyboard shortcuts</a></li>
 	</ul>
       </div>
 
@@ -90,13 +99,13 @@
 <div id="treeSelect">
   <div id="treeCounter"></div>
   <button id="firstTree" type="button" disabled="disabled"
-	  onclick="currentTreeIdx-=Math.round(trees.length/10); update();">&lt;&lt;</button>
+	  onclick="currentTreeChange(-1, true);">&lt;&lt;</button>
   <button id="prevTree" type="button" disabled="disabled"
-	  onclick="currentTreeIdx-=1; update();">&lt;</button>
+	  onclick="currentTreeChange(-1, false);">&lt;</button>
   <button id="nextTree" type="button" disabled="disabled"
-	  onclick="currentTreeIdx+=1; update();">&gt;</button>
+	  onclick="currentTreeChange(+1, false);">&gt;</button>
   <button id="lastTree" type="button" disabled="disabled"
-	  onclick="currentTreeIdx+=Math.round(trees.length/10); update();">&gt;&gt;</button>
+	  onclick="currentTreeChange(+1, true);">&gt;&gt;</button>
 </div>
 
 <!-- Newick input element -->
@@ -106,6 +115,32 @@
     <button type="button" onclick="directEntryHandler(); directEntryDisplay(false);">Done</button>
     <button type="button"
     onclick="directEntryDisplay(false);">Cancel</button>
+  </div>
+</div>
+
+<!-- Keyboard shortcut help -->
+<div id="shortcutHelp">
+  <div>
+    <h1>Keyboard shortcuts</h1>
+    <table>
+      <colgroup>
+	<col id="key">
+	<col id="action">
+      </colgroup>
+      <tr><th>Key</th> <th>Action</th></tr>
+      <tr><td>r</td> <td>Reload current file</td></tr>
+      <tr><td>t</td> <td>Cycle tip labels</td></tr>
+      <tr><td>i</td> <td>Cycle internal node labels</td></tr>
+      <tr><td>c</td> <td>Cycle edge colour trait</td></tr>
+      <tr><td>m</td> <td>Toggle marking of internal nodes</td></tr>
+      <tr><td>a</td> <td>Toggle axis display</td></tr>
+      <tr><td>z</td> <td>Reset zoom</td></tr>
+      <tr><td>n/p</td> <td>Move to next or previous tree</td></tr>
+      <tr><td>N/P</td> <td>Fast-forward or backward through trees</td></tr>
+      <tr><td>+/-</td> <td>Increase/decrease edge width</td></tr>
+      <tr><td>?</td> <td>Keyboard shortcut help</td></tr>
+    </table>
+    <button type="button" onclick="keyboardShortcutHelpDisplay(false);">Done</button>
   </div>
 </div>
 

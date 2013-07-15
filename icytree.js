@@ -68,6 +68,14 @@ function displayFrameWithText(string, isError) {
     var menuHeight = 10;
 
     var output = document.getElementById("output");
+
+    output.className = "empty";
+    output.innerHTML = "";
+    startEl = document.createElement("img");
+    startEl.setAttribute("src","start.svg");
+    startEl.setAttribute("vertical-align", "middle");
+    output.appendChild(startEl);
+/*
     output.innerHTML = string;
     output.style.margin = margin + "px";
     output.style.border = "dashed gray 5px";
@@ -88,11 +96,15 @@ function displayFrameWithText(string, isError) {
 	output.style.color = "red";
     else
 	output.style.color = "gray";
+*/
 }
 
 // Clear all output element styles.
 function prepareOutputForTree(string) {
     var output = document.getElementById("output");
+    output.className = "";
+
+/*
     output.innerHTML = "";
     output.style.margin = "0px";
     output.style.border = "none";
@@ -107,6 +119,7 @@ function prepareOutputForTree(string) {
     output.style.textAlign = "inherit";
 
     output.style.color = "inherit";
+*/
 
 }
 

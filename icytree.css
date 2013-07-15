@@ -111,9 +111,28 @@ li.checked {
 /* Output */
 
 #output {
+    display: block;
     position: absolute;
     top: 0px;
     left: 0px;
+}
+
+#output.empty {
+    display: block;
+
+    margin: 20px;
+    padding: 0px;
+    padding-top: 20px;
+    border: dashed gray 5px;
+
+    left: 0px;
+    top: 10px;
+
+    width: calc(100% - 50px);
+    height: calc(100% - 50px - 30px);
+    line-height: calc(100% - 50px - 10px);
+
+    text-align: center;
 }
 
 

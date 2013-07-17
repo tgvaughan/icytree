@@ -114,8 +114,8 @@
   <div>
     <textarea id="directEntryInput" placeholder="newick string..."></textarea>
     <button type="button" onclick="directEntryHandler(); directEntryDisplay(false);">Done</button>
-    <button type="button"
-    onclick="directEntryDisplay(false);">Cancel</button>
+    <button type="button" onclick="document.getElementById('directEntryInput').value='';">Clear</button>
+    <button type="button" onclick="directEntryDisplay(false);">Cancel</button>
   </div>
 </div>
 

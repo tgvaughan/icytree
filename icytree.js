@@ -490,22 +490,22 @@ function keyPressHandler(event) {
 	zoomControl.reset();
 	break;
 
-    case "n":
+    case ".":
 	// Next tree
 	currentTreeChange(1, false);
 	break;
 
-    case "p":
+    case ",":
 	// Prev tree
 	currentTreeChange(-1, false);
 	break;
 
-    case "N":
+    case ">":
 	// Fast-forward tree 
 	currentTreeChange(1, true);
 	break;
 
-    case "P":
+    case "<":
 	// Fast-backward tree
 	currentTreeChange(-1, true);
 	break;

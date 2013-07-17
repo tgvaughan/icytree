@@ -133,6 +133,26 @@ function keyboardShortcutHelpDisplay(flag) {
     }
 }
 
+// Display about box
+function aboutBoxDisplay(flag) {
+
+    var el = document.getElementById("about");
+
+    if (flag) {
+	// Disable keypress event handler
+	document.removeEventListener("keypress", keyPressHandler, true);
+
+	// Display input elements
+	el.style.display = "block";
+    } else {
+	// Hide input elements
+	el.style.display = "none";
+
+	// Enable keypress event handler
+	document.addEventListener("keypress", keyPressHandler, true);
+    }
+}
+
 // Update checked item in list:
 function selectListItem(el) {
 

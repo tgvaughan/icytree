@@ -86,6 +86,7 @@
 	<a class="header">Help</a>
 	<ul class="sub">
 	  <li><a href="#" onclick="keyboardShortcutHelpDisplay(true); return false;">Keyboard shortcuts</a></li>
+	  <li><a href="#" onclick="aboutBoxDisplay(true); return false;">About</a></li>
 	</ul>
       </div>
 
@@ -141,6 +142,29 @@
       <tr><td>?</td> <td>Keyboard shortcut help</td></tr>
     </table>
     <button type="button" onclick="keyboardShortcutHelpDisplay(false);">Done</button>
+  </div>
+</div>
+
+<!-- About box -->
+<div id="about">
+  <div>
+    <h1>IcyTree</h1>
+
+    <p>This browser-based phylogenetic tree viewer is based on the
+    JavaScript library <a href="http://git.io/phylo.js">phylo.js</a>.
+    It aims to be a (very) lightweight replacement
+    for <a href="http://tree.bio.ed.ac.uk/software/figtree/">FigTree</a>
+    that is useful in situations where rapid visualisation of tree log
+    files such as those produced
+    by <a href="http://beast2.cs.auckland.ac.nz/index.php/Main_Page">BEAST
+    2</a> or <a href="http://compevol.github.com/MASTER">MASTER</a> is
+    more important than publication-quality graphics.</p>
+
+    <p>All components of IcyTree are licensed under version 3 of the
+    GNU <a href="http://www.gnu.org/licenses/gpl-3.0.html">General
+    Public License</a> (GPL).</p>
+
+    <button type="button" onclick="aboutBoxDisplay(false);">Done</button>
   </div>
 </div>
 

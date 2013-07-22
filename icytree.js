@@ -71,7 +71,7 @@ function displayStartOutput() {
     output.innerHTML = "";
 
     startEl = document.createElement("img");
-    startEl.setAttribute("src","start.svg");
+    startEl.setAttribute("src","icytree_start.svg");
     startEl.setAttribute("height", "150");
     output.appendChild(startEl);
 

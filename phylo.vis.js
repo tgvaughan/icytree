@@ -196,12 +196,14 @@ var Layout = Object.create({}, {
 	    path.setAttribute("fill", "none");
 	    //path.setAttribute("stroke", linecol);
 
+	    var classes = "treeEdge";
+
 	    if (colourTrait !== undefined)
-		path.className.baseVal = "trait_" + window.btoa(colourTrait);
+		path.setAttribute("class", classes + " trait_" + window.btoa(colourTrait));
 	    else
 		path.setAttribute("stroke", "black");
 
-	    svg.appendChild(path);
+	    return(path);
 	}
 
 
@@ -213,7 +215,9 @@ var Layout = Object.create({}, {
 
 	    if (!thisNode.isRoot()) {
 		var parentPos = posXform(this.nodePositions[thisNode.parent]);
-		newBranch(thisPos, parentPos, selectColourTrait(thisNode));
+		var branch = newBranch(thisPos, parentPos, selectColourTrait(thisNode));
+		branch.id = thisNode;
+		svg.appendChild(branch);
 	    }
 	}
 
@@ -238,7 +242,7 @@ var Layout = Object.create({}, {
 	    text.setAttribute("x", pos[0]);
 	    text.setAttribute("y", pos[1]);
 	    text.textContent = string;
-	    svg.appendChild(text);
+	    return(text);
 	}
 
 
@@ -257,7 +261,7 @@ var Layout = Object.create({}, {
 			traitValue = "";
 		}
 
-		newNodeText(thisNode, traitValue);
+		svg.appendChild(newNodeText(thisNode, traitValue));
 	    }
 	}
         
@@ -281,7 +285,7 @@ var Layout = Object.create({}, {
 		}
                 
 		if (traitValue !== "")
-		    newNodeText(thisNode, traitValue);
+		    svg.appendChild(newNodeText(thisNode, traitValue));
 	    }
 	}
 
@@ -318,6 +322,22 @@ var Layout = Object.create({}, {
 
 	return svg;
     }}
+});
+
+// EdgeStatsControl object
+var EdgeStatsControl = Object.create({}, {
+
+    svg: {value: undefined, writable: true, configurable: true, enumerable: true},
+    tree: {value: undefined, writable: true, configurable: true, enumerable: true},
+
+    init: {value: function(svg, tree) {
+	this.svg = svg;
+	this.tree = tree;
+
+	// Add event handler
+	svg.addEvent("mouse
+    }}
+
 });
 
 // ZoomControl object

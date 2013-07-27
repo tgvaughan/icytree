@@ -322,9 +322,7 @@ var Layout = Object.create({}, {
 	this.zoomControl.init(svg, this.lineWidth, this.fontSize);
 
 	// Attach event handler for edge stats popup:
-
-	this.edgeStatsControl = Object.create(EdgeStatsControl);
-	this.edgeStatsControl.init(svg, this.tree);
+	Object.create(EdgeStatsControl).init(svg, this.tree);
 
 	return svg;
     }}
@@ -364,8 +362,10 @@ var EdgeStatsControl = Object.create({}, {
 	    for (var i=0; i<colEls.length; i++) {
 		if (colEls[i].className === "")
 		    colEls[i].style.width = "40%";
-		else
+		else {
 		    colEls[i].style.width = "auto";
+		    colEls[i].style.whiteSpace = "nowrap";
+		}
 		colEls[i].style.textAlign = "left";
 		colEls[i].style.overflow = "hidden";
 		colEls[i].style.border = "1px solid black";
@@ -392,8 +392,13 @@ var EdgeStatsControl = Object.create({}, {
 
 	if (this.highlightedEdge === undefined) {
 	    this.highlightedEdge = event.target;
-	    var curStrokeWidth = this.svg.style.strokeWidth.split("px")[0];
-	    this.highlightedEdge.setAttribute("stroke-width", curStrokeWidth*4+"px");
+	    var curStrokeWidth = Number(this.svg.style.strokeWidth.split("px")[0]);
+
+	    // Choose new stroke width
+	    var f = this.svg.width.baseVal.value/this.svg.viewBox.baseVal.width
+	    var newStrokeWidth = Math.max(curStrokeWidth*1.5, 8/f);
+	    
+	    this.highlightedEdge.setAttribute("stroke-width", newStrokeWidth+"px");
 	    this.displayStatsBox(event.target.getAttribute("id"), event.pageX, event.pageY);
 	} else {
 	    return false;
@@ -454,7 +459,7 @@ var EdgeStatsControl = Object.create({}, {
 	ul.style.padding = "0px";
 	for (att in node.annotation) {
 	    var li = document.createElement("li");
-	    li.innerHTML = "<b>" + att + "</b>: " + pretty(node.annotation[att]);
+	    li.innerHTML = att + ": " + pretty(node.annotation[att]);
 	    ul.appendChild(li);
 	}
 	var psCAT = this.phyloStat.getElementsByClassName("psCAT")[0];

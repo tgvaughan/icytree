@@ -352,7 +352,8 @@ var EdgeStatsControl = Object.create({}, {
 	    this.phyloStat.style.border="1px solid black";
 	    this.phyloStat.style.background="white";
 	    this.phyloStat.style.color="black";
-	    this.phyloStat.style.font="10px normal sans-serif";
+	    this.phyloStat.style.font="10px sans-serif";
+	    this.phyloStat.style.fontWeight="normal";
 
 	    var table = document.createElement("table");
 	    table.innerHTML = "<tr><td>Branch length</td><td class='psBL'></td></tr><tr><td>Parent age</td><td class='psPA'></td></tr><tr><td>Child age</td><td class='psCA'></td></tr><tr><td>Child attribs</td><td class='psCAT'></td>"
@@ -455,6 +456,7 @@ var EdgeStatsControl = Object.create({}, {
 	this.phyloStat.getElementsByClassName("psPA")[0].innerHTML = pa;
 	this.phyloStat.getElementsByClassName("psCA")[0].innerHTML = ca;
 
+	var psCAT = this.phyloStat.getElementsByClassName("psCAT")[0];
 	if (Object.keys(node.annotation).length>0) {
 	    var ul =  document.createElement("ul");
 	    ul.style.margin = "0px";
@@ -464,9 +466,10 @@ var EdgeStatsControl = Object.create({}, {
 		li.innerHTML = att + ": " + pretty(node.annotation[att]);
 		ul.appendChild(li);
 	    }
-	    var psCAT = this.phyloStat.getElementsByClassName("psCAT")[0];
+
 	    psCAT.innerHTML = "";
 	    psCAT.appendChild(ul);
+
 	} else {
 	    psCAT.innerHTML = "NA";
 	}

@@ -217,7 +217,18 @@ var Tree = Object.create({}, {
 	    if (tmap.hasOwnProperty(nodeList[i].label))
 		nodeList[i].label = tmap[nodeList[i].label];
 	}
-    }}
+    }},
+
+    // Obtain node having given string representation:
+    getNode: {value: function(nodeId) {
+	var nodeList = this.getNodeList();
+	for (var i=0; i<nodeList.length; i++) {
+	    if (nodeList[i].toString() == nodeId)
+		return nodeList[i];
+	}
+	return undefined;
+    }},
+
 });
 
 // Prototype for trees constructed from Newick strings

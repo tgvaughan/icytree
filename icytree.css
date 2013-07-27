@@ -251,7 +251,6 @@ li.checked {
 }
 
 #shortcutHelp div table {
-    tex-align: left;
     border: 1px solid white;
     width: 100%;
     margin-bottom: 15px;

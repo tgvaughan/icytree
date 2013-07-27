@@ -194,14 +194,15 @@ var Layout = Object.create({}, {
 	    var path = document.createElementNS(NS, "path");
 	    path.setAttribute("d", pathStr);
 	    path.setAttribute("fill", "none");
-	    //path.setAttribute("stroke", linecol);
 
 	    var classes = "treeEdge";
 
 	    if (colourTrait !== undefined)
-		path.setAttribute("class", classes + " trait_" + window.btoa(colourTrait));
+		classes += " trait_" + window.btoa(colourTrait);
 	    else
 		path.setAttribute("stroke", "black");
+
+	    path.setAttribute("class", classes);
 
 	    return(path);
 	}
@@ -329,25 +330,146 @@ var Layout = Object.create({}, {
     }}
 });
 
+
 // EdgeStatsControl object
 var EdgeStatsControl = Object.create({}, {
 
     svg: {value: undefined, writable: true, configurable: true, enumerable: true},
     tree: {value: undefined, writable: true, configurable: true, enumerable: true},
-
+    highlightedEdge: {value: undefined, writable: true, configurable: true, enumerable: true},
+    phyloStat: {value: undefined, writable: true, configurable: true, enumerable: true},
+    
     init: {value: function(svg, tree) {
 	this.svg = svg;
 	this.tree = tree;
 
+	// Create stat box element:
+	this.phyloStat = document.getElementById("phyloStat");
+	if (this.phyloStat === null) {
+	    this.phyloStat = document.createElement("div");
+	    this.phyloStat.setAttribute("id", "phyloStat");
+	    this.phyloStat.style.display="none";
+	    this.phyloStat.style.position="absolute";
+	    this.phyloStat.style.border="1px solid black";
+	    this.phyloStat.style.background="white";
+	    this.phyloStat.style.width="200px";
+	    this.phyloStat.style.font="10px sans-serif";
+
+	    var table = document.createElement("table");
+	    table.innerHTML = "<tr><td>Branch length</td><td class='psBL'></td></tr><tr><td>Parent age</td><td class='psPA'></td></tr><tr><td>Child age</td><td class='psCA'></td></tr><tr><td>Child attribs</td><td class='psCAT'></td>"
+
+	    table.style.width = "100%";
+	    table.style.tableLayout = "fixed";
+	    var colEls = table.getElementsByTagName("td");
+	    for (var i=0; i<colEls.length; i++) {
+		if (colEls[i].className === "")
+		    colEls[i].style.width = "40%";
+		else
+		    colEls[i].style.width = "auto";
+		colEls[i].style.textAlign = "left";
+		colEls[i].style.overflow = "hidden";
+		colEls[i].style.border = "1px solid black";
+	    }
+	    this.phyloStat.appendChild(table);
+
+	    document.getElementsByTagName("body")[0].appendChild(this.phyloStat);
+	}
+
 	// Add event handler
-	svg.addEventListener("click", this.clickEventHandler.bind(this));
+	svg.addEventListener("mousemove", this.mouseMoveEventHandler.bind(this));
     }},
 
-    clickEventHandler: {value: function(event) {
-	console.log(event.target);
+    mouseMoveEventHandler: {value: function(event) {
+	var classAttr = event.target.getAttribute("class");
+	if (classAttr === null || classAttr.split(" ").indexOf("treeEdge")<0) {
+	    if (this.highlightedEdge != undefined) {
+		this.hideStatsBox();
+		this.highlightedEdge.removeAttribute("stroke-width");
+		this.highlightedEdge = undefined;
+	    }
+	    return false;
+	}
+
+	if (this.highlightedEdge === undefined) {
+	    this.highlightedEdge = event.target;
+	    var curStrokeWidth = this.svg.style.strokeWidth.split("px")[0];
+	    this.highlightedEdge.setAttribute("stroke-width", curStrokeWidth*4+"px");
+	    this.displayStatsBox(event.target.getAttribute("id"), event.pageX, event.pageY);
+	} else {
+	    return false;
+	}
+    }},
+
+    displayStatsBox: {value: function(nodeId, x, y) {
+
+	var prec = 6;
+
+	this.phyloStat.style.position="absolute";
+
+	if (x>window.innerWidth/2) {
+	    this.phyloStat.style.left = "";
+	    this.phyloStat.style.right = (window.innerWidth-x) + "px";
+	} else {
+	    this.phyloStat.style.left = x + "px";
+	    this.phyloStat.style.right = "";
+	}
+
+	if (y>window.innerHeight/2) {
+	    this.phyloStat.style.top = "auto";
+	    this.phyloStat.style.bottom=(window.innerHeight-y) + "px";
+	} else {
+	    this.phyloStat.style.top=y+"px";
+	    this.phyloStat.style.bottom = "auto";
+	}
+
+	var node = this.tree.getNode(nodeId);
+
+	// Pretty print numbers
+	function pretty(val) {
+	    var nVal = Number(val);
+	    if (Number.isNaN(nVal))
+		return val;
+
+	    val = nVal.toPrecision(5);
+	    if (val.indexOf('.')<0)
+		return val;
+
+	    return val.replace(/\.?0*$/,"");
+	}
+
+	var bl = "NA";
+	var pa = "NA";
+	if (node.parent != undefined) {
+	    bl = pretty((node.parent.height-node.height));
+	    pa = pretty(node.parent.height);
+	}
+	var ca = pretty(node.height);
+
+	this.phyloStat.getElementsByClassName("psBL")[0].innerHTML = bl;
+	this.phyloStat.getElementsByClassName("psPA")[0].innerHTML = pa;
+	this.phyloStat.getElementsByClassName("psCA")[0].innerHTML = ca;
+
+	var ul =  document.createElement("ul");
+	ul.style.margin = "0px";
+	ul.style.padding = "0px";
+	for (att in node.annotation) {
+	    var li = document.createElement("li");
+	    li.innerHTML = "<b>" + att + "</b>: " + pretty(node.annotation[att]);
+	    ul.appendChild(li);
+	}
+	var psCAT = this.phyloStat.getElementsByClassName("psCAT")[0];
+	psCAT.innerHTML = "";
+	psCAT.appendChild(ul);
+
+	this.phyloStat.style.display = "block";
+    }},
+
+    hideStatsBox: {value: function() {
+	this.phyloStat.style.display = "none";
     }}
 
 });
+
 
 // ZoomControl object
 // (Just a tidy way to package up these event handlers.)

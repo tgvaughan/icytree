@@ -371,6 +371,7 @@ var EdgeStatsControl = Object.create({}, {
 		colEls[i].style.textAlign = "left";
 		colEls[i].style.overflow = "hidden";
 		colEls[i].style.border = "1px solid black";
+		colEls[i].style.fontWeight = "normal";
 	    }
 	    this.phyloStat.appendChild(table);
 

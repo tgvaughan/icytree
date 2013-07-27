@@ -320,6 +320,11 @@ var Layout = Object.create({}, {
 
 	this.zoomControl.init(svg, this.lineWidth, this.fontSize);
 
+	// Attach event handler for edge stats popup:
+
+	this.edgeStatsControl = Object.create(EdgeStatsControl);
+	this.edgeStatsControl.init(svg, this.tree);
+
 	return svg;
     }}
 });
@@ -335,7 +340,11 @@ var EdgeStatsControl = Object.create({}, {
 	this.tree = tree;
 
 	// Add event handler
-	svg.addEvent("mouse
+	svg.addEventListener("click", this.clickEventHandler.bind(this));
+    }},
+
+    clickEventHandler: {value: function(event) {
+	console.log(event.target);
     }}
 
 });

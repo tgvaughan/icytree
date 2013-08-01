@@ -177,10 +177,23 @@ li.checked {
     padding: 5px;
 }
 
+
 #treeSelect:hover {
     opacity: 1.0;
 }
 
+
+#treeSelectInput {
+    display: none;
+}
+
+#treeSelectInput.setTreeFocused {
+    display: block;
+}
+
+#treeSelect:hover > #treeSelectInput {
+    display: block;
+}
 
 /* Direct entry */
 

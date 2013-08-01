@@ -99,14 +99,20 @@
 <!-- Tree selector -->
 <div id="treeSelect">
   <div id="treeCounter"></div>
+  <div id="treeSelectInput" class="setTreeBlurred">
   <button id="firstTree" type="button" disabled="disabled"
-	  onclick="currentTreeChange(-1, true);">&lt;&lt;</button>
+	  onclick="currentTreeInc(-1, true);">&lt;&lt;</button>
   <button id="prevTree" type="button" disabled="disabled"
-	  onclick="currentTreeChange(-1, false);">&lt;</button>
+	  onclick="currentTreeInc(-1, false);">&lt;</button>
+  <input id="setTree" type="text"
+	  onchange="currentTreeChange(this.value);"
+	 onfocus="document.getElementById('treeSelectInput').className='setTreeFocused';"
+	 onblur="document.getElementById('treeSelectInput').className='';"/>
   <button id="nextTree" type="button" disabled="disabled"
-	  onclick="currentTreeChange(+1, false);">&gt;</button>
+	  onclick="currentTreeInc(+1, false);">&gt;</button>
   <button id="lastTree" type="button" disabled="disabled"
-	  onclick="currentTreeChange(+1, true);">&gt;&gt;</button>
+	  onclick="currentTreeInc(+1, true);">&gt;&gt;</button>
+  </div>
 </div>
 
 <!-- Newick input element -->

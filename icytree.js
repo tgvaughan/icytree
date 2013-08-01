@@ -233,12 +233,28 @@ function edgeThicknessChange(inc) {
     update();
 }
 
-// Alter currently-displayed tree.
-function currentTreeChange(inc, big) {
+// Increment currently-displayed tree.
+function currentTreeInc(dir, big) {
     if (big)
-	inc *= Math.round(trees.length/10)
-    
+	inc = dir*Math.round(trees.length/10)
+    else
+	inc = dir;
+   
     currentTreeIdx = Math.max(0, currentTreeIdx+inc);
+    currentTreeIdx = Math.min(trees.length-1, currentTreeIdx);
+
+    update();
+}
+
+// Alter currently-displayed tree.
+function currentTreeChange(newVal) {
+    newVal = Number(newVal);
+    if (Number.isNaN(newVal)) {
+	updateCurrentTreeControl();
+	return;
+    }
+	
+    currentTreeIdx = Math.max(0, Number(newVal)-1);
     currentTreeIdx = Math.min(trees.length-1, currentTreeIdx);
 
     update();
@@ -278,6 +294,10 @@ function updateCurrentTreeControl() {
 	selectEl.style.display = "block";
 	counterEl.textContent = "Tree number: " +
 	(currentTreeIdx+1) + " of " + trees.length;
+
+	var setTreeEl = document.getElementById("setTree");
+	setTreeEl.value = currentTreeIdx+1;
+	setTreeEl.size = String(trees.length).length;
     } else {
 	selectEl.style.display = "none";
     }
@@ -439,6 +459,9 @@ function update() {
 
 // Keyboard event handler:
 function keyPressHandler(event) {
+
+    if (event.target !== document.body)
+	return;
 
     var char = String.fromCharCode(event.charCode);
 

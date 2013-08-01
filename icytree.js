@@ -515,22 +515,22 @@ function keyPressHandler(event) {
 
     case ".":
 	// Next tree
-	currentTreeChange(1, false);
+	currentTreeInc(1, false);
 	break;
 
     case ",":
 	// Prev tree
-	currentTreeChange(-1, false);
+	currentTreeInc(-1, false);
 	break;
 
     case ">":
 	// Fast-forward tree 
-	currentTreeChange(1, true);
+	currentTreeInc(1, true);
 	break;
 
     case "<":
 	// Fast-backward tree
-	currentTreeChange(-1, true);
+	currentTreeInc(-1, true);
 	break;
 
     case "+":

@@ -32,16 +32,40 @@ $(document).ready(function() {
 
     // Menu item events:
     $("#fileEnter").click(directEntryDisplay);
+    $("#fileLoad").change(fileInputHandler);
     $("#fileReload").click(reloadTreeData);
     $("#fileExport").click(exportSVG);
 
+    $("#styleSort").on("click", "a", function() {
+	selectListItem($(this));
+    });
+    $("#styleColourTrait").on("click", "a", function() {
+	selectListItem($(this));
+    });
+    $("#styleTipTextTrait").on("click", "a", function() {
+	selectListItem($(this));
+    });
+    $("#styleNodeTextTrait").on("click", "a", function() {
+	selectListItem($(this));
+    });
+    $("#styleEdgeThickness").on("click", "a", function() {
+	if ($(this).text() === "Increase")
+	    edgeThicknessChange(1);
+	else
+	    edgeThicknessChange(-1);
+    });
+    $("#styleMarkSingletons").change(update);
+    $("#styleDisplayAxis").change(update);
+    $("#styleAntiAlias").change(update);
 
+    $("#helpShortcuts").click(keyboardShortcutHelpDisplay);
+    $("#helpAbout").click(aboutBoxDisplay);
 
     update();
 });
 
 function fileInputHandler() {
-    treeFile = $("#fileInput").prop("files")[0];
+    treeFile = $("#fileLoad").prop("files")[0];
     loadFile();
 }
 
@@ -190,53 +214,52 @@ function aboutBoxDisplay(flag) {
 function selectListItem(el) {
 
     // el is an <a> within the <li>
-    var li = el.parentElement;
-    var ul = li.parentElement;
+    var li = el.parent();
+    var ul = li.parent();
 
-    if (li.className === "checked")
+    if (li.hasClass("checked"))
 	return;
 
     // Uncheck old selected element:
-    ul.getElementsByClassName("checked")[0].className = "";
+    ul.find(".checked").removeClass("checked");
 
     // Check this element:
-    li.className = "checked";
+    li.addClass("checked");
 
     // Update
     update();
 }
 
 // Cycle checked item in list:
-function cycleListItem(selectorEl) {
-    var checkedItemEl = selectorEl.getElementsByClassName("checked")[0];
-    var nextItemEl = checkedItemEl.nextElementSibling;
-    
-    if (nextItemEl === null)
-	nextItemEl = selectorEl.children[0];
-
-    // selectListItem() expects <a> within the <li>
-    selectListItem(nextItemEl.children[0]);
+function cycleListItem(el) {
+    var currentItem = el.find(".checked");
+    if (currentItem.is(el.find("li").last()))
+	selectListItem(el.find("li").first().children());
+    else
+	selectListItem(currentItem.next().children());
 }
 
 // Update form elements containing trait selectors
 function updateTraitSelectors(tree) {
     
-    var elementIDs = ["colourTraitSelector", "tipTextTraitSelector", "nodeTextTraitSelector"];
-    for (var eidx=0; eidx<elementIDs.length; eidx++) {
-        var el = document.getElementById(elementIDs[eidx]);
+    var elements = [$("#styleColourTrait"),
+		    $("#styleTipTextTrait"),
+		    $("#styleNodeTextTrait")];
+
+    $.each(elements, function (eidx, el) {
 	
         // Save currently selected trait:
-        var selectedTrait =  el.getElementsByClassName("checked")[0].children[0].text;
+        var selectedTrait =  el.find(".checked > a").text();
 	
         // Clear old traits:
-        el.innerHTML = "";
+        el.html("");
 	
         // Selector-dependent stuff:
 	// Colour selector only allows traits common to _all_ nodes on tree.
 	// All other selectors include the node label as an option.
 
 	var traitList = ["None"];
-        if (elementIDs[eidx] === "colourTraitSelector") {
+        if (el.is("#styleColourTrait")) {
 	    traitList = traitList.concat(tree.getTraitList(true));
 
 	} else {
@@ -246,18 +269,15 @@ function updateTraitSelectors(tree) {
 
 	// Construct selector trait lists:
         for (var i=0; i<traitList.length; i++) {
-            var selector = document.createElement("li");
-	    var a = document.createElement("a");
-	    a.setAttribute("href","#");
-	    a.setAttribute("onclick", "selectListItem(this); return false;");
-	    a.textContent = traitList[i];
-	    selector.appendChild(a);
+            var selector = $("<li />");
+	    var a = $("<a/>").attr("href","#").text(traitList[i]);
+	    selector.append(a);
 	    if (traitList[i] === selectedTrait)
-		selector.className = "checked";
-	    el.appendChild(selector);
+		selector.addClass("checked");
+	    el.append(selector);
         }
 
-    }
+    });
 }
 
 // Alter line width used in visualisation.
@@ -425,56 +445,47 @@ function update() {
     updateTraitSelectors(tree);
     
     // Determine whether colouring is required:
-    var colourTrait = undefined;
-    var colourTraitEl = document.getElementById("colourTraitSelector").getElementsByClassName("checked")[0];
-    if (colourTraitEl.textContent !== "None") {
-	colourTrait = colourTraitEl.textContent;
-    }
+    var colourTrait = $("#styleColourTrait .checked").text();
+    if (colourTrait === "None")
+	colourTrait = undefined;
     
     // Determine whether tip labels are required:
-    var tipTextTrait = undefined;
-    var tipTextTraitEl = document.getElementById("tipTextTraitSelector").getElementsByClassName("checked")[0];
-    if (tipTextTraitEl.textContent !== "None") {
-	if (tipTextTraitEl.textContent === "Node label")
-	    tipTextTrait = "label";
-	else
-	    tipTextTrait = tipTextTraitEl.textContent;
+    var tipTextTrait = $("#styleTipTextTrait .checked").text();
+    switch (tipTextTrait) {
+    case "None":
+	tipTextTrait = undefined;
+	break;
+    case "Node label":
+	tipTextTrait = "label";
+	break;
+    default:
+	break;
     }
 
     // Determine whether internal node labels are required:
-    var nodeTextTrait = undefined;
-    var nodeTextTraitEl = document.getElementById("nodeTextTraitSelector").getElementsByClassName("checked")[0];
-    if (nodeTextTraitEl.textContent !== "None") {
-	if (nodeTextTraitEl.textContent === "Node label")
-	    nodeTextTrait = "label";
-	else
-	    nodeTextTrait = nodeTextTraitEl.textContent;
+    var nodeTextTrait = $("#styleNodeTextTrait .checked").text();
+    switch (nodeTextTrait) {
+    case "None":
+	nodeTextTrait = undefined;
+	break;
+    case "Node label":
+	nodeTextTrait = "label";
+	break;
+    default:
+	break;
     }
-
-    // Determine whether internal nodes should be marked:
-    var markSingletonNodes = document.getElementById("markSingletonNodes").checked;
-
-    // Determine whether axis should be displayed:
-    var showAxis = document.getElementById("axis").checked;
-
-    // Determine whether anti-aliasing should be used:
-    var antialias = document.getElementById("antialias").checked;
 
     // Create layout object:
     var layout = Object.create(Layout).init(tree).standard();
     
     // Assign chosen layout properties:
-
-    var controlsOffset;
-    controlsOffset = 0;
-
-    layout.width = Math.max(window.innerWidth-controlsOffset-5, 200);
+    layout.width = Math.max(window.innerWidth-5, 200);
     layout.height = Math.max(window.innerHeight-5, 200);
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;
-    layout.markSingletonNodes = markSingletonNodes;
-    layout.axis = showAxis;
+    layout.markSingletonNodes = $("#styleMarkSingletons").prop("checked");
+    layout.axis = $("#styleDisplayAxis").prop("checked");
     layout.lineWidth = lineWidth;
 
     // Use existing zoom control instance:
@@ -484,7 +495,7 @@ function update() {
     $("#output").html("");
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
-    if (!antialias)
+    if (!$("#styleAntiAlias").prop("checked"))
 	svg.style.shapeRendering = "crispEdges";
     $("#output").append(svg);
 }
@@ -513,30 +524,30 @@ function keyPressHandler(event) {
 
     case "t":
 	// Cycle tip text:
-	cycleListItem(document.getElementById("tipTextTraitSelector"));
+	cycleListItem($("#styleTipTextTrait"));
 	break;
 
     case "i":
 	// Cycle internal node text:
-	cycleListItem(document.getElementById("nodeTextTraitSelector"));
+	cycleListItem($("#styleNodeTextTrait"));
 	break;
 
     case "c":
 	// Cycle branch colour:
-	cycleListItem(document.getElementById("colourTraitSelector"));
+	cycleListItem($("#styleColourTrait"));
 	break;
 
     case "m":
 	// Toggle marking of internal nodes:
-	var checkbox = document.getElementById("markSingletonNodes")
-	checkbox.checked = !checkbox.checked;
+	var checkbox = $("#styleMarkSingletons");
+	checkbox.prop("checked") = !checkbox.prop("checked");
 	update();
 	break;
 
     case "a":
 	// Toggle axis display
-	var checkbox = document.getElementById("axis")
-	checkbox.checked = !checkbox.checked;
+	var checkbox = $("#styleDisplayAxis");
+	checkbox.prop("checked") = !checkbox.prop("checked");;
 	update();
 	break;
 

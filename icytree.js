@@ -1,37 +1,64 @@
-window.onresize = update;
-
 // Global variables
 var treeFile = undefined;
 var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
 var controlsHidden = false;
-var outputEl = undefined;
 var zoomControl = undefined;
 var lineWidth = 2;
 
-function fileInputHandler() {
-    treeFile = document.getElementById("fileInput").files[0];
+// Page initialisation code:
+$(document).ready(function() {
 
+    $(window).on("resize", update);
+
+    // Set up drag and drop event listeners:
+    $("#output").on("dragover", function(event) {
+	event.preventDefault();
+	return false;
+    });
+    $("#output").on("dragend", function(event) {
+	event.preventDefault();
+	return false;
+    });
+    $("#output").on("drop", dropInputHandler);
+
+    // Set up keyboard handler:
+    $(document).on("keypress", keyPressHandler);
+
+    // Create new zoomControl object (don't initialise):
+    zoomControl = Object.create(ZoomControl, {});
+
+
+    // Menu item events:
+    $("#fileEnter").click(directEntryDisplay);
+    $("#fileReload").click(reloadTreeData);
+    $("#fileExport").click(exportSVG);
+
+
+
+    update();
+});
+
+function fileInputHandler() {
+    treeFile = $("#fileInput").prop("files")[0];
     loadFile();
 }
 
 function directEntryDisplay(flag) {
 
-    var el = document.getElementById("directEntry");
-
     if (flag) {
 	// Disable keypress event handler
-	document.removeEventListener("keypress", keyPressHandler, true);
+	$(document).off("keypress", keyPressHandler);
 
 	// Display input elements
-	el.style.display = "block";
+	$("#directEntry").show(400);
     } else {
 	// Hide input elements
-	el.style.display = "none";
+	$("#directEntry").hide(400);
 
 	// Enable keypress event handler
-	document.addEventListener("keypress", keyPressHandler, true);
+	$(document).on("keypress", keyPressHandler);
     }
 }
 
@@ -65,41 +92,51 @@ function loadFile() {
 // Display space-filling frame with big text
 function displayStartOutput() {
 
-    var output = document.getElementById("output");
+    var output = $("#output");
 
-    output.className = "empty";
-    output.innerHTML = "";
+    output.removeClass();
+    output.addClass("empty");
+    output.html("");
 
-    startEl = document.createElement("img");
-    startEl.setAttribute("src","icytree_start.svg");
-    startEl.setAttribute("height", "150");
-    output.appendChild(startEl);
+    output.append(
+	$("<img/>")
+	    .attr("src", "icytree_start.svg")
+	    .attr("height", "150")
+    );
 
     // Pad to centre of page. (Wish I could do this with CSS!)
     var pad = Math.max(Math.floor((window.innerHeight-60-150)/2), 0) + "px";
-    output.style.paddingTop = pad;
-    output.style.paddingBottom = pad;
+    output.css("paddingTop", pad);
+    output.css("paddingBottom", pad);
 
 }
 
 function displayLoading() {
-    output.className = "text";
-    output.innerHTML = "Loading...";
+
+    var output = $("#output");
+
+    output.removeClass();
+    output.addClass("text");
+    output.text("Loading...");
 
     // Pad to centre of page. (Wish I could do this with CSS!)
     var pad = Math.max(Math.floor((window.innerHeight-60-100)/2), 0) + "px";
-    output.style.paddingTop = pad;
-    output.style.paddingBottom = pad;
+    output.css("paddingTop", pad);
+    output.css("paddingBottom", pad);
 }
 
 function displayError(string) {
-    output.className = "error";
-    output.innerHTML = string;
+
+    var output = $("#output");
+
+    output.removeClass();
+    output.addClass("error");
+    output.text(string);
 
     // Pad to centre of page. (Wish I could do this with CSS!)
     var pad = Math.max(Math.floor((window.innerHeight-60-100)/2), 0) + "px";
-    output.style.paddingTop = pad;
-    output.style.paddingBottom = pad;
+    output.css("paddingTop", pad);
+    output.css("paddingBottom", pad);
 
     setTimeout(function() {
 	displayStartOutput();
@@ -108,48 +145,44 @@ function displayError(string) {
 
 // Clear all output element styles.
 function prepareOutputForTree() {
-    var output = document.getElementById("output");
-    output.className = "";
-    output.style.padding = "0px";
+    var output = $("#output");
+    output.removeClass();
+    output.css("padding", "0px");
 }
 
 // Display keyboard shortcut help
 function keyboardShortcutHelpDisplay(flag) {
 
-    var el = document.getElementById("shortcutHelp");
-
     if (flag) {
 	// Disable keypress event handler
-	document.removeEventListener("keypress", keyPressHandler, true);
+	$(document).off("keypress", keyPressHandler);
 
 	// Display input elements
-	el.style.display = "block";
+	$("#shortcutHelp").show(400);
     } else {
 	// Hide input elements
-	el.style.display = "none";
+	$("#shortcutHelp").hide(400);
 
 	// Enable keypress event handler
-	document.addEventListener("keypress", keyPressHandler, true);
+	$(document).on("keypress", keyPressHandler);
     }
 }
 
 // Display about box
 function aboutBoxDisplay(flag) {
 
-    var el = document.getElementById("about");
-
     if (flag) {
 	// Disable keypress event handler
-	document.removeEventListener("keypress", keyPressHandler, true);
+	$(document).off("keypress");
 
 	// Display input elements
-	el.style.display = "block";
+	$("#about").show(400);
     } else {
 	// Hide input elements
-	el.style.display = "none";
+	$("#about").hide(400);
 
 	// Enable keypress event handler
-	document.addEventListener("keypress", keyPressHandler, true);
+	$(document).on("keypress", keyPressHandler);
     }
 }
 
@@ -352,11 +385,10 @@ function reloadTreeData() {
 
 // Converts SVG in output element to data URI for saving
 function exportSVG() {
-    if (currentTreeIdx>=trees.length)
+    if (currentTreeIdx>=trees.length || currentTreeIdx<0)
 	return false;
 
-    var outputEl = document.getElementById("output");
-    var dataURI = "data:image/svg+xml;base64," + window.btoa(outputEl.innerHTML);
+    var dataURI = "data:image/svg+xml;base64," + window.btoa($("#output").html());
     window.open(dataURI);
 }
 
@@ -378,7 +410,7 @@ function update() {
     var tree = trees[currentTreeIdx].copy();
 
     // Sort tree nodes
-    switch (document.getElementById("sortSelector").getElementsByClassName("checked")[0].children[0].text) {
+    switch ($("#styleSort .checked > a").text()) {
     case "Ascending":
         tree.sortNodes(false);
 	break;
@@ -449,12 +481,12 @@ function update() {
     layout.zoomControl = zoomControl;
 
     // Display!
-    outputEl.innerHTML = "";
+    $("#output").html("");
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
     if (!antialias)
 	svg.style.shapeRendering = "crispEdges";
-    outputEl.appendChild(svg);
+    $("#output").append(svg);
 }
 
 // Keyboard event handler:
@@ -549,35 +581,4 @@ function keyPressHandler(event) {
     }
 }
 
-// Page initialisation code:
-function initialise() {
 
-    // Record output element
-    outputEl = document.getElementById("output");
-    
-    // Set up drag and drop event listeners:
-    outputEl.addEventListener("dragover", function(event) {
-	event.preventDefault();
-	return false;
-    });
-    outputEl.addEventListener("dragend", function(event) {
-	event.preventDefault();
-	return false;
-    });
-    outputEl.addEventListener("drop", dropInputHandler);
-
-    // Set up keyboard handler:
-    document.addEventListener("keypress", keyPressHandler, true);
-
-    // Create new zoomControl object (don't initialise):
-    zoomControl = Object.create(ZoomControl, {});
-
-    // Read tree from HTTP GET parameter if available:
-    if (window.location.search.length>0 && window.location.search[0]==="?") {
-	treeData = atob(window.location.search.slice(1));
-	reloadTreeData();
-	return;
-    }
-
-    update();
-}

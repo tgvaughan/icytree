@@ -6,13 +6,15 @@
 
     <script src="phylo.parse.js"></script>
     <script src="phylo.vis.js"></script>
+
+    <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="icytree.js"></script>
 
     <link rel="stylesheet" type="text/css" href="icytree.css">
 
   </head>
 
-  <body onload="initialise();">
+  <body>
     
     <!-- Drop down menu -->
     <div id="topmenu">
@@ -20,15 +22,15 @@
 	<a class="header">File</a>
 	<ul class="sub">
 	  <li>
-	    <a href="#" onclick="directEntryDisplay(true); return false;">Enter tree directly...</a>
+	    <a href="#" id="fileEnter">Enter tree directly...</a>
 	  </li>
 	  <li><div id="fileInputContainer">
 	      <input id="fileInput" type="file"
 		     onchange="fileInputHandler();"><a href="#" onclick="return false;">Load from file...</a></input>
 	    </div>
 	  </li>
-	  <li><a href="#" onclick="loadFile();">Reload file</a></li>
-	  <li><a href="#" onclick="exportSVG();">Export SVG</a></li>
+	  <li><a href="#" id="fileReload">Reload file</a></li>
+	  <li><a href="#" id="fileExport">Export SVG</a></li>
 	</ul>
       </div>
       
@@ -37,56 +39,55 @@
 	<ul class="sub">
 	  <li>Sort nodes -&gt;
 	    <div class="subsub">
-	      <ul id="sortSelector" class="subsub">
-		<li class="checked"><a onclick="selectListItem(this); return false;" href="#">Descending</a></li>
-		<li><a href="#" onclick="selectListItem(this); return false;">Ascending</a></li>
-		<li><a href="#" onclick="selectListItem(this); return false;">Don't sort</a></li>
+	      <ul id="styleSort" class="subsub">
+		<li class="checked"><a href="#">Descending</a></li>
+		<li><a href="#">Ascending</a></li>
+		<li><a href="#">Don't sort</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Colour edges by -&gt;
 	    <div class="subsub">
-	      <ul id="colourTraitSelector" class="subsub">
-		<li class="checked"><a href="#" onclick="return false;">None</a></li>
+	      <ul id="styleColorTrait" class="subsub">
+		<li class="checked"><a href="#">None</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Tip text -&gt;
 	    <div class="subsub">
-	      <ul id="tipTextTraitSelector" class="subsub">
-		<li><a href="#" onclick="selectListItem(this); return false;">None</a></li>
-		<li class="checked"><a href="#" onclick="selectListItem(this); return false;">Node label</a></li>
+	      <ul id="styleTipTextTrait" class="subsub">
+		<li><a href="#">None</a></li>
+		<li class="checked"><a href="#">Node label</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Internal node text -&gt;
 	    <div class="subsub">
-	      <ul id="nodeTextTraitSelector" class="subsub">
-		<li class="checked"><a href="#" onclick="selectListItem(this); return false;">None</a></li>
-		<li><a href="#" onclick="selectListItem(this);">Node label</a></li>
+	      <ul id="styleNodeTextTrait" class="subsub">
+		<li class="checked"><a href="#">None</a></li>
+		<li><a href="#">Node label</a></li>
 	      </ul>
 	    </div>
 	  </li>
 	  <li>Edge thickness -&gt;
 	    <div class="subsub">
-	      <ul class="subsub">
-		<li><a href="#" onclick="edgeThicknessChange(1); return false;">Increase</a></li>
-		<li><a href="#" onclick="edgeThicknessChange(-1);">Decrease</a></li>
+	      <ul id="styleEdgeThickness" class="subsub">
+		<li><a href="#">Increase</a></li>
+		<li><a href="#">Decrease</a></li>
 	      </ul>
 	    </div>
 	  </li>
-	  <li><input type="checkbox" id="markSingletonNodes" onchange="update();"/>mark singletons</li>
-	  <li><input type="checkbox" id="axis"
-	  onchange="update();"/>time axis</li>
-	  <li><input type="checkbox" id="antialias" onchange="update();"/>anti-alias</li>
+	  <li><input type="checkbox" id="styleMarkSingletons"/>Mark singletons</li>
+	  <li><input type="checkbox" id="styleDisplayAxis">Display axis</li>
+	  <li><input type="checkbox" id="styleAntiAlias"/>Anti-alias</li>
 	</ul>
       </div>
 
       <div id="helpmenu" class="menu">
 	<a class="header">Help</a>
 	<ul class="sub">
-	  <li><a href="#" onclick="keyboardShortcutHelpDisplay(true); return false;">Keyboard shortcuts...</a></li>
-	  <li><a href="#" onclick="aboutBoxDisplay(true); return false;">About IcyTree...</a></li>
+	  <li><a href="#" id="helpShortcuts">Keyboard shortcuts...</a></li>
+	  <li><a href="#" id="helpAbout">About IcyTree...</a></li>
 	</ul>
       </div>
 

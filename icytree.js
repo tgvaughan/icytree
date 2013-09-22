@@ -117,7 +117,7 @@ function directEntryHandler() {
 function dropInputHandler(event) {
     event.preventDefault();
 
-    treeFile = event.dataTransfer.files[0];
+    treeFile = event.originalEvent.dataTransfer.files[0];
 
     loadFile();
 }

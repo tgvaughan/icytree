@@ -30,6 +30,21 @@ $(document).ready(function() {
     zoomControl = Object.create(ZoomControl, {});
 
 
+    // Set up menus:
+    $("#menu > li > button").button();
+
+    $("#fileMenu").menu().hide();
+    $("#styleMenu").menu().hide();
+    $("#helpMenu").menu().hide();
+
+    $("#menu > li").mouseover(function() {
+	$(this).find(".menuDiv > ul").show();
+    });
+
+    $("#menu > li").mouseout(function() {
+	$(this).find(".menuDiv > ul").hide();
+    });
+
     // Menu item events:
     $("#fileEnter").click(directEntryDisplay);
     $("#fileLoad").change(fileInputHandler);
@@ -54,9 +69,16 @@ $(document).ready(function() {
 	else
 	    edgeThicknessChange(-1);
     });
-    $("#styleMarkSingletons").change(update);
-    $("#styleDisplayAxis").change(update);
-    $("#styleAntiAlias").change(update);
+
+    $("#styleMarkSingletons").click(function() {
+	toggleItem($(this));
+    });
+    $("#styleDisplayAxis").click(function() {
+	toggleItem($(this));
+    });
+    $("#styleAntiAlias").click(function() {
+	toggleItem($(this));
+    });
 
     $("#helpShortcuts").click(keyboardShortcutHelpDisplay);
     $("#helpAbout").click(aboutBoxDisplay);
@@ -217,14 +239,14 @@ function selectListItem(el) {
     var li = el.parent();
     var ul = li.parent();
 
-    if (li.hasClass("checked"))
+    if (el.find("span").length>0)
 	return;
 
     // Uncheck old selected element:
-    ul.find(".checked").removeClass("checked");
+    ul.find("span").remove();
 
     // Check this element:
-    li.addClass("checked");
+    $("<span/>").addClass("ui-icon ui-icon-check").prependTo(el);
 
     // Update
     update();
@@ -232,11 +254,23 @@ function selectListItem(el) {
 
 // Cycle checked item in list:
 function cycleListItem(el) {
-    var currentItem = el.find(".checked");
+
+    // el is <ul>
+    var currentItem = el.find("span").closest("li");
     if (currentItem.is(el.find("li").last()))
 	selectListItem(el.find("li").first().children());
     else
 	selectListItem(currentItem.next().children());
+}
+
+function toggleItem (el) {
+    if (el.find("span").length===0) {
+	el.prepend($("<span/>").addClass("ui-icon ui-icon-check"));
+    } else {
+	el.find("span").remove();
+    }
+    
+    update();
 }
 
 // Update form elements containing trait selectors
@@ -249,7 +283,7 @@ function updateTraitSelectors(tree) {
     $.each(elements, function (eidx, el) {
 	
         // Save currently selected trait:
-        var selectedTrait =  el.find(".checked > a").text();
+        var selectedTrait =  el.find("span").parent().text();
 	
         // Clear old traits:
         el.html("");
@@ -259,7 +293,7 @@ function updateTraitSelectors(tree) {
 	// All other selectors include the node label as an option.
 
 	var traitList = ["None"];
-        if (el.is("#styleColourTrait")) {
+        if (el.is("#styleColourTrait")){
 	    traitList = traitList.concat(tree.getTraitList(true));
 
 	} else {
@@ -273,11 +307,13 @@ function updateTraitSelectors(tree) {
 	    var a = $("<a/>").attr("href","#").text(traitList[i]);
 	    selector.append(a);
 	    if (traitList[i] === selectedTrait)
-		selector.addClass("checked");
+		$("<span/>").addClass("ui-icon ui-icon-check").prependTo(a);
 	    el.append(selector);
         }
-
+	
     });
+
+    $("#styleMenu").menu("refresh");
 }
 
 // Alter line width used in visualisation.
@@ -430,7 +466,7 @@ function update() {
     var tree = trees[currentTreeIdx].copy();
 
     // Sort tree nodes
-    switch ($("#styleSort .checked > a").text()) {
+    switch ($("#styleSort span").parent().text()) {
     case "Ascending":
         tree.sortNodes(false);
 	break;
@@ -445,12 +481,12 @@ function update() {
     updateTraitSelectors(tree);
     
     // Determine whether colouring is required:
-    var colourTrait = $("#styleColourTrait .checked").text();
+    var colourTrait = $("#styleColourTrait span").parent().text();
     if (colourTrait === "None")
 	colourTrait = undefined;
     
     // Determine whether tip labels are required:
-    var tipTextTrait = $("#styleTipTextTrait .checked").text();
+    var tipTextTrait = $("#styleTipTextTrait span").parent().text();
     switch (tipTextTrait) {
     case "None":
 	tipTextTrait = undefined;
@@ -463,7 +499,7 @@ function update() {
     }
 
     // Determine whether internal node labels are required:
-    var nodeTextTrait = $("#styleNodeTextTrait .checked").text();
+    var nodeTextTrait = $("#styleNodeTextTrait span").parent().text();
     switch (nodeTextTrait) {
     case "None":
 	nodeTextTrait = undefined;
@@ -484,8 +520,8 @@ function update() {
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;
-    layout.markSingletonNodes = $("#styleMarkSingletons").prop("checked");
-    layout.axis = $("#styleDisplayAxis").prop("checked");
+    layout.markSingletonNodes = ($("#styleMarkSingletons > span").length>0);
+    layout.axis = ($("#styleDisplayAxis > span").length>0);
     layout.lineWidth = lineWidth;
 
     // Use existing zoom control instance:
@@ -495,7 +531,7 @@ function update() {
     $("#output").html("");
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
-    if (!$("#styleAntiAlias").prop("checked"))
+    if ($("#styleAntiAlias > span").length==0)
 	svg.style.shapeRendering = "crispEdges";
     $("#output").append(svg);
 }
@@ -539,16 +575,12 @@ function keyPressHandler(event) {
 
     case "m":
 	// Toggle marking of internal nodes:
-	var checkbox = $("#styleMarkSingletons");
-	checkbox.prop("checked") = !checkbox.prop("checked");
-	update();
+	toggleItem($("#styleMarkSingletons"));
 	break;
 
     case "a":
 	// Toggle axis display
-	var checkbox = $("#styleDisplayAxis");
-	checkbox.prop("checked") = !checkbox.prop("checked");;
-	update();
+	toggleItem($("#styleDisplayAxis"));
 	break;
 
     case "z":

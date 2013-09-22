@@ -4,89 +4,39 @@ body {
 
 /* Menu */
 
-#topmenu {
+#menu {
+    padding:0px;
+    margin: 0px;
     position: absolute;
-    color: white;
+    top: 0px;
     z-index: 1;
+    list-style: none;
 }
 
-#topmenu a {
-    text-decoration: none;
-    color: white;
+#menu > li {
+    display: inline-block;
+    padding-right: 30px;
 }
 
-div.menu {
+.menuDiv {
+    position: relative;
+}
+
+.menuDiv > ul {
     position: absolute;
-    font: 15px sans-serif;
 }
 
-#filemenu {
-    top: 0px;
-    left: 5px;
+.ui-button {
+    font: 12px sans;
 }
 
-#stylemenu {
-    top: 0px;
-    left: 50px;
+.ui-menu {
+    font: 12px sans;
+    width: 200px;
 }
 
-
-#helpmenu {
-    top: 0px;
-    left: 105px;
-}
-
-.header {
-    background-color: rgba(0,0,0,0.8);
-    font: 15px sans-serif;
-    padding: 2px;
-    margin: 0px;
-}
-
-div.sub {
-    position: relative;
-    margin-bottom: 0px;
-    font: 15px sans-serif;
-}
-div.subsub {
-    position: relative;
-    font: 15px sans-serif;
-}
-
-div.menu:hover > ul.sub { display: block; position: relative; top: 3px; left: 5px;}
-
-ul.sub li:hover > div ul.subsub { display: block; position: absolute; top: -17px; left: 160px; }
-
-ul.sub {
-    display: none;
-    background: red;
-    background-color: rgba(0,0,0,0.8);
-    width: 160px;
-    padding: 0px;
-    margin: 0px;
-    font: 15px sans-serif;
-}
-ul.sub li:hover {
-    background: gray;
-}
-
-ul.subsub {
-    display: none;
-    background-color: rgba(0,0,0,0.7);
+.ui-menu .ui-menu {
     width: 150px;
-    padding: 0px;
-    margin: 0px;
-    font: 15px sans-serif;
-}
-
-li {
-    padding: 0px;
-    margin: 0px;
-    list-style-type: none;
-}
-
-li.checked {
-    font-weight: bold;
 }
 
 #fileLoadContainer {

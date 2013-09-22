@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8"/>
@@ -8,8 +8,10 @@
     <script src="phylo.vis.js"></script>
 
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <script src="icytree.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/trontastic/jquery-ui.css"/>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 
+    <script src="icytree.js"></script>
     <link rel="stylesheet" type="text/css" href="icytree.css">
 
   </head>
@@ -17,168 +19,158 @@
   <body>
     
     <!-- Drop down menu -->
-    <div id="topmenu">
-      <div id="filemenu" class="menu">
-	<a class="header">File</a>
-	<ul class="sub">
-	  <li>
-	    <a href="#" id="fileEnter">Enter tree directly...</a>
-	  </li>
-	  <li><div id="fileLoadContainer">
-	      <input id="fileLoad" type="file"></input>
-	      <a href="#">Load from file...</a>
-	    </div>
-	  </li>
-	  <li><a href="#" id="fileReload">Reload file</a></li>
-	  <li><a href="#" id="fileExport">Export SVG</a></li>
-	</ul>
-      </div>
+    <ul id="menu">
+      <li><button>File</button>
+	<div class="menuDiv">
+	  <ul id="fileMenu">
+	    <li><a href="#" id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</a></li>
+	    <li><div id="fileLoadContainer">
+		<input id="fileLoad" type="file">
+		<a href="#"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</a>
+	      </div>
+	    </li>
+	    <li><a href="#" id="fileReload"><span class="ui-icon ui-icon-refresh"></span>Reload file</a></li>
+	    <li><a href="#" id="fileExport"><span class="ui-icon ui-icon-disk"></span>Export SVG</a></li>
+	  </ul>
+	</div>
+      </li>
       
-      <div id="stylemenu" class="menu">
-	<a class="header">Style</a>
-	<ul class="sub">
-	  <li>Sort nodes -&gt;
-	    <div class="subsub">
-	      <ul id="styleSort" class="subsub">
-		<li class="checked"><a href="#">Descending</a></li>
+      <li><button>Style</button>
+	<div class="menuDiv">
+	  <ul id="styleMenu">
+	    <li><a href="#">Sort nodes</a>
+	      <ul id="styleSort">
+		<li><a href="#"><span class="ui-icon ui-icon-check"></span>Descending</a></li>
 		<li><a href="#">Ascending</a></li>
 		<li><a href="#">Don't sort</a></li>
 	      </ul>
-	    </div>
-	  </li>
-	  <li>Colour edges by -&gt;
-	    <div class="subsub">
-	      <ul id="styleColourTrait" class="subsub">
-		<li class="checked"><a href="#">None</a></li>
+	    </li>
+	    <li><a href="#">Colour edges by</a>
+	      <ul id="styleColourTrait">
+		<li><a href="#">None<span class="ui-icon ui-icon-check"></a></li>
 	      </ul>
-	    </div>
-	  </li>
-	  <li>Tip text -&gt;
-	    <div class="subsub">
-	      <ul id="styleTipTextTrait" class="subsub">
+	    </li>
+	    <li><a href="#">Tip text</a>
+	      <ul id="styleTipTextTrait">
 		<li><a href="#">None</a></li>
-		<li class="checked"><a href="#">Node label</a></li>
+		<li><a href="#">Node label<span class="ui-icon ui-icon-check"></a></li>
 	      </ul>
-	    </div>
-	  </li>
-	  <li>Internal node text -&gt;
-	    <div class="subsub">
-	      <ul id="styleNodeTextTrait" class="subsub">
-		<li class="checked"><a href="#">None</a></li>
+	    </li>
+	    <li><a href="#">Internal node text</a>
+	      <ul id="styleNodeTextTrait">
+		<li><a href="#">None<span class="ui-icon ui-icon-check"></a></li>
 		<li><a href="#">Node label</a></li>
 	      </ul>
-	    </div>
-	  </li>
-	  <li>Edge thickness -&gt;
-	    <div class="subsub">
+	    </li>
+	    <li><a href="#">Edge thickness</a>
 	      <ul id="styleEdgeThickness" class="subsub">
-		<li><a href="#">Increase</a></li>
-		<li><a href="#">Decrease</a></li>
+		<li><a href="#"><span class="ui-icon ui-icon-plus"></span>Increase</a></li>
+		<li><a href="#"><span class="ui-icon ui-icon-minus"></span>Decrease</a></li>
 	      </ul>
-	    </div>
-	  </li>
-	  <li><input type="checkbox" id="styleMarkSingletons"/>Mark singletons</li>
-	  <li><input type="checkbox" id="styleDisplayAxis">Display axis</li>
-	  <li><input type="checkbox" id="styleAntiAlias"/>Anti-alias</li>
-	</ul>
-      </div>
+	    </li>
+	    <li><a id="styleMarkSingletons">Mark singletons</a></li>
+	    <li><a id="styleDisplayAxis">Display axis</a></li>
+	    <li><a id="styleAntiAlias">Anti-alias</a></li>
+	  </ul>
+	</div>
+      </li>
+      
+      <li><button>Help</button>
+	<div class="menuDiv">
+	  <ul id="helpMenu">
+	    <li><a href="#" id="helpShortcuts"><span class="ui-icon ui-icon-help"></span>Keyboard shortcuts...</a></li>
+	    <li><a href="#" id="helpAbout">About IcyTree...</a></li>
+	  </ul>
+	</div>
+      </li>
+    </ul>
+    
+    
+    <!-- Main output element -->
+    <div id="output"></div>
 
-      <div id="helpmenu" class="menu">
-	<a class="header">Help</a>
-	<ul class="sub">
-	  <li><a href="#" id="helpShortcuts">Keyboard shortcuts...</a></li>
-	  <li><a href="#" id="helpAbout">About IcyTree...</a></li>
-	</ul>
+    <!-- Tree selector -->
+    <div id="treeSelect">
+      <div id="treeCounter"></div>
+      <div id="treeSelectInput" class="setTreeBlurred">
+	<button id="firstTree" type="button" disabled="disabled"
+		onclick="currentTreeInc(-1, true);">&lt;&lt;</button>
+	<button id="prevTree" type="button" disabled="disabled"
+		onclick="currentTreeInc(-1, false);">&lt;</button>
+	<input id="setTree" type="text"
+	       onchange="currentTreeChange(this.value);"
+	       onfocus="document.getElementById('treeSelectInput').className='setTreeFocused';"
+	       onblur="document.getElementById('treeSelectInput').className='';"/>
+	<button id="nextTree" type="button" disabled="disabled"
+		onclick="currentTreeInc(+1, false);">&gt;</button>
+	<button id="lastTree" type="button" disabled="disabled"
+		onclick="currentTreeInc(+1, true);">&gt;&gt;</button>
       </div>
-
     </div>
-</div>
+    
+    <!-- Newick input element -->
+    <div id="directEntry">
+      <div>
+	<textarea id="directEntryInput" placeholder="newick string..."></textarea>
+	<button type="button" onclick="directEntryHandler(); directEntryDisplay(false);">Done</button>
+	<button type="button" onclick="document.getElementById('directEntryInput').value='';">Clear</button>
+	<button type="button" onclick="directEntryDisplay(false);">Cancel</button>
+      </div>
+    </div>
+    
+    <!-- Keyboard shortcut help -->
+    <div id="shortcutHelp">
+      <div>
+	<h1>Keyboard shortcuts</h1>
+	<table>
+	  <colgroup>
+	    <col id="key">
+	    <col id="action">
+	  </colgroup>
+	  <tr><th>Key</th> <th>Action</th></tr>
+	  <tr><td>r</td> <td>Reload current file</td></tr>
+	  <tr><td>t</td> <td>Cycle tip labels</td></tr>
+	  <tr><td>i</td> <td>Cycle internal node labels</td></tr>
+	  <tr><td>c</td> <td>Cycle edge colour trait</td></tr>
+	  <tr><td>m</td> <td>Toggle marking of internal nodes</td></tr>
+	  <tr><td>a</td> <td>Toggle axis display</td></tr>
+	  <tr><td>z</td> <td>Reset zoom</td></tr>
+	  <tr><td>, .</td> <td>Move to next or previous tree</td></tr>
+	  <tr><td>&lt; &gt;</td> <td>Fast-forward or backward through trees</td></tr>
+	  <tr><td>+ -</td> <td>Increase/decrease edge width</td></tr>
+	  <tr><td>?</td> <td>Keyboard shortcut help</td></tr>
+	</table>
+	<button type="button" onclick="keyboardShortcutHelpDisplay(false);">Done</button>
+      </div>
+    </div>
+    
+    <!-- About box -->
+    <div id="about">
+      <div>
+	<h1>IcyTree</h1>
+	
+	<p>This browser-based phylogenetic tree viewer is based on the
+	  JavaScript library <a target="new" href="http://git.io/phylo.js">phylo.js</a>.
+	  It aims to be a (very) lightweight alternative
+	  to <a target="new" href="http://tree.bio.ed.ac.uk/software/figtree/">FigTree</a>
+	  that is useful in situations where rapid visualisation of tree log
+	  files such as those produced
+	  by <a target="new" href="http://beast2.cs.auckland.ac.nz/index.php/Main_Page">BEAST
+	    2</a> or <a target="new" href="http://compevol.github.com/MASTER">MASTER</a> is
+	  more important than the generation of publication-quality
+	  graphics.</p>
+	
+	<p>IcyTree is compatible with <i>current</i> GNU/Linux and OS X
+	  versions of Mozilla Firefox and Google Chrome. <b>Your mileage may
+	    vary with other browser/OS combinations.</b></p>
+	
+	<p>All components of IcyTree are licensed under version 3 of the
+	  GNU <a target="new" href="http://www.gnu.org/licenses/gpl-3.0.html">General
+	    Public License</a> (GPL).</p>
+	
+	<button type="button" onclick="aboutBoxDisplay(false);">Done</button>
+      </div>
+    </div>
 
-<!-- Main output element -->
-<div id="output"></div>
-
-<!-- Tree selector -->
-<div id="treeSelect">
-  <div id="treeCounter"></div>
-  <div id="treeSelectInput" class="setTreeBlurred">
-  <button id="firstTree" type="button" disabled="disabled"
-	  onclick="currentTreeInc(-1, true);">&lt;&lt;</button>
-  <button id="prevTree" type="button" disabled="disabled"
-	  onclick="currentTreeInc(-1, false);">&lt;</button>
-  <input id="setTree" type="text"
-	  onchange="currentTreeChange(this.value);"
-	 onfocus="document.getElementById('treeSelectInput').className='setTreeFocused';"
-	 onblur="document.getElementById('treeSelectInput').className='';"/>
-  <button id="nextTree" type="button" disabled="disabled"
-	  onclick="currentTreeInc(+1, false);">&gt;</button>
-  <button id="lastTree" type="button" disabled="disabled"
-	  onclick="currentTreeInc(+1, true);">&gt;&gt;</button>
-  </div>
-</div>
-
-<!-- Newick input element -->
-<div id="directEntry">
-  <div>
-    <textarea id="directEntryInput" placeholder="newick string..."></textarea>
-    <button type="button" onclick="directEntryHandler(); directEntryDisplay(false);">Done</button>
-    <button type="button" onclick="document.getElementById('directEntryInput').value='';">Clear</button>
-    <button type="button" onclick="directEntryDisplay(false);">Cancel</button>
-  </div>
-</div>
-
-<!-- Keyboard shortcut help -->
-<div id="shortcutHelp">
-  <div>
-    <h1>Keyboard shortcuts</h1>
-    <table>
-      <colgroup>
-	<col id="key">
-	<col id="action">
-      </colgroup>
-      <tr><th>Key</th> <th>Action</th></tr>
-      <tr><td>r</td> <td>Reload current file</td></tr>
-      <tr><td>t</td> <td>Cycle tip labels</td></tr>
-      <tr><td>i</td> <td>Cycle internal node labels</td></tr>
-      <tr><td>c</td> <td>Cycle edge colour trait</td></tr>
-      <tr><td>m</td> <td>Toggle marking of internal nodes</td></tr>
-      <tr><td>a</td> <td>Toggle axis display</td></tr>
-      <tr><td>z</td> <td>Reset zoom</td></tr>
-      <tr><td>, .</td> <td>Move to next or previous tree</td></tr>
-      <tr><td>&lt; &gt;</td> <td>Fast-forward or backward through trees</td></tr>
-      <tr><td>+ -</td> <td>Increase/decrease edge width</td></tr>
-      <tr><td>?</td> <td>Keyboard shortcut help</td></tr>
-    </table>
-    <button type="button" onclick="keyboardShortcutHelpDisplay(false);">Done</button>
-  </div>
-</div>
-
-<!-- About box -->
-<div id="about">
-  <div>
-    <h1>IcyTree</h1>
-
-    <p>This browser-based phylogenetic tree viewer is based on the
-    JavaScript library <a target="new" href="http://git.io/phylo.js">phylo.js</a>.
-    It aims to be a (very) lightweight alternative
-    to <a target="new" href="http://tree.bio.ed.ac.uk/software/figtree/">FigTree</a>
-    that is useful in situations where rapid visualisation of tree log
-    files such as those produced
-    by <a target="new" href="http://beast2.cs.auckland.ac.nz/index.php/Main_Page">BEAST
-    2</a> or <a target="new" href="http://compevol.github.com/MASTER">MASTER</a> is
-    more important than the generation of publication-quality
-    graphics.</p>
-
-    <p>IcyTree is compatible with <i>current</i> GNU/Linux and OS X
-    versions of Mozilla Firefox and Google Chrome. <b>Your mileage may
-    vary with other browser/OS combinations.</b></p>
-
-    <p>All components of IcyTree are licensed under version 3 of the
-    GNU <a target="new" href="http://www.gnu.org/licenses/gpl-3.0.html">General
-    Public License</a> (GPL).</p>
-
-    <button type="button" onclick="aboutBoxDisplay(false);">Done</button>
-  </div>
-</div>
-
-</body>
+  </body>
 </html>

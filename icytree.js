@@ -29,6 +29,8 @@ $(document).ready(function() {
     // Create new zoomControl object (don't initialise):
     zoomControl = Object.create(ZoomControl, {});
 
+    // Set up dialogs:
+
 
     // Set up menus:
     $("#menu > li > button").button();
@@ -46,7 +48,29 @@ $(document).ready(function() {
     });
 
     // Menu item events:
-    $("#fileEnter").click(directEntryDisplay);
+
+    $("#directEntry").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 500,
+	height: 400,
+	buttons: {
+	    Done: function() {
+		treeData = $(this).find("textArea").val();
+		reloadTreeData();
+		$(this).dialog("close");
+	    },
+	    Clear: function() {
+		$(this).find("textArea").val("");
+	    },
+	    Cancel: function() {
+		$(this).dialog("close");
+	    }}
+    });
+	
+    $("#fileEnter").click(function() {
+	$("#directEntry").dialog("open");
+    });
     $("#fileLoad").change(fileInputHandler);
     $("#fileReload").click(reloadTreeData);
     $("#fileExport").click(exportSVG);
@@ -80,8 +104,32 @@ $(document).ready(function() {
 	toggleItem($(this));
     });
 
-    $("#helpShortcuts").click(keyboardShortcutHelpDisplay);
-    $("#helpAbout").click(aboutBoxDisplay);
+
+    $("#shortcutHelp").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 450,
+	buttons: {
+	    Ok: function() {
+		$(this).dialog("close");
+	    }}
+    });
+    $("#helpShortcuts").click(function() {
+	$("#shortcutHelp").dialog("open");
+    });
+
+    $("#about").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 450,
+	buttons: {
+	    Ok: function() {
+		$(this).dialog("close");
+	    }}
+    });
+    $("#helpAbout").click(function() {
+	$("#about").dialog("open");
+    });
 
     update();
 });
@@ -208,24 +256,6 @@ function keyboardShortcutHelpDisplay(flag) {
     } else {
 	// Hide input elements
 	$("#shortcutHelp").hide(400);
-
-	// Enable keypress event handler
-	$(document).on("keypress", keyPressHandler);
-    }
-}
-
-// Display about box
-function aboutBoxDisplay(flag) {
-
-    if (flag) {
-	// Disable keypress event handler
-	$(document).off("keypress");
-
-	// Display input elements
-	$("#about").show(400);
-    } else {
-	// Hide input elements
-	$("#about").hide(400);
 
 	// Enable keypress event handler
 	$(document).on("keypress", keyPressHandler);
@@ -546,7 +576,7 @@ function keyPressHandler(event) {
 
     if (char == "?") {
 	// Keyboard shortcut help
-	keyboardShortcutHelpDisplay(true);
+	$("#shortcutHelp").dialog("open");
     }
 
     if (trees.length == 0)

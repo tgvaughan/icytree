@@ -27,12 +27,12 @@ body {
 }
 
 .ui-button {
-    font: 12px sans;
+    font: 12px sans-serif;
 }
 
 .ui-menu {
-    font: 12px sans;
-    width: 200px;
+    font: 12px sans-serif;
+    width: 170px;
 }
 
 .ui-menu .ui-menu {
@@ -160,7 +160,7 @@ body {
 /* Help and About */
 
 #shortcutHelp {
-    font: 14px sans;
+    font: 14px sans-serif;
 }
 
 #shortcutHelp th, td {
@@ -177,6 +177,6 @@ body {
 }
 
 #about {
-    font: 14px sans;
+    font: 14px sans-serif;
     text-align: center;
 }

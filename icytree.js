@@ -21,7 +21,11 @@ $(document).ready(function() {
 	event.preventDefault();
 	return false;
     });
-    $("#output").on("drop", dropInputHandler);
+    $("#output").on("drop", function (event) {
+	event.preventDefault();
+	treeFile = event.originalEvent.dataTransfer.files[0];
+	loadFile();
+    });
 
     // Set up keyboard handler:
     $(document).on("keypress", keyPressHandler);
@@ -67,11 +71,14 @@ $(document).ready(function() {
 		$(this).dialog("close");
 	    }}
     });
-	
+		  
     $("#fileEnter").click(function() {
 	$("#directEntry").dialog("open");
     });
-    $("#fileLoad").change(fileInputHandler);
+    $("#fileLoad").change(function() {
+	treeFile = $("#fileLoad").prop("files")[0];
+	loadFile();
+    });
     $("#fileReload").click(reloadTreeData);
     $("#fileExport").click(exportSVG);
 
@@ -133,42 +140,6 @@ $(document).ready(function() {
 
     update();
 });
-
-function fileInputHandler() {
-    treeFile = $("#fileLoad").prop("files")[0];
-    loadFile();
-}
-
-function directEntryDisplay(flag) {
-
-    if (flag) {
-	// Disable keypress event handler
-	$(document).off("keypress", keyPressHandler);
-
-	// Display input elements
-	$("#directEntry").show(400);
-    } else {
-	// Hide input elements
-	$("#directEntry").hide(400);
-
-	// Enable keypress event handler
-	$(document).on("keypress", keyPressHandler);
-    }
-}
-
-function directEntryHandler() {
-    treeData = document.getElementById("directEntryInput").value;
-
-    reloadTreeData();
-}
-
-function dropInputHandler(event) {
-    event.preventDefault();
-
-    treeFile = event.originalEvent.dataTransfer.files[0];
-
-    loadFile();
-}
 
 // Load tree data from file object treeFile
 function loadFile() {
@@ -242,24 +213,6 @@ function prepareOutputForTree() {
     var output = $("#output");
     output.removeClass();
     output.css("padding", "0px");
-}
-
-// Display keyboard shortcut help
-function keyboardShortcutHelpDisplay(flag) {
-
-    if (flag) {
-	// Disable keypress event handler
-	$(document).off("keypress", keyPressHandler);
-
-	// Display input elements
-	$("#shortcutHelp").show(400);
-    } else {
-	// Hide input elements
-	$("#shortcutHelp").hide(400);
-
-	// Enable keypress event handler
-	$(document).on("keypress", keyPressHandler);
-    }
 }
 
 // Update checked item in list:

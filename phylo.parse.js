@@ -229,6 +229,35 @@ var Tree = Object.create({}, {
 	return undefined;
     }},
 
+    // Obtain Newick representation of tree
+    getNewick: {value: function() {
+
+	function newickRecurse(node) {
+	    var res = "";
+	    if (!node.isLeaf()) {
+		res += "(";
+		for (var i=0; i<node.children.length; i++) {
+		    if (i>0)
+			res += ",";
+		    res += newickRecurse(node.children[i]);
+		}
+		res += ")"
+	    }
+	    res += node.label;
+	    if (node.parent !== undefined)
+		res += ":" + (node.parent.height - node.height);
+	    else
+		res += ":0.0";
+
+	    return res;
+	}
+
+	var newickStr = "";
+	if (this.root !== undefined)
+	    newickStr += newickRecurse(this.root);
+
+	return (newickStr + ";");
+    }}
 });
 
 // Prototype for trees constructed from Newick strings

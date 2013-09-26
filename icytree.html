@@ -24,11 +24,7 @@
 	<div class="menuDiv">
 	  <ul id="fileMenu">
 	    <li><a href="#" id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</a></li>
-	    <li><div id="fileLoadContainer">
-		<input id="fileLoad" type="file">
-		<a href="#"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</a>
-	      </div>
-	    </li>
+	    <li><a href="#" id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</a></li>
 	    <li><a href="#" id="fileReload"><span class="ui-icon ui-icon-refresh"></span>Reload file</a></li>
 	    <li><a href="#" id="fileExport"><span class="ui-icon ui-icon-disk"></span>Export SVG</a></li>
 	  </ul>
@@ -112,6 +108,9 @@
     <div id="directEntry" title="Direct entry">
 	<textarea placeholder="newick string..."></textarea>
     </div>
+
+    <!-- File input element -->
+    <input id="fileInput" type="file"/>
     
     <!-- Keyboard shortcut help -->
     <div id="shortcutHelp" title="Keyboard shortcuts">

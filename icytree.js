@@ -75,9 +75,12 @@ $(document).ready(function() {
     $("#fileEnter").click(function() {
 	$("#directEntry").dialog("open");
     });
-    $("#fileLoad").change(function() {
-	treeFile = $("#fileLoad").prop("files")[0];
-	loadFile();
+    $("#fileLoad").click(function() {
+	$("#fileInput").trigger("click");
+    });
+    $("#fileInput").change(function() {
+        treeFile = $("#fileInput").prop("files")[0];
+        loadFile();
     });
     $("#fileReload").click(reloadTreeData);
     $("#fileExport").click(exportSVG);

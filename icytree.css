@@ -168,5 +168,10 @@ body {
 
 #about {
     font: 14px sans-serif;
-    text-align: center;
+    text-align: left;
+}
+
+#about img {
+    float: right;
+    margin: 10px;
 }

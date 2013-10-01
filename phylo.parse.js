@@ -293,7 +293,7 @@ var TreeFromNewick = Object.create(Tree, {
 	["NUM", /^-?\d+(\.\d+)?([Ee]-?\d+)?/, true],
 	["STRING", /^"[^"]+"/, true],
 	["STRING",/^'[^']+'/, true],
-	["STRING", /^[\w*%.\-\+]+/, true]
+	["STRING", /^[\w|*%.\-\+]+/, true]
 
     ], writeable: false, configurable: false},
 

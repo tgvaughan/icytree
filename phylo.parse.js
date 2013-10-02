@@ -290,10 +290,9 @@ var TreeFromNewick = Object.create(Tree, {
 	["OPENV", /^{/, false],
 	["CLOSEV", /^}/, false],
 	["EQ", /^=/, false],
-	["NUM", /^-?\d+(\.\d+)?([Ee]-?\d+)?/, true],
 	["STRING", /^"[^"]+"/, true],
 	["STRING",/^'[^']+'/, true],
-	["STRING", /^[\w|*%.\-\+]+/, true]
+	["STRING", /^[\w|*%/.\-\+]+/, true]
 
     ], writeable: false, configurable: false},
 
@@ -428,7 +427,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 	// L -> lab|num
 	function ruleL(node) {
-	    if (acceptToken("STRING", false) || acceptToken("NUM", false)) {
+	    if (acceptToken("STRING", false)) {
 		node.label = tokenList[idx-1][1];
 
 		//indentLog(node.label);
@@ -460,7 +459,7 @@ var TreeFromNewick = Object.create(Tree, {
 	function ruleQ() {
 	    var value = undefined;
 
-	    if (acceptToken("NUM", false) || acceptToken("STRING", false))
+	    if (acceptToken("STRING", false))
 		value = tokenList[idx-1][1];
 	    
 	    else if (acceptToken("OPENV", false)) {
@@ -492,9 +491,13 @@ var TreeFromNewick = Object.create(Tree, {
 	// H -> :num|eps
 	function ruleH(node) {
 	    if (acceptToken("COLON", false)) {
-		acceptToken("NUM", true);
+		acceptToken("STRING", true);
 
-		node.height = 1*tokenList[idx-1][1];
+		var height = Number(tokenList[idx-1][1]);
+		if (Number.isFinite(height))
+		    node.height = height;
+		else
+		    throw "Expected numerical branch length. Found " + tokenList[idx-1][1] + " instead."; 
 
 		//indentLog(":"+tokenList[idx-1][1]);
 	    } else {
@@ -560,6 +563,7 @@ var getTreesFromString = function(string) {
 		var tStringArray = fullLine.slice(9,fullLine.length-1).split(",");
 		for (var j=0; j<tStringArray.length; j++) {
 		    var tvec = tStringArray[j].split(" ");
+		    tvec[1] = tvec[1].replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
 		    tmap[tvec[0]] = tvec[1];
 		}
 		fullLine = "";

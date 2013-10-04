@@ -144,9 +144,7 @@ body {
 /* File input */
 
 #fileInput {
-    /* display: none; (Causes problems in Safari.) */
-    position: absolute;
-    left: -9999px;  /* So ugly! */
+    display: none;
 }
 
 /* Help and About */

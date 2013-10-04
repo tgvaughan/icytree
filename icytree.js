@@ -324,7 +324,7 @@ function currentTreeInc(dir, big) {
 // Alter currently-displayed tree.
 function currentTreeChange(newVal) {
     newVal = Number(newVal);
-    if (Number.isNaN(newVal)) {
+    if (String(newVal) === "NaN") {
 	updateCurrentTreeControl();
 	return;
     }

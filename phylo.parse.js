@@ -494,7 +494,7 @@ var TreeFromNewick = Object.create(Tree, {
 		acceptToken("STRING", true);
 
 		var height = Number(tokenList[idx-1][1]);
-		if (Number.isFinite(height))
+		if (String(height) !== "NaN")
 		    node.height = height;
 		else
 		    throw "Expected numerical branch length. Found " + tokenList[idx-1][1] + " instead."; 

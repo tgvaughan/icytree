@@ -161,7 +161,7 @@ $(document).ready(function() {
 
 // Tests for the presence of requried browser functionaility
 function browserValid() {
-    if (!FileReader)
+    if (typeof FileReader === "undefined")
 	return false; // Can't load files.
 
     return true;

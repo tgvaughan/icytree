@@ -141,8 +141,31 @@ $(document).ready(function() {
 	$("#about").dialog("open");
     });
 
+    $("#warning").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 450,
+	buttons: {
+	    "I understand": function() {
+		$(this).dialog("close");
+	    }}
+    });
+
     update();
+
+    // Display warning if required functions unavailable.
+    if (!browserValid()) {
+	$("#warning").dialog("open");
+    }
 });
+
+// Tests for the presence of requried browser functionaility
+function browserValid() {
+    if (!FileReader)
+	return false; // Can't load files.
+
+    return true;
+}
 
 // Load tree data from file object treeFile
 function loadFile() {

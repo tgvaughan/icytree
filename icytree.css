@@ -49,30 +49,22 @@ body {
     margin: 0px;
 }
 
-#output.empty {
+#output.start {
     margin: 20px;
     border: dashed gray 5px;
 
     left: 0px;
     top: 10px;
-
-    width: -webkit-calc(100% - 50px);
-    width: calc(100% - 50px);
-    height: 150px;
 
     text-align: center;
 }
 
-#output.text {
+#output.loading {
     margin: 20px;
     border: dashed gray 5px;
 
     left: 0px;
     top: 10px;
-
-    width: -webkit-calc(100% - 50px);
-    width: calc(100% - 50px);
-    height: 100px;
 
     color: gray;
     font: 50px sans-serif;
@@ -86,10 +78,6 @@ body {
 
     left: 0px;
     top: 10px;
-
-    width: -webkit-calc(100% - 50px);
-    width: calc(100% - 50px);
-    height: 100px;
 
     color: red;
     font: 50px sans-serif;

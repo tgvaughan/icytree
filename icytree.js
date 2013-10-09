@@ -76,7 +76,8 @@ $(document).ready(function() {
 	$("#directEntry").dialog("open");
     });
     $("#fileLoad").click(function() {
-	$("#fileInput").trigger("click");
+	if (!$(this).parent().hasClass("ui-state-disabled"))
+	    $("#fileInput").trigger("click");
     });
     $("#fileInput").change(function() {
         treeFile = $("#fileInput").prop("files")[0];
@@ -161,8 +162,11 @@ $(document).ready(function() {
 
 // Tests for the presence of requried browser functionaility
 function browserValid() {
-    if (typeof FileReader === "undefined")
-	return false; // Can't load files.
+    if (typeof FileReader === "undefined") {
+	// Can't load files
+	$("#fileLoad").parent().addClass("ui-state-disabled");
+	return false;
+    }
 
     return true;
 }

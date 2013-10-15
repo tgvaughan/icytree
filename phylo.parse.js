@@ -257,6 +257,19 @@ var Tree = Object.create({}, {
 	    newickStr += newickRecurse(this.root);
 
 	return (newickStr + ";");
+    }},
+
+    // Get total length of all edges in tree
+    getLength: {value: function() {
+	var totalLength = 0.0;
+	for (var i=0; i<this.getNodeList().length; i++) {
+	    var node = this.getNodeList()[i];
+	    if (node.isRoot())
+		continue;
+	    totalLength += node.parent.height - node.height;
+	}
+
+	return totalLength;
     }}
 });
 

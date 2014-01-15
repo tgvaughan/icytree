@@ -137,6 +137,17 @@ body {
     left: -9999px;  /* So ugly! */
 }
 
+/* Taxon search */
+
+#nodeSearchDialog {
+    font: 14px sans-serif;
+}
+
+#searchStringInput {
+    width: 95%;
+    resize: none;
+}
+
 /* Help and About */
 
 #shortcutHelp {

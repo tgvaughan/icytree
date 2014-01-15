@@ -160,40 +160,16 @@ var Tree = Object.create({}, {
     }},
 
     // Retrieve list of traits defined on tree
-    getTraitList: {value: function(onAllNodes) {
+    getTraitList: {value: function() {
 	if (this.root === undefined)
 	    return [];
 
 	var traitSet = {};
-
-	if (!onAllNodes) {
-
-	    for (var i=0; i<this.getNodeList().length; i++) {
-		for (var trait in this.getNodeList()[i].annotation)
-		    traitSet[trait] = true;
-	    }
-		
-	} else {
-
-	    for (var trait in this.getNodeList()[0].annotation) {
+	for (var i=0; i<this.getNodeList().length; i++) {
+	    for (var trait in this.getNodeList()[i].annotation)
 		traitSet[trait] = true;
-	    }
-
-	    for (var i=0; i<this.getNodeList().length; i++) {
-		for (var trait in traitSet) {
-		    if (!(trait in this.getNodeList()[i].annotation)) {
-			delete traitSet[trait];
-		    }
-		}
-
-		if (Object.keys(traitSet).length===0) {
-		    // Can stop here - no traits left.
-		    break;
-		}
-	    }
-	    
 	}
-	
+
 	// Create list from set
 	var traitList = [];
 	for (trait in traitSet)
@@ -230,7 +206,10 @@ var Tree = Object.create({}, {
     }},
 
     // Obtain Newick representation of tree
-    getNewick: {value: function() {
+    getNewick: {value: function(annotate) {
+
+	if (annotate === undefined)
+	    annotate = false;
 
 	function newickRecurse(node) {
 	    var res = "";
@@ -243,7 +222,29 @@ var Tree = Object.create({}, {
 		}
 		res += ")"
 	    }
-	    res += node.label;
+
+	    if (node.label.length>0)
+		res += "\"" + node.label + "\"";
+
+	    if (annotate) {
+		var keys = Object.keys(node.annotation);
+		if (keys.length>0) {
+		    res += "[&";
+		    for (var idx=0; idx<keys.length; idx++) {
+			var key = keys[idx];
+
+			if (idx>0)
+			    res += ",";
+			res += "\"" + key + "\"=";
+			if (node.annotation[key] instanceof Array)
+			    res += "{" + String(node.annotation[key]) + "}";
+			else
+			    res += "\"" + node.annotation[key] + "\"";
+		    }
+		    res += "]";
+		}
+	    }
+
 	    if (node.parent !== undefined)
 		res += ":" + (node.parent.height - node.height);
 	    else
@@ -270,6 +271,34 @@ var Tree = Object.create({}, {
 	}
 
 	return totalLength;
+    }},
+
+    // Return list of nodes belonging to monophyletic groups involving
+    // the provided node list
+    getCladeNodes: {value: function(nodes) {
+
+	function getCladeMembers(node, nodes) {
+
+	    var cladeMembers = [];
+
+	    var allChildrenAreMembers = true;
+	    for (var cidx=0; cidx<node.children.length; cidx++) {
+		var child = node.children[cidx];
+
+		var childCladeMembers = getCladeMembers(child, nodes)
+		if (childCladeMembers.indexOf(child)<0)
+		    allChildrenAreMembers = false;
+
+		cladeMembers = cladeMembers.concat(childCladeMembers);
+	    }
+
+	    if (nodes.indexOf(node)>=0 || (node.children.length>0 && allChildrenAreMembers))
+		cladeMembers = cladeMembers.concat(node);
+
+	    return cladeMembers;
+	}
+
+	return getCladeMembers(this.root, nodes);
     }}
 });
 

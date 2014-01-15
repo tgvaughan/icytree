@@ -41,6 +41,7 @@ $(document).ready(function() {
 
     $("#fileMenu").menu().hide();
     $("#styleMenu").menu().hide();
+    $("#searchMenu").menu().hide();
     $("#helpMenu").menu().hide();
 
     $("#menu > li").mouseover(function() {
@@ -84,7 +85,9 @@ $(document).ready(function() {
         loadFile();
     });
     $("#fileReload").click(reloadTreeData);
-    $("#fileExport").click(exportSVG);
+    $("#fileExportSVG").click(exportSVG);
+    $("#fileExportNewick").click(exportNewick);
+    $("#fileExportNEXUS").click(exportNEXUS);
 
     $("#styleSort").on("click", "a", function() {
 	selectListItem($(this));
@@ -115,6 +118,70 @@ $(document).ready(function() {
 	toggleItem($(this));
     });
 
+
+    $("#nodeSearchDialog").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 450,
+	buttons: {
+	    Search: function() {
+
+		var tree = trees[currentTreeIdx];
+
+		var searchStrings = $("#searchStringInput").val().split(",");
+		var akey = $("#searchAnnotationKey").val();
+		var highlightClades = $("#cladeHighlight").is(":checked");
+
+		// Clear existing highlights
+		$.each(tree.getNodeList(), function(nidx, node) {
+		    delete node.annotation[akey];
+		});
+
+		$.each(searchStrings, function(eidx, str) {
+		    var matchVal = eidx+1;
+		    
+		    // Find matching nodes
+		    var matchingNodes = [];
+		    $.each(tree.getNodeList(), function(nidx, node) {
+			if (node.label.search(str)>=0)
+			    matchingNodes = matchingNodes.concat(node)
+		    });
+
+		    // Find clade members if required
+		    if (highlightClades)
+			matchingNodes = tree.getCladeNodes(matchingNodes);
+
+		    // Annotate matched nodes
+		    $.each(matchingNodes, function (nidx, node) {
+			node.annotation[akey] = matchVal;
+		    });
+
+		});
+
+		update();
+
+		$(this).dialog("close");
+	    },
+	    Cancel: function() {
+		$(this).dialog("close");
+	    }}
+    });
+    $("#searchNodes").click(function() {
+	if (trees.length>currentTreeIdx && currentTreeIdx>=0)
+	    $("#nodeSearchDialog").dialog("open");
+    });
+
+    $("#searchClear").click(function() {
+	if (trees.length>currentTreeIdx && currentTreeIdx>=0) {
+	    var tree = trees[currentTreeIdx];
+	    var akey = $("#searchAnnotationKey").val();
+	    $.each(tree.getNodeList(), function(nidx, node) {
+		delete node.annotation[akey];
+	    });
+
+	    update();
+	}
+    });
 
     $("#shortcutHelp").dialog({
 	autoOpen: false,
@@ -318,18 +385,9 @@ function updateTraitSelectors(tree) {
         // Clear old traits:
         el.html("");
 	
-        // Selector-dependent stuff:
-	// Colour selector only allows traits common to _all_ nodes on tree.
-	// All other selectors include the node label as an option.
-
-	var traitList = ["None"];
-        if (el.is("#styleColourTrait")){
-	    traitList = traitList.concat(tree.getTraitList(true));
-
-	} else {
-	    traitList.push("Node label");
-	    traitList = traitList.concat(tree.getTraitList(false));
-        }
+	// Obtain trait list:
+	var traitList = ["None", "Node label"];
+	traitList = traitList.concat(tree.getTraitList(false));
 
 	// Construct selector trait lists:
         for (var i=0; i<traitList.length; i++) {
@@ -477,8 +535,34 @@ function exportSVG() {
     if (currentTreeIdx>=trees.length || currentTreeIdx<0)
 	return false;
 
-    var dataURI = "data:image/svg+xml;base64," + window.btoa($("#output").html());
-    window.open(dataURI);
+//    var dataURI = "data:image/svg+xml;base64," + window.btoa($("#output").html());
+//    window.open(dataURI);
+
+    var blob = new Blob([$("#output").html()], {type: "image/svg+xml"});
+    saveAs(blob, "tree.svg");
+}
+
+// Export trees to file in Newick format
+function exportNewick() {
+    if (currentTreeIdx>=trees.length || currentTreeIdx<0)
+	return false;
+
+    var newickStr = trees[currentTreeIdx].getNewick() + "\n";
+    var blob = new Blob([newickStr], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "tree.newick");
+}
+
+// Export trees to file in NEXUS format
+function exportNEXUS() {
+    if (currentTreeIdx>=trees.length || currentTreeIdx<0)
+	return false;
+
+    var nexusStr = "#nexus\n\nbegin trees;\ntree tree_1 = [&R] "
+	+ trees[currentTreeIdx].getNewick(true) + "\n"
+	+ "end;\n";
+
+    var blob = new Blob([nexusStr], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "tree.nexus");
 }
 
 // Update display according to current tree model and display settings

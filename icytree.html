@@ -6,6 +6,8 @@
 
     <script src="phylo.parse.js"></script>
     <script src="phylo.vis.js"></script>
+    
+    <script src="FileSaver.js"></script>
 
     <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/start/jquery-ui.css"/>
@@ -42,7 +44,15 @@
 	    <li><a href="#" id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</a></li>
 	    <li><a href="#" id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</a></li>
 	    <li><a href="#" id="fileReload"><span class="ui-icon ui-icon-refresh"></span>Reload file</a></li>
-	    <li><a href="#" id="fileExport"><span class="ui-icon ui-icon-disk"></span>Export SVG</a></li>
+	    <li><a href="#"><span class="ui-icon
+	    ui-icon-disk"></span>Export tree as...</a>
+	      <ul id="fileExport">
+		<li><a href="#" id="fileExportSVG">SVG image</a></li>
+		<li><a href="#" id="fileExportNewick">Newick file</a></li>
+		<li><a href="#" id="fileExportNEXUS">NEXUS file</a></li>
+	      </ul>
+	    </li>
+<!--	    <li><a href="#" id="fileExport"><span class="ui-icon ui-icon-disk"></span>Export SVG</a></li>-->
 	  </ul>
 	</div>
       </li>
@@ -86,7 +96,16 @@
 	  </ul>
 	</div>
       </li>
-      
+
+      <li><button>Search</button>
+	<div class="menuDiv">
+	  <ul id="searchMenu">
+	    <li><a href="#" id="searchNodes">Find nodes</a></li>
+	    <li><a href="#" id="searchClear">Clear search results</a></li>
+	  </ul>
+	</div>
+      </li>
+
       <li><button>Help</button>
 	<div class="menuDiv">
 	  <ul id="helpMenu">
@@ -127,6 +146,13 @@
 
     <!-- File input element -->
     <input id="fileInput" type="file"/>
+
+    <!-- Taxon search dialog -->
+    <div id="nodeSearchDialog" title="Search nodes">
+      <input type="text" id="searchStringInput" placeholder="Node label substring to search for..."></input>
+      Annotation key: <input type="text" id="searchAnnotationKey" value="HIGHLIGHT"></input><br/>
+      <input type="checkbox" id="cladeHighlight">Highlight clades</input>
+    </div>
     
     <!-- Keyboard shortcut help -->
     <div id="shortcutHelp" title="Keyboard shortcuts">

@@ -27,7 +27,7 @@ var Layout = Object.create({}, {
     height: {value: 480, writable: true, configurable: true, enumerable: true},
 
     colourTrait: {value: undefined, writable: true, configurable: true, enumerable: true},
-    colourPallet: {value: ["blue", "red", "green", "purple"],
+    colourPallet: {value: ["blue", "red", "green", "purple", "orange"],
 		   writable: true, configurable: true, enumerable: true},
 
     tipTextTrait: {value: "label", writable: true, configurable: true, enumerable: true},
@@ -358,7 +358,7 @@ var EdgeStatsControl = Object.create({}, {
 	    this.phyloStat.style.fontWeight="normal";
 
 	    var table = document.createElement("table");
-	    table.innerHTML = "<tr><td>Branch length</td><td class='psBL'></td></tr><tr><td>Parent age</td><td class='psPA'></td></tr><tr><td>Child age</td><td class='psCA'></td></tr><tr><td>Child attribs</td><td class='psCAT'></td>"
+	    table.innerHTML = "<tr><td>Branch length</td><td class='psBL'></td></tr><tr><td>Parent age</td><td class='psPA'></td></tr><tr><td>Child age</td><td class='psCA'></td></tr><tr><td>Child label</td><td class='psCL'></td><tr><td>Child attribs</td><td class='psCAT'></td>"
 
 	    table.style.width = "100%";
 	    table.style.tableLayout = "fixed";
@@ -454,10 +454,12 @@ var EdgeStatsControl = Object.create({}, {
 	    pa = pretty(node.parent.height);
 	}
 	var ca = pretty(node.height);
+	var cl = node.label;
 
 	this.phyloStat.getElementsByClassName("psBL")[0].innerHTML = bl;
 	this.phyloStat.getElementsByClassName("psPA")[0].innerHTML = pa;
 	this.phyloStat.getElementsByClassName("psCA")[0].innerHTML = ca;
+	this.phyloStat.getElementsByClassName("psCL")[0].innerHTML = cl;
 
 	var psCAT = this.phyloStat.getElementsByClassName("psCAT")[0];
 	if (Object.keys(node.annotation).length>0) {

@@ -181,7 +181,7 @@ $(document).ready(function() {
 	    }}
     });
     $("#searchNodes").click(function() {
-	//if (trees.length>currentTreeIdx && currentTreeIdx>=0)
+	if (trees.length>currentTreeIdx && currentTreeIdx>=0)
 	    $("#nodeSearchDialog").dialog("open");
     });
 
@@ -551,9 +551,6 @@ function reloadTreeData() {
 function exportSVG() {
     if (currentTreeIdx>=trees.length || currentTreeIdx<0)
 	return false;
-
-//    var dataURI = "data:image/svg+xml;base64," + window.btoa($("#output").html());
-//    window.open(dataURI);
 
     var blob = new Blob([$("#output").html()], {type: "image/svg+xml"});
     saveAs(blob, "tree.svg");

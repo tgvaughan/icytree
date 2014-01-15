@@ -299,6 +299,27 @@ var Tree = Object.create({}, {
 	}
 
 	return getCladeMembers(this.root, nodes);
+    }},
+
+    // Return list of all nodes ancestral to those in the provided node list
+    getAncestralNodes: {value: function(nodes) {
+
+	function getAncestors(node, nodes) {
+	    var ancestors = [];
+
+	    for (var cidx=0; cidx<node.children.length; cidx++) {
+		var child = node.children[cidx];
+
+		ancestors = ancestors.concat(getAncestors(child, nodes));
+	    }
+
+	    if (nodes.indexOf(node)>=0 || ancestors.length>0)
+		ancestors = ancestors.concat(node);
+
+	    return ancestors;
+	}
+
+	return getAncestors(this.root, nodes);
     }}
 });
 

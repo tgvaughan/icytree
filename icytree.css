@@ -148,6 +148,10 @@ body {
     resize: none;
 }
 
+#nodeSearchDialog ul {
+    list-style-type: none;
+}
+
 /* Help and About */
 
 #shortcutHelp {

@@ -147,11 +147,21 @@
     <!-- File input element -->
     <input id="fileInput" type="file"/>
 
-    <!-- Taxon search dialog -->
+    <!-- Node search dialog -->
     <div id="nodeSearchDialog" title="Search nodes">
-      <input type="text" id="searchStringInput" placeholder="Node label substring to search for..."></input>
+      <input type="text" id="searchStringInput"
+	     placeholder="Comma-delimited substrings to search for..."></input>
+
+      <ul>
+	<li><input type="radio" name="searchOpt" checked="checked"
+		   value="matchOnly">Highlight matching nodes only</input></li>
+	<li><input type="radio" name="searchOpt"
+		   value="monophyletic">Include monophyletic ancestors</input></li>
+	<li><input type="radio" name="searchOpt"
+		   value="ancestors">Include all ancestors</input></li>
+      </ul>
+
       Annotation key: <input type="text" id="searchAnnotationKey" value="HIGHLIGHT"></input><br/>
-      <input type="checkbox" id="cladeHighlight">Highlight clades</input>
     </div>
     
     <!-- Keyboard shortcut help -->

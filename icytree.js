@@ -130,7 +130,7 @@ $(document).ready(function() {
 
 		var searchStrings = $("#searchStringInput").val().split(",");
 		var akey = $("#searchAnnotationKey").val();
-		var highlightClades = $("#cladeHighlight").is(":checked");
+		var highlightType = $("input[name=searchOpt]:checked", "#nodeSearchDialog").val();
 
 		// Clear existing highlights
 		$.each(tree.getNodeList(), function(nidx, node) {
@@ -147,16 +147,30 @@ $(document).ready(function() {
 			    matchingNodes = matchingNodes.concat(node)
 		    });
 
-		    // Find clade members if required
-		    if (highlightClades)
+		    // Highlight additional nodes as required
+
+		    if (highlightType === "monophyletic")
 			matchingNodes = tree.getCladeNodes(matchingNodes);
 
-		    // Annotate matched nodes
+		    if (highlightType === "ancestors")
+			matchingNodes = tree.getAncestralNodes(matchingNodes);
+
+		    // Annotate selected nodes
 		    $.each(matchingNodes, function (nidx, node) {
 			node.annotation[akey] = matchVal;
 		    });
 
 		});
+
+		updateTraitSelectors(tree);
+
+		// Colour tree using highlighting trait
+		var hlElement = undefined;
+		$("#styleColourTrait a").each(function(eidx) {
+		    if ($(this).text() === akey)
+			hlElement = $(this);
+		});
+		selectListItem(hlElement);
 
 		update();
 
@@ -167,7 +181,7 @@ $(document).ready(function() {
 	    }}
     });
     $("#searchNodes").click(function() {
-	if (trees.length>currentTreeIdx && currentTreeIdx>=0)
+	//if (trees.length>currentTreeIdx && currentTreeIdx>=0)
 	    $("#nodeSearchDialog").dialog("open");
     });
 
@@ -178,6 +192,9 @@ $(document).ready(function() {
 	    $.each(tree.getNodeList(), function(nidx, node) {
 		delete node.annotation[akey];
 	    });
+
+	    var noneElement = $($("#styleColourTrait a")[0]);
+	    selectListItem(noneElement);
 
 	    update();
 	}

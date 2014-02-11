@@ -626,8 +626,10 @@ var getTreesFromString = function(string) {
 		var tStringArray = fullLine.slice(9,fullLine.length-1).split(",");
 		for (var j=0; j<tStringArray.length; j++) {
 		    var tvec = tStringArray[j].split(" ");
-		    tvec[1] = tvec[1].replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
-		    tmap[tvec[0]] = tvec[1];
+		    var tkey = tvec[0];
+		    var tval = tvec.slice(1).join(" ");
+		    tval = tval.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
+		    tmap[tvec[0]] = tval;
 		}
 		fullLine = "";
 		continue;

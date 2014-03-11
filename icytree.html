@@ -53,6 +53,7 @@
 	    ui-icon-disk"></span>Export tree as...</a>
 	      <ul id="fileExport">
 		<li><a href="#" id="fileExportSVG">SVG image</a></li>
+		<li><a href="#" id="fileExportSVGMulti">Split SVG...</a></li>
 		<li><a href="#" id="fileExportNewick">Newick file</a></li>
 		<li><a href="#" id="fileExportNEXUS">NEXUS file</a></li>
 	      </ul>
@@ -170,23 +171,16 @@
       Annotation key: <input type="text" id="searchAnnotationKey" value="HIGHLIGHT"></input><br/>
     </div>
     
-    <!-- Keyboard shortcut help -->
-    <div id="shortcutHelp" title="Keyboard shortcuts">
-      <table>
-	<tr><th>Key</th> <th>Action</th></tr>
-	<tr><td>r</td> <td>Reload current file</td></tr>
-	<tr><td>t</td> <td>Cycle tip labels</td></tr>
-	<tr><td>i</td> <td>Cycle internal node labels</td></tr>
-	<tr><td>c</td> <td>Cycle edge colour trait</td></tr>
-	<tr><td>m</td> <td>Toggle marking of internal nodes</td></tr>
-	<tr><td>a</td> <td>Toggle axis display</td></tr>
-	<tr><td>z</td> <td>Reset zoom</td></tr>
-	<tr><td>, .</td> <td>Move to next or previous tree</td></tr>
-	<tr><td>&lt; &gt;</td> <td>Fast-forward or backward through trees</td></tr>
-	<tr><td>+ -</td> <td>Increase/decrease edge width</td></tr>
-	<tr><td>?</td> <td>Keyboard shortcut help</td></tr>
-      </table>
+
+    <!-- Multi SVG export dialog -->
+    <div id="multiSVGDialog" title="Export to mulitple SVG images">
+      <p>
+	<label for="spinner">Number of images to export:</label>
+	<input id="multiSVGspinner" name="value">
+      </p>
+      Tree will be split vertically among images.
     </div>
+
 
     <!-- Panning and zooming help -->
     <div id="navHelp" title="Tree navigation">
@@ -209,8 +203,26 @@
 
       <b>Note that you cannot pan or zoom if your mouse cursor is
       hovering over edge description table.</b>
-
     </div>
+
+    <!-- Keyboard shortcut help -->
+    <div id="shortcutHelp" title="Keyboard shortcuts">
+      <table>
+	<tr><th>Key</th> <th>Action</th></tr>
+	<tr><td>r</td> <td>Reload current file</td></tr>
+	<tr><td>t</td> <td>Cycle tip labels</td></tr>
+	<tr><td>i</td> <td>Cycle internal node labels</td></tr>
+	<tr><td>c</td> <td>Cycle edge colour trait</td></tr>
+	<tr><td>m</td> <td>Toggle marking of internal nodes</td></tr>
+	<tr><td>a</td> <td>Toggle axis display</td></tr>
+	<tr><td>z</td> <td>Reset zoom</td></tr>
+	<tr><td>, .</td> <td>Move to next or previous tree</td></tr>
+	<tr><td>&lt; &gt;</td> <td>Fast-forward or backward through trees</td></tr>
+	<tr><td>+ -</td> <td>Increase/decrease edge width</td></tr>
+	<tr><td>?</td> <td>Keyboard shortcut help</td></tr>
+      </table>
+    </div>
+
     
     <!-- About box -->
     <div id="about" title="About IcyTree">

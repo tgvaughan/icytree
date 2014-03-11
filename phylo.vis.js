@@ -39,7 +39,7 @@ var Layout = Object.create({}, {
     markSingletonNodes: {value: false, writable: true, configurable: true, enumerable: true},
 
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
-    fontSize: {value: 15, writable: true, configurable: true, enumerable: true},
+    fontSize: {value: 11, writable: true, configurable: true, enumerable: true},
     
     zoomControl: {value: undefined, writable: true, configurable: true, enumerable: true},
 
@@ -327,7 +327,7 @@ var Layout = Object.create({}, {
 	if (this.zoomControl === undefined)
 	    this.zoomControl = Object.create(ZoomControl);
 
-	this.zoomControl.init(svg, this.lineWidth, this.fontSize);
+	this.zoomControl.init(svg, this.lineWidth);
 
 	// Attach event handler for edge stats popup:
 	Object.create(EdgeStatsControl).init(svg, this.tree);
@@ -503,7 +503,6 @@ var ZoomControl = Object.create({}, {
 
     svg: {value: undefined, writable: true, configurable: true, enumerable: true},
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
-    fontSize: {value: 20, writable: true, configurable: true, enumerable: true},
 
     zoomFactorX: {value: 1, writable: true, configurable: true, enumerable: true},
     zoomFactorY: {value: 1, writable: true, configurable: true, enumerable: true},
@@ -516,10 +515,9 @@ var ZoomControl = Object.create({}, {
     height: {value: undefined, writable: true, configurable: true, enumerable: false},
 
 
-    init: {value: function(svg, lineWidth, fontSize) {
+    init: {value: function(svg, lineWidth) {
         this.svg = svg;
 	this.lineWidth = lineWidth;
-	this.fontSize = fontSize;
 
 	// Set initial view box if undefined:
 	if (!this.initialised) {

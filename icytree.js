@@ -86,6 +86,27 @@ $(document).ready(function() {
     });
     $("#fileReload").click(reloadTreeData);
     $("#fileExportSVG").click(exportSVG);
+
+
+    $("#multiSVGDialog").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 400,
+	height: 300,
+	buttons: {
+	    Export: function() {
+		exportSVGMulti($("#multiSVGspinner").spinner().spinner("value"));
+		$(this).dialog("close");
+	    },
+	    Cancel: function() {
+		$(this).dialog("close");
+	    }}
+    });
+    $("#fileExportSVGMulti").click(function() {
+	$("#multiSVGspinner").spinner().spinner("value",2);
+	$("#multiSVGDialog").dialog("open");
+    });
+
     $("#fileExportNewick").click(exportNewick);
     $("#fileExportNEXUS").click(exportNEXUS);
 
@@ -567,6 +588,61 @@ function exportSVG() {
 
     var blob = new Blob([$("#output").html()], {type: "image/svg+xml"});
     saveAs(blob, "tree.svg");
+}
+
+function exportSVGMulti(pages) {
+    if (currentTreeIdx>=trees.length || currentTreeIdx<0)
+	return false;
+
+    var svgEl = $("#output > svg")[0];
+
+    // Get full width and height
+    var width = svgEl.getAttribute("width");
+    var height = svgEl.getAttribute("height");
+
+    // Height to use for each page
+    var imageHeight = height/pages;
+
+    // Record current viewbox
+    var vbx = svgEl.viewBox.baseVal.x;
+    var vby = svgEl.viewBox.baseVal.y;
+    var vbwidth = svgEl.viewBox.baseVal.width;
+    var vbheight = svgEl.viewBox.baseVal.height;
+
+    // Record current zoom:
+    var zoomFactorX = zoomControl.zoomFactorX;
+    var zoomFactorY = zoomControl.zoomFactorY;
+
+    // Initialise viewbox and zoom for images
+    var newvbx = 0;
+    var newvbwidth = width;
+    var newvbheight = imageHeight;
+    zoomControl.zoomFactorX = 1
+    zoomControl.zoomFactorY = pages;
+
+    for (var i=0; i<pages; i++) {
+
+	// Set viewbox location
+	var newvby = i*imageHeight;
+
+	// Update viewbox
+	svgEl.setAttribute("viewBox", newvbx + " " + newvby + " "
+			      + newvbwidth + " " + newvbheight);
+	
+	// Hack to ensure text looks okay
+	zoomControl.updateTextScaling();
+
+	// Save image
+	var blob = new Blob([$("#output").html()], {type: "image/svg+xml"});
+	saveAs(blob, "tree_part" + i + ".svg");
+    }
+
+    // Revert to original viewbox and zoom
+    svgEl.setAttribute("viewBox", vbx + " " + vby + " "
+		       + vbwidth + " " + vbheight);
+    zoomControl.zoomFactorX = zoomFactorX;
+    zoomControl.zoomFactorY = zoomFactorY;
+    zoomControl.updateTextScaling();
 }
 
 // Export trees to file in Newick format

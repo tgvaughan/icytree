@@ -213,6 +213,19 @@ $(document).ready(function() {
 	$("#shortcutHelp").dialog("open");
     });
 
+    $("#navHelp").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 450,
+	buttons: {
+	    Ok: function() {
+		$(this).dialog("close");
+	    }}
+    });
+    $("#helpNav").click(function() {
+	$("#navHelp").dialog("open");
+    });
+
     $("#about").dialog({
 	autoOpen: false,
 	modal: true,

@@ -154,6 +154,10 @@ body {
 
 /* Help and About */
 
+#navHelp {
+    font: 14px sans-serif;
+}
+
 #shortcutHelp {
     font: 14px sans-serif;
 }

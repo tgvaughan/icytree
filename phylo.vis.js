@@ -124,6 +124,7 @@ var Layout = Object.create({}, {
 	svg.setAttribute("version","1.1");
 	svg.setAttribute('width', this.width);
 	svg.setAttribute('height', this.height);
+	svg.setAttribute('preserveAspectRatio', 'none');
 	svg.style.strokeWidth = this.lineWidth + "px";
 	svg.style.fontSize = this.fontSize + "px";
 
@@ -247,7 +248,9 @@ var Layout = Object.create({}, {
 	    var text = document.createElementNS(NS, "text");
 	    text.setAttribute("x", pos[0]);
 	    text.setAttribute("y", pos[1]);
+	    text.setAttribute("vector-effect", "non-scaling-text");
 	    text.textContent = string;
+
 	    return(text);
 	}
 
@@ -502,7 +505,8 @@ var ZoomControl = Object.create({}, {
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
     fontSize: {value: 20, writable: true, configurable: true, enumerable: true},
 
-    zoomFactor: {value: 1, writable: true, configurable: true, enumerable: true},
+    zoomFactorX: {value: 1, writable: true, configurable: true, enumerable: true},
+    zoomFactorY: {value: 1, writable: true, configurable: true, enumerable: true},
     centre: {value: [0,0], writable: true, configurable: true, enumerable: true},
 
     dragOrigin: {value: [0,0], writable: true, configurable: true, enumerable: false},
@@ -523,22 +527,28 @@ var ZoomControl = Object.create({}, {
 	    this.height = svg.getAttribute("height");
 	    this.centre = [Math.round(this.width/2),
 			   Math.round(this.height/2)];
-	    this.zoomFactor = 1.0;
+	    this.zoomFactorX = 1.0;
+	    this.zoomFactorY = 1.0;
 	    this.initialised = true;
 	} else {
 	    // Update centre on dimension change
 	    var newWidth = svg.getAttribute("width");
-	    if (this.width != newWidth)
+	    if (this.width != newWidth) {
 		this.centre[0] = this.centre[0]*newWidth/this.width;
-	    this.width = newWidth;
+		this.width = newWidth;
+	    }
 
 	    var newHeight = svg.getAttribute("height");
-	    if (this.height != newHeight)
+	    if (this.height != newHeight) {
 		this.centre[1] = this.centre[1]*newHeight/this.height;
-	    this.height = svg.getAttribute("height");
+		this.height = newHeight;
+	    }
 	}
 
 	this.updateView();
+
+	// Ensure text positions are correct
+	this.updateTextScaling();
 
 	// Add mouse event handlers
 	svg.addEventListener("mousewheel",
@@ -555,10 +565,11 @@ var ZoomControl = Object.create({}, {
     updateView: {value: function() {
 
 	// Sanitize zoom factor
-	this.zoomFactor = Math.max(this.zoomFactor,1);
+	this.zoomFactorX = Math.max(this.zoomFactorX,1);
+	this.zoomFactorY = Math.max(this.zoomFactorY,1);
 
-	var widthZoomed = this.width/this.zoomFactor;
-	var heightZoomed = this.height/this.zoomFactor;
+	var widthZoomed = this.width/this.zoomFactorX;
+	var heightZoomed = this.height/this.zoomFactorY;
 
 	// Sanitize centre point
 	this.centre[0] = Math.max(0.5*widthZoomed, this.centre[0]);
@@ -573,24 +584,50 @@ var ZoomControl = Object.create({}, {
 	this.svg.setAttribute("viewBox", x + " " + y + " "
 			      + widthZoomed + " " + heightZoomed);
 
-	// Update text scaling
-	this.svg.style.fontSize = this.fontSize/this.zoomFactor + "px";
+    }},
 
+    updateTextScaling: {value: function() {
+	var textElements = this.svg.getElementsByTagName("text");
+	for (var i=0; i<textElements.length; i++) {
+	    var textEl = textElements[i];
+	    var textPosX = textEl.getAttribute("x")*1.0;
+	    var textPosY = textEl.getAttribute("y")*1.0;
+	    var tlate = this.svg.createSVGMatrix();
+	    tlate.e = textPosX*(this.zoomFactorX - 1.0);
+	    tlate.f = textPosY*(this.zoomFactorY - 1.0);
+
+	    var scaleMat = this.svg.createSVGMatrix();
+	    scaleMat.a = 1.0/this.zoomFactorX;
+	    scaleMat.d = 1.0/this.zoomFactorY;
+	    var scaleXform = this.svg.createSVGTransformFromMatrix(scaleMat);
+	    
+	    textEl.transform.baseVal.clear();
+	    textEl.transform.baseVal.appendItem(scaleXform);
+	    textEl.transform.baseVal.appendItem(this.svg.createSVGTransformFromMatrix(tlate));
+	}
     }},
 
     zoomEventHandler: {value: function(event) {
 	event.preventDefault();
 
 	var dir = (event.wheelDelta || -event.detail);
-	var zoomFactorP = this.zoomFactor;
-	
+	var zoomFactorXP = this.zoomFactorX;
+	var zoomFactorYP = this.zoomFactorY;
+
+	var verticalZoomOnly = event.shiftKey;
+
 	if (dir>0) {
-	    // Zoom nin
-	    zoomFactorP *= 1.1;
+	    // Zoom min
+	    zoomFactorYP *= 1.1;
+	    if (!verticalZoomOnly)
+		zoomFactorXP *= 1.1;
+
 	    
 	} else {
 	    // Zoom out
-	    zoomFactorP = Math.max(1, zoomFactorP/1.1);
+	    zoomFactorYP = Math.max(1, zoomFactorYP/1.1);
+	    if (!verticalZoomOnly)
+		zoomFactorXP = Math.max(1, zoomFactorXP/1.1);
 	}
 
 	var width = this.svg.getAttribute("width");
@@ -600,20 +637,22 @@ var ZoomControl = Object.create({}, {
 	// (This is a hack.  Should modify centre update formula to
 	// make use of SVG coordinates.)
 	var point = this.svg.createSVGPoint();
-	point.x = this.centre[0] - 0.5*width/this.zoomFactor;
-	point.y = this.centre[1] - 0.5*height/this.zoomFactor;
+	point.x = this.centre[0] - 0.5*width/this.zoomFactorX;
+	point.y = this.centre[1] - 0.5*height/this.zoomFactorY;
 	point = point.matrixTransform(this.svg.getScreenCTM());
 	point.x = event.clientX - point.x;
 	point.y = event.clientY - point.y;
 
 	// Update centre so that SVG coordinates under mouse don't
 	// change:
-	this.centre[0] += (1/this.zoomFactor - 1/zoomFactorP)*(point.x - 0.5*width);
-	this.centre[1] += (1/this.zoomFactor - 1/zoomFactorP)*(point.y - 0.5*height);
+	this.centre[0] += (1/this.zoomFactorX - 1/zoomFactorXP)*(point.x - 0.5*width);
+	this.centre[1] += (1/this.zoomFactorY - 1/zoomFactorYP)*(point.y - 0.5*height);
 
-	this.zoomFactor = zoomFactorP;
+	this.zoomFactorX = zoomFactorXP;
+	this.zoomFactorY = zoomFactorYP;
 
 	this.updateView();
+	this.updateTextScaling();
     }},
 
     panEventHandler: {value: function(event) {
@@ -634,16 +673,17 @@ var ZoomControl = Object.create({}, {
 	
 	// Move centre so that coordinate under mouse don't change:
 	this.centre[0] = this.oldCentre[0] -
-	    (event.layerX - this.dragOrigin[0])/this.zoomFactor;
+	    (event.layerX - this.dragOrigin[0])/this.zoomFactorX;
 	this.centre[1] = this.oldCentre[1] -
-	    (event.layerY - this.dragOrigin[1])/this.zoomFactor;
+	    (event.layerY - this.dragOrigin[1])/this.zoomFactorY;
 
 	this.updateView();
     }},
 
     // Method to revert to original (unzoomed) state
     reset: {value: function() {
-	this.zoomFactor = 1.0;
+	this.zoomFactorX = 1.0;
+	this.zoomFactorY = 1.0;
 	this.updateView();
     }}
 });

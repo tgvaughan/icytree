@@ -152,6 +152,7 @@ var Layout = Object.create({}, {
 		axLine.setAttribute("y2", top[1]);
 		axLine.setAttribute("stroke", "gray");
 		axLine.setAttribute("stroke-width", "1px");
+		axLine.setAttribute("vector-effect", "non-scaling-stroke");
 		axLine.setAttribute("class", "axisLine");
 		svg.appendChild(axLine);
 
@@ -205,6 +206,8 @@ var Layout = Object.create({}, {
 		path.setAttribute("stroke", "black");
 
 	    path.setAttribute("class", classes);
+
+	    path.setAttribute("vector-effect", "non-scaling-stroke");
 
 	    return(path);
 	}
@@ -569,12 +572,6 @@ var ZoomControl = Object.create({}, {
 
 	this.svg.setAttribute("viewBox", x + " " + y + " "
 			      + widthZoomed + " " + heightZoomed);
-
-	// Update stroke widths
-	this.svg.style.strokeWidth = this.lineWidth/this.zoomFactor + "px";
-	var axisLines = document.getElementsByClassName("axisLine");
-	for (var i=0; i<axisLines.length; i++)
-	    axisLines[i].style.strokeWidth = 1/this.zoomFactor + "px";
 
 	// Update text scaling
 	this.svg.style.fontSize = this.fontSize/this.zoomFactor + "px";

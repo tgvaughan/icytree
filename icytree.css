@@ -79,12 +79,18 @@ body {
     left: 0px;
     top: 10px;
 
-    color: red;
-    font: 50px sans-serif;
-
     text-align: center;
 }
 
+#output.error > div.main {
+    color: red;
+    font: 50px sans-serif;
+}
+
+#output.error > div.minor {
+    color: blue;
+    font: 20px sans-serif;
+}
 
 /* Tree selector */
 

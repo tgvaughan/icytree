@@ -659,5 +659,8 @@ var getTreesFromString = function(string) {
 	}
     }
 
+    if (trees.length==0)
+	throw "No trees found in file";
+
     return trees;
 };

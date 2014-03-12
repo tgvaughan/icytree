@@ -77,6 +77,10 @@ $(document).ready(function() {
 	$("#directEntry").dialog("open");
     });
     $("#fileLoad").click(function() {
+	// Clear file input (otherwise can't reload same file)
+	$("#fileInput").replaceWith($("#fileInput").clone(true));
+
+	// Trigger click on file input
 	if (!$(this).parent().hasClass("ui-state-disabled"))
 	    $("#fileInput").trigger("click");
     });
@@ -357,7 +361,9 @@ function displayError(string) {
 
     output.removeClass();
     output.addClass("error");
-    output.text(string);
+    var divMainStr = "<div class='main'>Could not load tree!</div>"
+    var divMinorStr = "<div class='minor'>" + string + "</div>"
+    output.html(divMainStr + divMinorStr);
 
     // Pad to centre of page. (Wish I could do this with CSS!)
     output.css("width", Math.max(Math.floor(window.innerWidth-50), 0) + "px");
@@ -556,7 +562,7 @@ function reloadTreeData() {
 	    try {
 		trees = getTreesFromString(treeData);
 	    } catch (e) {
-		displayError("Error parsing tree data!");
+		displayError(e);
 		console.log(e);
 		return;
 	    }
@@ -571,7 +577,7 @@ function reloadTreeData() {
 	try {
 	    trees = getTreesFromString(treeData);
 	} catch (e) {
-	    displayError("Error parsing tree data!");
+	    displayError(e);
 	    console.log(e);
 	    return;
 	}
@@ -769,7 +775,7 @@ function keyPressHandler(event) {
 	$("#shortcutHelp").dialog("open");
     }
 
-    if (trees.length == 0)
+    if (trees.length == 0 && char != "r")
 	return;
 
     switch(char) {

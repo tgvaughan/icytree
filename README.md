@@ -1,16 +1,12 @@
-phylo.js
-========
+IcyTree
+=======
 
-This is a compact JavaScript library which provides the ability to
-parse ranked, timed, phylogenetic trees and networks expressed in
-Newick and NEXUS formats and visualize the result using SVG.  This can
-be used to easily build client-side web apps for visualising and
-manipulating these objects.
+This repository contains the source for IcyTree: a simple javascript
+phylogenetic tree viewer.  IcyTree is entirely client-side - you only
+need an internet connection for your browser to download the program.
 
-The library files are `phylo.*.js`.  The files `icytree.*` constitute an
-example web app, which is also hosted at http://git.io/icytree.  The
-project's web site at http://git.io/phylo.js contains a simpler
-example of an embedded tree visualisation.
+The latest version is hosted at
+[tgvaughan.github.io/icytree](http://tgvaughan.github.io/icytree).
 
 This software is free (as in freedom). It is made available under the
 terms of the GNU General Public Licence version 3, which is contained

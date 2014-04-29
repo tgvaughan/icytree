@@ -54,6 +54,11 @@ var Layout = Object.create({}, {
 	this.nodePositions = {};
 
 	var treeHeight = this.tree.root.height;
+	if (this.tree.root.branchLength !== undefined)
+	    treeHeight += this.tree.root.branchLength;
+	else
+	    treeHeight += 0.01*this.tree.root.height
+
 	var treeWidth;
 
 	// Position leaves
@@ -220,12 +225,15 @@ var Layout = Object.create({}, {
 	    var thisNode = this.tree.getNodeList()[i];
 	    var thisPos = posXform(this.nodePositions[thisNode]);
 
-	    if (!thisNode.isRoot()) {
-		var parentPos = posXform(this.nodePositions[thisNode.parent]);
-		var branch = newBranch(thisPos, parentPos, selectColourTrait(thisNode));
-		branch.id = thisNode;
-		svg.appendChild(branch);
-	    }
+	    var parentPos;
+	    if (!thisNode.isRoot())
+		parentPos = posXform(this.nodePositions[thisNode.parent]);
+	    else
+		parentPos = posXform([this.nodePositions[thisNode][0], 1.0]);
+
+	    var branch = newBranch(thisPos, parentPos, selectColourTrait(thisNode));
+	    branch.id = thisNode;
+	    svg.appendChild(branch);
 	}
 
 	// Assign colours to trait classes:
@@ -454,11 +462,13 @@ var EdgeStatsControl = Object.create({}, {
 	}
 
 	var bl = "NA";
+	if (node.branchLength != undefined)
+	    bl = pretty(node.branchLength)
+
 	var pa = "NA";
-	if (node.parent != undefined) {
-	    bl = pretty((node.parent.height-node.height));
+	if (node.parent != undefined)
 	    pa = pretty(node.parent.height);
-	}
+
 	var ca = pretty(node.height);
 	var cl = node.label;
 

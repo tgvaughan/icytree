@@ -23,7 +23,8 @@ var Node = Object.create({}, {
 
     parent: {value: undefined, writable: true, configurable: true, enumerable: true},
     children: {value: [], writable: true, configurable: true, enumerable: true},
-    height: {value: 0, writable: true, configurable: true, enumerable: true},
+    height: {value: undefined, writable: true, configurable: true, enumerable: true},
+    branchLength: {value: undefined, writable: true, configurable: true, enumerable: true},
     label: {value: "", writable: true, configurable: true, enumerable: true},
     annotation: {value: {}, writable: true, configurable: true, enumerable: true},
     id: {value: undefined, writable: true, configurable: true, enumerable: true},
@@ -32,7 +33,8 @@ var Node = Object.create({}, {
     init: {value: function(id) {
 	this.parent =  undefined;
 	this.children = [];
-	this.height = 0;
+	this.height = undefined;
+	this.branchLength = undefined;
 	this.label = "";
 	this.annotation = {};
 	this.id = id;
@@ -63,6 +65,7 @@ var Node = Object.create({}, {
 	
 	var nodeCopy = Object.create(Node).init(this.id);
 	nodeCopy.height = this.height;
+	nodeCopy.branchLength = this.branchLength;
 	nodeCopy.label = this.label;
 	for (var key in this.annotation)
 	    nodeCopy.annotation[key] = this.annotation[key];
@@ -245,8 +248,8 @@ var Tree = Object.create({}, {
 		}
 	    }
 
-	    if (node.parent !== undefined)
-		res += ":" + (node.parent.height - node.height);
+	    if (node.branchLength !== undefined)
+		res += ":" + node.branchLength;
 	    else
 		res += ":0.0";
 
@@ -327,7 +330,7 @@ var Tree = Object.create({}, {
 var TreeFromNewick = Object.create(Tree, {
 
     // Initialiser
-    init: { value: function(newick) {
+    init: { value: function(newick, defaultBranchLength) {
 
 	// Lex
 	var tokenList = this.doLex(newick);
@@ -336,7 +339,11 @@ var TreeFromNewick = Object.create(Tree, {
 	this.root = this.doParse(tokenList);
 
 	// Branch lengths to node heights
-	this.branchLengthsToNodeHeights();
+	this.branchLengthsToNodeHeights(defaultBranchLength);
+
+	// Zero root edge length means undefined
+	if (this.root.branchLength === 0.0)
+	    this.root.branchLength = undefined;
 
 	return this;
     }},
@@ -447,7 +454,7 @@ var TreeFromNewick = Object.create(Tree, {
 	    return node;
 	}
 
-	// N -> CLAH
+	// N -> CLAB
 	function ruleN(parent) {
 	    var node = Object.create(Node).init(thisNodeID++);
 	    if (parent !== undefined)
@@ -456,7 +463,7 @@ var TreeFromNewick = Object.create(Tree, {
 	    ruleC(node);
 	    ruleL(node);
 	    ruleA(node);
-	    ruleH(node);
+	    ruleB(node);
 
 	    return node;
 	}
@@ -551,34 +558,34 @@ var TreeFromNewick = Object.create(Tree, {
 	    }
 	}
 
-	// H -> :num|eps
-	function ruleH(node) {
+	// B -> :num|eps
+	function ruleB(node) {
 	    if (acceptToken("COLON", false)) {
 		acceptToken("STRING", true);
 
-		var height = Number(tokenList[idx-1][1]);
-		if (String(height) !== "NaN")
-		    node.height = height;
+		var length = Number(tokenList[idx-1][1]);
+		if (String(length) !== "NaN")
+		    node.branchLength = length;
 		else
 		    throw "Expected numerical branch length. Found " + tokenList[idx-1][1] + " instead."; 
 
 		//indentLog(":"+tokenList[idx-1][1]);
-	    } else {
-
-		// Default branch length if none given
-		node.height = 1;
 	    }
 	}
     }},
 
 
     // Convert branch lengths to node heights
-    branchLengthsToNodeHeights: {value: function() {
+    branchLengthsToNodeHeights: {value: function(defaultBranchLength) {
 	var heights = this.root.applyPreOrder(function(node) {
 	    if (node.parent === undefined)
 		node.height = 0.0;
-	    else
-		node.height = node.parent.height - node.height;
+	    else {
+		if (node.branchLength !== undefined)
+		    node.height = node.parent.height - node.branchLength;
+		else
+		    node.height = node.parent.height - defaultBranchLength;
+	    }
 
 	    return node.height;
 	});

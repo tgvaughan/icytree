@@ -28,16 +28,19 @@ var Node = Object.create({}, {
     label: {value: "", writable: true, configurable: true, enumerable: true},
     annotation: {value: {}, writable: true, configurable: true, enumerable: true},
     id: {value: undefined, writable: true, configurable: true, enumerable: true},
+    hybridID: {value: undefined, writable: true, configurable: true, enumerable: true},
 
     // Initialiser
     init: {value: function(id) {
+	this.id = id;
+
 	this.parent =  undefined;
 	this.children = [];
 	this.height = undefined;
 	this.branchLength = undefined;
 	this.label = "";
 	this.annotation = {};
-	this.id = id;
+	this.hybridID = undefined;
 
 	return(this);
     }},
@@ -46,7 +49,7 @@ var Node = Object.create({}, {
     toString: {value: function() {
 	return "node#" + this.id;
     }},
-
+    
     addChild: {value: function(child) {
 	this.children.push(child);
 	child.parent = this;
@@ -102,6 +105,7 @@ var Tree = Object.create({}, {
     init: {value: function(root) {
 	this.root = root;
 	this.nodeList = [];
+        this.hybridMap = undefined;
 
 	return(this);
     }},
@@ -157,7 +161,7 @@ var Tree = Object.create({}, {
 	}
 	
 	sortNodesRecurse(this.root);
-
+        
 	// Clear out-of-date leaf list
 	this.leafList = [];
     }},
@@ -360,6 +364,7 @@ var TreeFromNewick = Object.create(Tree, {
 	["OPENV", /^{/, false],
 	["CLOSEV", /^}/, false],
 	["EQ", /^=/, false],
+	["HASH", /#/, false],
 	["STRING", /^"[^"]+"/, true],
 	["STRING",/^'[^']+'/, true],
 	["STRING", /^[\w|*%/.\-\+]+/, true]
@@ -454,7 +459,7 @@ var TreeFromNewick = Object.create(Tree, {
 	    return node;
 	}
 
-	// N -> CLAB
+	// N -> CLHAB
 	function ruleN(parent) {
 	    var node = Object.create(Node).init(thisNodeID++);
 	    if (parent !== undefined)
@@ -462,6 +467,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 	    ruleC(node);
 	    ruleL(node);
+	    ruleH(node);
 	    ruleA(node);
 	    ruleB(node);
 
@@ -501,6 +507,14 @@ var TreeFromNewick = Object.create(Tree, {
 		node.label = tokenList[idx-1][1];
 
 		//indentLog(node.label);
+	    }
+	}
+
+	// H -> #hybridID|eps
+	function ruleH(node) {
+	    if (acceptToken("HASH", false)) {
+		acceptToken("STRING", true);
+		node.hybridID = tokenList[idx-1][1];
 	    }
 	}
 

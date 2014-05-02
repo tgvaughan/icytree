@@ -236,6 +236,9 @@ var Layout = Object.create({}, {
 	    svg.appendChild(branch);
 	}
 
+	// Draw lateral edges
+	
+
 	// Assign colours to trait classes:
 	
 	seenColourTraitValues.sort();

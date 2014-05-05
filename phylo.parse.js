@@ -63,6 +63,10 @@ var Node = Object.create({}, {
 	return (this.children.length === 0);
     }},
 
+    isHybrid: {value: function() {
+        return (this.hybridID !== undefined);
+    }},
+
     // Produce a deep copy of the clade below this node
     copy: {value: function() {
 	
@@ -73,6 +77,7 @@ var Node = Object.create({}, {
 	for (var key in this.annotation)
 	    nodeCopy.annotation[key] = this.annotation[key];
 	nodeCopy.id = this.id;
+        nodeCopy.hybridID = this.hybridID;
 
 	for (var i=0; i<this.children.length; i++)
 	    nodeCopy.addChild(this.children[i].copy());
@@ -98,14 +103,16 @@ var Node = Object.create({}, {
 // Tree prototype object
 var Tree = Object.create({}, {
     root: {value: undefined, writable: true, configurable: true, enumerable: true},
-    nodeList: {value: [], writable: true, configurable:true, enumberable:true},
-    leafList: {value: [], writable: true, configurable:true, enumberable:true},
+    nodeList: {value: [], writable: true, configurable: true, enumberable: true},
+    leafList: {value: [], writable: true, configurable: true, enumberable: true},
+    hybridEdgeList: {value: undefined, writable: true, configurable: true, enumerable: true},
 
     // Initialiser
     init: {value: function(root) {
 	this.root = root;
 	this.nodeList = [];
-        this.hybridMap = undefined;
+        this.hybridEdgeList = undefined;
+        
 
 	return(this);
     }},
@@ -134,6 +141,46 @@ var Tree = Object.create({}, {
 	}
 
 	return this.leafList;
+    }},
+
+    // Retrieve list of node pairs specifying hybrid edges.
+    // Pairs are ordered according to [source, dest].
+    getHybridEdgeList: {value: function() {
+        if (this.hybridEdgeList === undefined) {
+
+            var hybridNodeList;
+            if (this.root !== undefined) {
+                hybridNodeList = this.root.applyPreOrder(function(node) {
+                    if (node.isHybrid())
+                        return node;
+                    else
+                        return null;
+                });
+            } else {
+                hybridNodeList = [];
+            }
+
+            this.hybridEdgeList = {};
+            for (var i=0; i<hybridNodeList.length; i++) {
+                var node = hybridNodeList[i];
+                if (node.hybridID in this.hybridEdgeList) {
+                    var edge = this.getHybridEdgeList()[node.hybridID];
+                    if (node.isLeaf())
+                        edge.push(node);
+                    else
+                        edge.splice(0,0,node);
+                } else {
+                    this.hybridEdgeList[node.hybridID] = [node];
+                }
+            }
+
+            for (var hybridID in this.hybridEdgeList) {
+                if (this.hybridEdgeList[hybridID].length !== 2)
+                    throw "Extended Newick error: hybrid nodes must come in pairs.";
+            }
+        }
+
+        return this.hybridEdgeList;
     }},
 
     // Sort nodes according to clade sizes.

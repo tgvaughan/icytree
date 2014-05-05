@@ -296,7 +296,7 @@ var Layout = Object.create({}, {
 	    var text = document.createElementNS(NS, "text");
 	    text.setAttribute("x", pos[0]);
 	    text.setAttribute("y", pos[1]);
-	    text.setAttribute("vector-effect", "non-scaling-text");
+	    // text.setAttribute("vector-effect", "non-scaling-text"); // I wish
 	    text.textContent = string;
 
 	    return(text);
@@ -355,6 +355,7 @@ var Layout = Object.create({}, {
 	    dash.setAttribute("y1", pos[1]-2*savedThis.lineWidth);
 	    dash.setAttribute("y2", pos[1]+2*savedThis.lineWidth);
 	    dash.setAttribute("stroke", "black");
+            dash.setAttribute("vector-effect", "non-scaling-stroke");
 	    svg.appendChild(dash);
 	}
 

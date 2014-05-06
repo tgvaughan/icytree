@@ -57,7 +57,7 @@ var Layout = Object.create({}, {
 	if (this.tree.root.branchLength !== undefined)
 	    treeHeight += this.tree.root.branchLength;
 	else
-	    treeHeight += 0.01*this.tree.root.height
+	    treeHeight += 0.01*this.tree.root.height; // short faux root edge
 
 	var treeWidth;
 
@@ -138,6 +138,11 @@ var Layout = Object.create({}, {
 	    
 	    // Select number of ticks:
 	    var treeHeight = this.tree.root.height;
+	    if (this.tree.root.branchLength !== undefined)
+	        treeHeight += this.tree.root.branchLength;
+	    else
+	        treeHeight += 0.01*this.tree.root.height; // short faux root edge
+
 	    var maxDelta = treeHeight/(this.minAxisTicks-1);
 	    var deltaT = Math.pow(10,Math.floor(Math.log(maxDelta)/Math.log(10)));
 
@@ -302,7 +307,6 @@ var Layout = Object.create({}, {
 	    return(text);
 	}
 
-
 	// Draw tip labels:
 
 	if (this.tipTextTrait !== undefined) {
@@ -322,7 +326,6 @@ var Layout = Object.create({}, {
 	    }
 	}
         
-
 	// Draw internal node labels:
         
 	if (this.nodeTextTrait !== undefined) {

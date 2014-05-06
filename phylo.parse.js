@@ -693,7 +693,7 @@ var getTreesFromString = function(string) {
 	    if (fullLine.toLowerCase().match("^translate")) {
 		var tStringArray = fullLine.slice(9,fullLine.length-1).split(",");
 		for (var j=0; j<tStringArray.length; j++) {
-		    var tvec = tStringArray[j].split(" ");
+		    var tvec = tStringArray[j].trim().split(" ");
 		    var tkey = tvec[0];
 		    var tval = tvec.slice(1).join(" ");
 		    tval = tval.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");

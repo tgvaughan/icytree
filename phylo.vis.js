@@ -133,6 +133,15 @@ var Layout = Object.create({}, {
 	svg.style.strokeWidth = this.lineWidth + "px";
 	svg.style.fontSize = this.fontSize + "px";
 
+        // Add white background rectangle:
+        var rect = document.createElementNS(NS, "rect");
+        rect.setAttribute("x", 0);
+        rect.setAttribute("y", 0);
+        rect.setAttribute("width", this.width);
+        rect.setAttribute("height", this.height);
+        rect.setAttribute("fill", "white");
+        svg.appendChild(rect);
+
 	// Draw axis:
 	if (this.axis) {
 	    

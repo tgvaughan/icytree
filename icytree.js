@@ -31,6 +31,7 @@ var currentTreeIdx = 0;
 var controlsHidden = false;
 var zoomControl = undefined;
 var lineWidth = 2;
+var fontSize = 11;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -150,6 +151,12 @@ $(document).ready(function() {
     });
     $("#styleNodeTextTrait").on("click", "a", function() {
 	selectListItem($(this));
+    });
+    $("#styleFontSize").on("click", "a", function() {
+	if ($(this).text() === "Increase")
+	    fontSizeChange(2);
+	else
+	    fontSizeChange(-2);
     });
     $("#styleEdgeThickness").on("click", "a", function() {
 	if ($(this).text() === "Increase")
@@ -492,6 +499,12 @@ function edgeThicknessChange(inc) {
     update();
 }
 
+// Alter font size used in visualisation.
+function fontSizeChange(inc) {
+    fontSize = Math.max(6, fontSize + inc);
+    update();
+}
+
 // Increment currently-displayed tree.
 function currentTreeInc(dir, big) {
     if (big)
@@ -774,6 +787,7 @@ function update() {
     layout.markSingletonNodes = ($("#styleMarkSingletons > span").length>0);
     layout.axis = ($("#styleDisplayAxis > span").length>0);
     layout.lineWidth = lineWidth;
+    layout.fontSize = fontSize;
 
     // Use existing zoom control instance:
     layout.zoomControl = zoomControl;
@@ -869,6 +883,16 @@ function keyPressHandler(event) {
 	// Decrease line thickness
 	edgeThicknessChange(-1);
 	break;
+
+    case "]":
+        // Increase font size
+        fontSizeChange(2);
+        break;
+
+    case "[":
+        // Decrease font size
+        fontSizeChange(-2);
+        break;
 
     default:
 	break;

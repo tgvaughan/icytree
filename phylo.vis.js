@@ -633,6 +633,12 @@ var ZoomControl = Object.create({}, {
 	svg.addEventListener("mousemove",
 			     this.panEventHandler.bind(this));
 
+        // Prevent default handling of these events (Firefox uses them for drag+drop.)
+        svg.addEventListener("mousedown",
+                             function(event) {event.preventDefault()});
+
+        svg.addEventListener("mouseup",
+                             function(event) {event.preventDefault()});
     }},
 
 

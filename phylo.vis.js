@@ -1,5 +1,5 @@
 /**
- * @licstart  The following is the entire license notice for the 
+ * @licstart  The following is the entire license notice for the
  *  JavaScript code in this page.
  *
  * Copyright (C) 2014  Tim Vaughan
@@ -45,7 +45,7 @@ var Layout = Object.create({}, {
 
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
     fontSize: {value: 11, writable: true, configurable: true, enumerable: true},
-    
+
     zoomControl: {value: undefined, writable: true, configurable: true, enumerable: true},
 
     init: {value: function(tree) {
@@ -96,7 +96,7 @@ var Layout = Object.create({}, {
 		xpos += positionInternals(node.children[i], nodePositions);
 
 	    xpos /= node.children.length;
- 
+
 	    nodePositions[node] = [
 		xpos,
 		node.height/treeHeight
@@ -149,7 +149,7 @@ var Layout = Object.create({}, {
 
 	// Draw axis:
 	if (this.axis) {
-	    
+
 	    // Select number of ticks:
 	    var treeHeight = this.tree.root.height;
 	    if (this.tree.root.branchLength !== undefined)
@@ -169,7 +169,7 @@ var Layout = Object.create({}, {
 		var thisH = thisT/treeHeight;
 		var bot = [posXform([0, thisH])[0], savedThis.height];
 		var top = [posXform([0, thisH])[0], 0];
-		
+
 		var axLine = document.createElementNS(NS, "line");
 		axLine.setAttribute("x1", bot[0]);
 		axLine.setAttribute("y1", bot[1]);
@@ -195,7 +195,7 @@ var Layout = Object.create({}, {
 		axisLine(t);
 		t += deltaT;
 	    }
-	    
+
 	}
 
 	// Draw tree:
@@ -233,10 +233,10 @@ var Layout = Object.create({}, {
             path.setAttribute("class", classes);
 
             path.setAttribute("vector-effect", "non-scaling-stroke");
-            
+
             return(path);
         }
-        
+
         function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait) {
             var pathStr = "M " + childPos[0] + " " + childPos[1];
             pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
@@ -261,7 +261,7 @@ var Layout = Object.create({}, {
         }
 
 	// Draw tree edges:
-	
+
 	for (var i=0; i<this.tree.getNodeList().length; i++) {
 	    var thisNode = this.tree.getNodeList()[i];
 
@@ -296,9 +296,19 @@ var Layout = Object.create({}, {
         }
 
 	// Assign colours to trait classes:
-	
-	seenColourTraitValues.sort();
-	for (var t=0; t<seenColourTraitValues.length; t++ ){
+	var traitsAreNumeric = true;
+  for (var traitVal in seenColourTraitValues) {
+    if (isNaN(traitVal-0)) {
+      traitsAreNumeric = false;
+      break;
+    }
+  }
+  if (traitsAreNumeric) {
+    seenColourTraitValues.sort(function(a, b) {return a-b});
+  } else {
+    seenColourTraitValues.sort();
+  }
+	for (var t=0; t<seenColourTraitValues.length; t++ ) {
 	    var thisVal = seenColourTraitValues[t];
 	    var lines = svg.getElementsByClassName("trait_" + window.btoa(thisVal));
 	    for (var l=0; l<lines.length; l++) {
@@ -339,15 +349,15 @@ var Layout = Object.create({}, {
 		svg.appendChild(newNodeText(thisNode, traitValue));
 	    }
 	}
-        
+
 	// Draw internal node labels:
-        
+
 	if (this.nodeTextTrait !== undefined) {
 	    for (var i=0; i<this.tree.getNodeList().length; i++) {
 		var thisNode = this.tree.getNodeList()[i];
 		if (thisNode.isLeaf())
 		    continue;
-                
+
 		var traitValue;
 		if (this.nodeTextTrait === "label")
 		    traitValue = thisNode.label;
@@ -357,7 +367,7 @@ var Layout = Object.create({}, {
 		    else
 			traitValue = "";
 		}
-                
+
 		if (traitValue !== "")
 		    svg.appendChild(newNodeText(thisNode, traitValue));
 	    }
@@ -383,14 +393,14 @@ var Layout = Object.create({}, {
 		var thisNode = this.tree.getNodeList()[i];
 		if (thisNode.children.length !== 1)
 		    continue;
-		
+
 		newNodeMark(thisNode);
 	    }
 	} else {
             // Always mark internal hybrid nodes:
             for (var hybridID in this.tree.getHybridEdgeList()) {
                 var edge = this.tree.getHybridEdgeList()[hybridID];
-                
+
                 newNodeMark(edge[0]);
             }
         }
@@ -418,7 +428,7 @@ var EdgeStatsControl = Object.create({}, {
     tree: {value: undefined, writable: true, configurable: true, enumerable: true},
     highlightedEdge: {value: undefined, writable: true, configurable: true, enumerable: true},
     phyloStat: {value: undefined, writable: true, configurable: true, enumerable: true},
-    
+
     init: {value: function(svg, tree) {
 	this.svg = svg;
 	this.tree = tree;
@@ -482,7 +492,7 @@ var EdgeStatsControl = Object.create({}, {
 	    // Choose new stroke width
 	    var f = this.svg.width.baseVal.value/this.svg.viewBox.baseVal.width
 	    var newStrokeWidth = Math.max(curStrokeWidth*1.5, 8/f);
-	    
+
 	    this.highlightedEdge.setAttribute("stroke-width", newStrokeWidth+"px");
 	    this.displayStatsBox(event.target.getAttribute("id"), event.pageX, event.pageY);
 	} else {
@@ -657,7 +667,7 @@ var ZoomControl = Object.create({}, {
 
 	this.centre[1] = Math.max(0.5*heightZoomed, this.centre[1]);
 	this.centre[1] = Math.min(this.height-0.5*heightZoomed, this.centre[1]);
-	
+
 	var x = Math.max(0, this.centre[0] - 0.5*widthZoomed);
 	var y = Math.max(0, this.centre[1] - 0.5*heightZoomed);
 
@@ -680,7 +690,7 @@ var ZoomControl = Object.create({}, {
 	    scaleMat.a = 1.0/this.zoomFactorX;
 	    scaleMat.d = 1.0/this.zoomFactorY;
 	    var scaleXform = this.svg.createSVGTransformFromMatrix(scaleMat);
-	    
+
 	    textEl.transform.baseVal.clear();
 	    textEl.transform.baseVal.appendItem(scaleXform);
 	    textEl.transform.baseVal.appendItem(this.svg.createSVGTransformFromMatrix(tlate));
@@ -702,7 +712,7 @@ var ZoomControl = Object.create({}, {
 	    if (!verticalZoomOnly)
 		zoomFactorXP *= 1.1;
 
-	    
+
 	} else {
 	    // Zoom out
 	    zoomFactorYP = Math.max(1, zoomFactorYP/1.1);
@@ -750,7 +760,7 @@ var ZoomControl = Object.create({}, {
 	}
 
 	event.preventDefault();
-	
+
 	// Move centre so that coordinate under mouse don't change:
 	this.centre[0] = this.oldCentre[0] -
 	    (event.layerX - this.dragOrigin[0])/this.zoomFactorX;

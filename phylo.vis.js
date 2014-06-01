@@ -32,7 +32,7 @@ var Layout = Object.create({}, {
     height: {value: 480, writable: true, configurable: true, enumerable: true},
 
     colourTrait: {value: undefined, writable: true, configurable: true, enumerable: true},
-    colourPallet: {value: ["blue", "red", "green", "purple", "orange"],
+    colourPallet: {value: ["blue", "red", "green", "purple", "orange", "#ff00ff"],
 		   writable: true, configurable: true, enumerable: true},
 
     tipTextTrait: {value: "label", writable: true, configurable: true, enumerable: true},

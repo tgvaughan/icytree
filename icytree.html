@@ -7,7 +7,7 @@
     <meta property="og:url" name="og:url" content="http://git.io/icytree" data-app>
     <meta property="og:title" name="og:title" content="IcyTree" data-app>
     <meta property="description" name="description"
-          content="Browser-based phylogenetic tree viewer." data-app>
+	  content="Browser-based phylogenetic tree viewer." data-app>
 
     <script src="phylo.parse.js"></script>
     <script src="phylo.vis.js"></script>
@@ -44,88 +44,88 @@
     <!-- Drop down menu -->
     <ul id="menu">
       <li><button>File</button>
-        <div class="menuDiv">
-          <ul id="fileMenu">
-            <li><a href="#" id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</a></li>
-            <li><a href="#" id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</a></li>
-            <li><a href="#" id="fileReload"><span class="ui-icon ui-icon-refresh"></span>Reload file</a></li>
-            <li><a href="#"><span class="ui-icon
-            ui-icon-disk"></span>Export tree as...</a>
-              <ul id="fileExport">
-                <li><a href="#" id="fileExportSVG">SVG image</a></li>
-                <li><a href="#" id="fileExportSVGMulti">Split SVG...</a></li>
-                <li><a href="#" id="fileExportNewick">Newick file</a></li>
-                <li><a href="#" id="fileExportNEXUS">NEXUS file</a></li>
-              </ul>
-            </li>
-<!--        <li><a href="#" id="fileExport"><span class="ui-icon ui-icon-disk"></span>Export SVG</a></li>-->
-          </ul>
-        </div>
+	<div class="menuDiv">
+	  <ul id="fileMenu">
+	    <li><a href="#" id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</a></li>
+	    <li><a href="#" id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</a></li>
+	    <li><a href="#" id="fileReload"><span class="ui-icon ui-icon-refresh"></span>Reload file</a></li>
+	    <li><a href="#"><span class="ui-icon
+	    ui-icon-disk"></span>Export tree as...</a>
+	      <ul id="fileExport">
+		<li><a href="#" id="fileExportSVG">SVG image</a></li>
+		<li><a href="#" id="fileExportSVGMulti">Split SVG...</a></li>
+		<li><a href="#" id="fileExportNewick">Newick file</a></li>
+		<li><a href="#" id="fileExportNEXUS">NEXUS file</a></li>
+	      </ul>
+	    </li>
+<!--	    <li><a href="#" id="fileExport"><span class="ui-icon ui-icon-disk"></span>Export SVG</a></li>-->
+	  </ul>
+	</div>
       </li>
       
       <li><button>Style</button>
-        <div class="menuDiv">
-          <ul id="styleMenu">
-            <li><a href="#">Sort nodes</a>
-              <ul id="styleSort">
-                <li><a href="#"><span class="ui-icon ui-icon-check"></span>Descending</a></li>
-                <li><a href="#">Ascending</a></li>
-                <li><a href="#">Don't sort</a></li>
-              </ul>
-            </li>
-            <li><a href="#">Colour edges by</a>
-              <ul id="styleColourTrait">
-                <li><a href="#">None<span class="ui-icon ui-icon-check"></a></li>
-              </ul>
-            </li>
-            <li><a href="#">Tip text</a>
-              <ul id="styleTipTextTrait">
-                <li><a href="#">None</a></li>
-                <li><a href="#">Node label<span class="ui-icon ui-icon-check"></a></li>
-              </ul>
-            </li>
-            <li><a href="#">Internal node text</a>
-              <ul id="styleNodeTextTrait">
-                <li><a href="#">None<span class="ui-icon ui-icon-check"></a></li>
-                <li><a href="#">Node label</a></li>
-              </ul>
-            </li>
-            <li><a href="#">Edge thickness</a>
-              <ul id="styleEdgeThickness" class="subsub">
-                <li><a href="#"><span class="ui-icon ui-icon-plus"></span>Increase</a></li>
-                <li><a href="#"><span class="ui-icon ui-icon-minus"></span>Decrease</a></li>
-              </ul>
-            </li>
-            <li><a href="#">Font size</a>
-              <ul id="styleFontSize" class="subsub">
-                <li><a href="#"><span class="ui-icon ui-icon-plus"></span>Increase</a></li>
-                <li><a href="#"><span class="ui-icon ui-icon-minus"></span>Decrease</a></li>
-              </ul>
-            </li>
-            <li><a id="styleMarkSingletons">Mark singletons</a></li>
-            <li><a id="styleDisplayAxis">Display axis</a></li>
-            <li><a id="styleAntiAlias">Anti-alias</a></li>
-          </ul>
-        </div>
+	<div class="menuDiv">
+	  <ul id="styleMenu">
+	    <li><a href="#">Sort nodes</a>
+	      <ul id="styleSort">
+		<li><a href="#"><span class="ui-icon ui-icon-check"></span>Descending</a></li>
+		<li><a href="#">Ascending</a></li>
+		<li><a href="#">Don't sort</a></li>
+	      </ul>
+	    </li>
+	    <li><a href="#">Colour edges by</a>
+	      <ul id="styleColourTrait">
+		<li><a href="#">None<span class="ui-icon ui-icon-check"></a></li>
+	      </ul>
+	    </li>
+	    <li><a href="#">Tip text</a>
+	      <ul id="styleTipTextTrait">
+		<li><a href="#">None</a></li>
+		<li><a href="#">Node label<span class="ui-icon ui-icon-check"></a></li>
+	      </ul>
+	    </li>
+	    <li><a href="#">Internal node text</a>
+	      <ul id="styleNodeTextTrait">
+		<li><a href="#">None<span class="ui-icon ui-icon-check"></a></li>
+		<li><a href="#">Node label</a></li>
+	      </ul>
+	    </li>
+	    <li><a href="#">Edge thickness</a>
+	      <ul id="styleEdgeThickness" class="subsub">
+		<li><a href="#"><span class="ui-icon ui-icon-plus"></span>Increase</a></li>
+		<li><a href="#"><span class="ui-icon ui-icon-minus"></span>Decrease</a></li>
+	      </ul>
+	    </li>
+	    <li><a href="#">Font size</a>
+	      <ul id="styleFontSize" class="subsub">
+		<li><a href="#"><span class="ui-icon ui-icon-plus"></span>Increase</a></li>
+		<li><a href="#"><span class="ui-icon ui-icon-minus"></span>Decrease</a></li>
+	      </ul>
+	    </li>
+	    <li><a id="styleMarkSingletons">Mark singletons</a></li>
+	    <li><a id="styleDisplayAxis">Display axis</a></li>
+	    <li><a id="styleAntiAlias">Anti-alias</a></li>
+	  </ul>
+	</div>
       </li>
 
       <li><button>Search</button>
-        <div class="menuDiv">
-          <ul id="searchMenu">
-            <li><a href="#" id="searchNodes">Find nodes</a></li>
-            <li><a href="#" id="searchClear">Clear search results</a></li>
-          </ul>
-        </div>
+	<div class="menuDiv">
+	  <ul id="searchMenu">
+	    <li><a href="#" id="searchNodes">Find nodes</a></li>
+	    <li><a href="#" id="searchClear">Clear search results</a></li>
+	  </ul>
+	</div>
       </li>
 
       <li><button>Help</button>
-        <div class="menuDiv">
-          <ul id="helpMenu">
-            <li><a href="#" id="helpNav"><span class="ui-icon ui-icon-help"></span>Tree navigation...</a></li>
-            <li><a href="#" id="helpShortcuts"><span class="ui-icon ui-icon-help"></span>Keyboard shortcuts...</a></li>
-            <li><a href="#" id="helpAbout">About IcyTree...</a></li>
-          </ul>
-        </div>
+	<div class="menuDiv">
+	  <ul id="helpMenu">
+	    <li><a href="#" id="helpNav"><span class="ui-icon ui-icon-help"></span>Tree navigation...</a></li>
+	    <li><a href="#" id="helpShortcuts"><span class="ui-icon ui-icon-help"></span>Keyboard shortcuts...</a></li>
+	    <li><a href="#" id="helpAbout">About IcyTree...</a></li>
+	  </ul>
+	</div>
       </li>
     </ul>
     
@@ -137,24 +137,24 @@
     <div id="treeSelect">
       <div id="treeCounter"></div>
       <div id="treeSelectInput" class="setTreeBlurred">
-        <button id="firstTree" type="button" disabled="disabled"
-                onclick="currentTreeInc(-1, true);">&lt;&lt;</button>
-        <button id="prevTree" type="button" disabled="disabled"
-                onclick="currentTreeInc(-1, false);">&lt;</button>
-        <input id="setTree" type="text"
-               onchange="currentTreeChange(this.value);"
-               onfocus="document.getElementById('treeSelectInput').className='setTreeFocused';"
-               onblur="document.getElementById('treeSelectInput').className='';"/>
-        <button id="nextTree" type="button" disabled="disabled"
-                onclick="currentTreeInc(+1, false);">&gt;</button>
-        <button id="lastTree" type="button" disabled="disabled"
-                onclick="currentTreeInc(+1, true);">&gt;&gt;</button>
+	<button id="firstTree" type="button" disabled="disabled"
+		onclick="currentTreeInc(-1, true);">&lt;&lt;</button>
+	<button id="prevTree" type="button" disabled="disabled"
+		onclick="currentTreeInc(-1, false);">&lt;</button>
+	<input id="setTree" type="text"
+	       onchange="currentTreeChange(this.value);"
+	       onfocus="document.getElementById('treeSelectInput').className='setTreeFocused';"
+	       onblur="document.getElementById('treeSelectInput').className='';"/>
+	<button id="nextTree" type="button" disabled="disabled"
+		onclick="currentTreeInc(+1, false);">&gt;</button>
+	<button id="lastTree" type="button" disabled="disabled"
+		onclick="currentTreeInc(+1, true);">&gt;&gt;</button>
       </div>
     </div>
     
     <!-- Newick input element -->
     <div id="directEntry" title="Direct entry">
-        <textarea placeholder="newick string..."></textarea>
+	<textarea placeholder="newick string..."></textarea>
     </div>
 
     <!-- File input element -->
@@ -163,15 +163,15 @@
     <!-- Node search dialog -->
     <div id="nodeSearchDialog" title="Search nodes">
       <input type="text" id="searchStringInput"
-             placeholder="Comma-delimited substrings to search for..."></input>
+	     placeholder="Comma-delimited substrings to search for..."></input>
 
       <ul>
-        <li><input type="radio" name="searchOpt" checked="checked"
-                   value="matchOnly">Highlight matching nodes only</input></li>
-        <li><input type="radio" name="searchOpt"
-                   value="monophyletic">Include monophyletic ancestors</input></li>
-        <li><input type="radio" name="searchOpt"
-                   value="ancestors">Include all ancestors</input></li>
+	<li><input type="radio" name="searchOpt" checked="checked"
+		   value="matchOnly">Highlight matching nodes only</input></li>
+	<li><input type="radio" name="searchOpt"
+		   value="monophyletic">Include monophyletic ancestors</input></li>
+	<li><input type="radio" name="searchOpt"
+		   value="ancestors">Include all ancestors</input></li>
       </ul>
 
       Annotation key: <input type="text" id="searchAnnotationKey" value="HIGHLIGHT"></input><br/>
@@ -181,8 +181,8 @@
     <!-- Multi SVG export dialog -->
     <div id="multiSVGDialog" title="Export to mulitple SVG images">
       <p>
-        <label for="spinner">Number of images to export:</label>
-        <input id="multiSVGspinner" name="value">
+	<label for="spinner">Number of images to export:</label>
+	<input id="multiSVGspinner" name="value">
       </p>
       Tree will be split vertically among images.
     </div>
@@ -214,19 +214,19 @@
     <!-- Keyboard shortcut help -->
     <div id="shortcutHelp" title="Keyboard shortcuts">
       <table>
-        <tr><th>Key</th> <th>Action</th></tr>
-        <tr><td>r</td> <td>Reload current file</td></tr>
-        <tr><td>t</td> <td>Cycle tip labels</td></tr>
-        <tr><td>i</td> <td>Cycle internal node labels</td></tr>
-        <tr><td>c</td> <td>Cycle edge colour trait</td></tr>
-        <tr><td>m</td> <td>Toggle marking of internal nodes</td></tr>
-        <tr><td>a</td> <td>Toggle axis display</td></tr>
-        <tr><td>z</td> <td>Reset zoom</td></tr>
-        <tr><td>, .</td> <td>Move to next or previous tree</td></tr>
-        <tr><td>&lt; &gt;</td> <td>Fast-forward or backward through trees</td></tr>
-        <tr><td>+ -</td> <td>Increase/decrease edge width</td></tr>
-        <tr><td>[ ]</td> <td>Increase/decrease font size</td></tr>
-        <tr><td>?</td> <td>Keyboard shortcut help</td></tr>
+	<tr><th>Key</th> <th>Action</th></tr>
+	<tr><td>r</td> <td>Reload current file</td></tr>
+	<tr><td>t</td> <td>Cycle tip labels</td></tr>
+	<tr><td>i</td> <td>Cycle internal node labels</td></tr>
+	<tr><td>c</td> <td>Cycle edge colour trait</td></tr>
+	<tr><td>m</td> <td>Toggle marking of internal nodes</td></tr>
+	<tr><td>a</td> <td>Toggle axis display</td></tr>
+	<tr><td>z</td> <td>Reset zoom</td></tr>
+	<tr><td>, .</td> <td>Move to next or previous tree</td></tr>
+	<tr><td>&lt; &gt;</td> <td>Fast-forward or backward through trees</td></tr>
+	<tr><td>+ -</td> <td>Increase/decrease edge width</td></tr>
+	<tr><td>[ ]</td> <td>Increase/decrease font size</td></tr>
+	<tr><td>?</td> <td>Keyboard shortcut help</td></tr>
       </table>
     </div>
 
@@ -235,28 +235,28 @@
     <div id="about" title="About IcyTree">
       <img src="icytree.png"/>
       <p>This is a browser-based phylogenetic tree viewer. It is
-        intended for rapid visualisation of tree log files such as
-        those produced by <a target="new"
-        href="http://beast2.org">BEAST 2</a> (the
-        <a target="new"
-        href="http://compevol.github.com/MASTER">MASTER</a> and
-        <a target="new"
-        href="http://compevol.github.com/MultiTypeTree">MultiTypeTree</a>
-        packages in particular).</p>
+	intended for rapid visualisation of tree log files such as
+	those produced by <a target="new"
+	href="http://beast2.org">BEAST 2</a> (the
+	<a target="new"
+	href="http://compevol.github.com/MASTER">MASTER</a> and
+	<a target="new"
+	href="http://compevol.github.com/MultiTypeTree">MultiTypeTree</a>
+	packages in particular).</p>
       
       <p>IcyTree is compatible with <i>current</i> GNU/Linux and OS X
-        versions of Mozilla Firefox and Google Chrome.</p>
+	versions of Mozilla Firefox and Google Chrome.</p>
 
       <p><b>Your mileage may vary with other browser/OS
       combinations.</b></p>
       
       <p>All components of IcyTree are licensed under version 3 of the
-        GNU <a target="new"
-        href="http://www.gnu.org/licenses/gpl-3.0.html">General Public
-        License</a> (GPL).  Source is available
-        on <a target="new"
-        href="https://github.com/tgvaughan/icytree">GitHub</a>. Please
-        feel free to open an issue on the project page if you find a bug.</p>
+	GNU <a target="new"
+	href="http://www.gnu.org/licenses/gpl-3.0.html">General Public
+	License</a> (GPL).  Source is available
+	on <a target="new"
+	href="https://github.com/tgvaughan/icytree">GitHub</a>. Please
+	feel free to open an issue on the project page if you find a bug.</p>
       
       <g:plusone></g:plusone>
     </div>
@@ -265,13 +265,13 @@
     <div id="warning" title="Warning">
       <img src="alert.png"/>
       <p>This browser does not support all of the features IcyTree
-        requires.  While we are working to improve cross-browser
-        support, there are certain HTML5-related things that are
-        still fundamentally impossible on some platforms.</p>
+	requires.  While we are working to improve cross-browser
+	support, there are certain HTML5-related things that are
+	still fundamentally impossible on some platforms.</p>
 
       <p>Currently, the only way to guarantee not seeing this message
-        is to use a recent version of Google Chrome or Mozilla
-        Firefox. (Safari 6 <i>should</i> be okay as well.)</p>
+	is to use a recent version of Google Chrome or Mozilla
+	Firefox. (Safari 6 <i>should</i> be okay as well.)</p>
     </div>
 
   </body>

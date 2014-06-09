@@ -32,6 +32,7 @@ var controlsHidden = false;
 var zoomControl = undefined;
 var lineWidth = 2;
 var fontSize = 11;
+var defaultBranchLength = 1; // Branch length used when none specified
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -101,6 +102,9 @@ $(document).ready(function() {
 		  
     $("#fileEnter").click(function() {
 	$("#directEntry").dialog("open");
+        var textBox = $("#directEntry").find("textArea");
+        textBox.focus()
+        textBox.select()
     });
     $("#fileLoad").click(function() {
 	// Clear file input (otherwise can't reload same file)
@@ -598,7 +602,7 @@ function reloadTreeData() {
 	setTimeout(function() {
 
 	    try {
-		trees = getTreesFromString(treeData);
+		trees = getTreesFromString(treeData, defaultBranchLength);
 	    } catch (e) {
 		displayError(e);
 		console.log(e);
@@ -613,7 +617,7 @@ function reloadTreeData() {
 	// Parse small data set NOW. (No loading screen.)
 
 	try {
-	    trees = getTreesFromString(treeData);
+	    trees = getTreesFromString(treeData, defaultBranchLength);
 	} catch (e) {
 	    displayError(e);
 	    console.log(e);
@@ -807,22 +811,41 @@ function keyPressHandler(event) {
     if (event.target !== document.body)
 	return;
 
+    event.preventDefault()
+
     var char = String.fromCharCode(event.charCode);
 
-    if (char == "?") {
+    // Presses valid at all times:
+
+    switch (char) {
+    case "?":
 	// Keyboard shortcut help
 	$("#shortcutHelp").dialog("open");
-    }
+        return;
 
-    if (trees.length == 0 && char != "r")
-	return;
+    case "e":
+        // Enter trees directly
+        $("#fileEnter").trigger("click");
+        return;
 
-    switch(char) {
+    case "l":
+        // Load trees from file
+        $("#fileLoad").trigger("click");
+        return;
+
     case "r":
 	// Reload:
 	loadFile();
-	break;
+	return;
+    }
 
+
+    if (trees.length == 0)
+	return;
+
+    // Presses valid only when a tree is displayed:
+
+    switch(char) {
     case "t":
 	// Cycle tip text:
 	cycleListItem($("#styleTipTextTrait"));

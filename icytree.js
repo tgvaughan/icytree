@@ -175,6 +175,9 @@ $(document).ready(function() {
     $("#styleDisplayAxis").click(function() {
         toggleItem($(this));
     });
+    $("#styleLogScale").click(function() {
+        toggleItem($(this));
+    });
     $("#styleAntiAlias").click(function() {
         toggleItem($(this));
     });
@@ -780,7 +783,9 @@ function update() {
     }
 
     // Create layout object:
-    var layout = Object.create(Layout).init(tree).standard();
+    var layout = Object.create(Layout).init(tree);
+    layout.logScale = ($("#styleLogScale > span").length>0);
+    layout.standard();
     
     // Assign chosen layout properties:
     layout.width = Math.max(window.innerWidth-5, 200);
@@ -873,6 +878,12 @@ function keyPressHandler(event) {
     case "a":
         // Toggle axis display
         toggleItem($("#styleDisplayAxis"));
+        event.preventDefault();
+        return;
+
+    case "s":
+        // Toggle log scale
+        toggleItem($("#styleLogScale"));
         event.preventDefault();
         return;
 

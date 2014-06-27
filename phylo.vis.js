@@ -41,6 +41,9 @@ var Layout = Object.create({}, {
     axis: {value: false, writable: true, configurable: true, enumerable: true},
     minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
 
+    logScale: {value: false, writable: true, configurable: true, enumerable: true},
+    logScaleRelOffset: {value: 0.001, writable: true, configurable: true, enumerable: true},
+
     markSingletonNodes: {value: false, writable: true, configurable: true, enumerable: true},
 
     lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
@@ -69,42 +72,52 @@ var Layout = Object.create({}, {
 	// Position leaves
 	var leaves = this.tree.getLeafList();
 
+        var lso = this.logScaleRelOffset*treeHeight;
+        function scaledHeight(height, useLogScale) {
+            if (useLogScale) {
+                return (Math.log(height + lso) - Math.log(lso))
+                    /(Math.log(treeHeight + lso) - Math.log(lso));
+            } else {
+                return height/treeHeight;
+            }
+        }
+
 	if (leaves.length === 1) {
 	    // Special case for single-leaf trees
-	    this.nodePositions[leaves[0]] = [
-		0.5,
-		leaves[0].height/treeHeight
-	    ];
+            this.nodePositions[leaves[0]] = [
+                0.5,
+                scaledHeight(leaves[0].height, this.logScale)
+            ];
 	    treeWidth = 1.0;
 	} else {
 	    for (var i=0; i<leaves.length; i++) {
-		this.nodePositions[leaves[i]] = [
-		    i/(leaves.length-1),
-		    leaves[i].height/treeHeight
-		];
-	    }
-	    treeWidth = leaves.length-1;
-	}
+                this.nodePositions[leaves[i]] = [
+                    i/(leaves.length-1),
+                    scaledHeight(leaves[i].height, this.logScale)
+                ];
+            }
+            treeWidth = leaves.length-1;
+        }
 
 	// Position internal nodes
-	function positionInternals(node, nodePositions) {
+	function positionInternals(node, nodePositions, logScale) {
 	    if (node.isLeaf())
 		return nodePositions[node][0];
 
 	    var xpos = 0;
 	    for (var i=0; i<node.children.length; i++)
-		xpos += positionInternals(node.children[i], nodePositions);
+		xpos += positionInternals(node.children[i], nodePositions, logScale);
 
 	    xpos /= node.children.length;
 
-	    nodePositions[node] = [
-		xpos,
-		node.height/treeHeight
-	    ];
+            nodePositions[node] = [
+                xpos,
+                scaledHeight(node.height, logScale)
+            ];
 
 	    return xpos;
 	}
-	positionInternals(this.tree.root, this.nodePositions);
+	positionInternals(this.tree.root, this.nodePositions, this.logScale);
 
 	return this;
     }},
@@ -165,7 +178,7 @@ var Layout = Object.create({}, {
 	    }
 
 	    // Function for drawing one tick:
-	    function axisLine(thisT) {
+	    function axisLine(thisT, logScale, logScaleRelOffset) {
 		var thisH = thisT/treeHeight;
 		var bot = [posXform([0, thisH])[0], savedThis.height];
 		var top = [posXform([0, thisH])[0], 0];
@@ -185,14 +198,22 @@ var Layout = Object.create({}, {
 		axLabel.setAttribute("x", bot[0]);
 		axLabel.setAttribute("y", bot[1]);
 		axLabel.setAttribute("fill", "gray");
-		axLabel.textContent = cleanNum(thisT);
+
+                if (!logScale)
+		    axLabel.textContent = parseFloat(thisT.toPrecision(5));
+                else {
+                    var lso = treeHeight*logScaleRelOffset;
+                    var realHeight = lso*(Math.exp(thisT)-1);
+                    axLabel.textContent = Number(realHeight.toPrecision(5)).toExponential()
+                }
+
 		svg.appendChild(axLabel);
 	    }
 
 	    // Draw ticks:
 	    var t = 0;
 	    while (t <= treeHeight) {
-		axisLine(t);
+		axisLine(t, this.logScale, this.logScaleRelOffset);
 		t += deltaT;
 	    }
 

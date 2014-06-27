@@ -170,16 +170,27 @@ var Layout = Object.create({}, {
 	    else
 	        treeHeight += 0.01*this.tree.root.height; // short faux root edge
 
-	    var maxDelta = treeHeight/(this.minAxisTicks-1);
-	    var deltaT = Math.pow(10,Math.floor(Math.log(maxDelta)/Math.log(10)));
+            var lso = this.logScaleRelOffset*treeHeight;
+            function scaledHeight(height, useLogScale) {
+                if (useLogScale) {
+                    return (Math.log(height + lso) - Math.log(lso))
+                        /(Math.log(treeHeight + lso) - Math.log(lso));
+                } else {
+                    return height/treeHeight;
+                }
+            }
 
-	    function cleanNum(num) {
-		return parseFloat(num.toPrecision(12));
-	    }
+            var axisRange;
+            if (!this.logScale)
+                axisRange = treeHeight;
+            else
+                axisRange = Math.log(treeHeight)/Math.log(10.0);
+
+	    var maxDelta = axisRange/(this.minAxisTicks-1);
+	    var delta = Math.pow(10,Math.floor(Math.log(maxDelta)/Math.log(10)));
 
 	    // Function for drawing one tick:
-	    function axisLine(thisT, logScale, logScaleRelOffset) {
-		var thisH = thisT/treeHeight;
+	    function axisLine(thisH, thisLabel) {
 		var bot = [posXform([0, thisH])[0], savedThis.height];
 		var top = [posXform([0, thisH])[0], 0];
 
@@ -198,7 +209,9 @@ var Layout = Object.create({}, {
 		axLabel.setAttribute("x", bot[0]);
 		axLabel.setAttribute("y", bot[1]);
 		axLabel.setAttribute("fill", "gray");
+                axLabel.textContent = thisLabel;
 
+                /*
                 if (!logScale)
 		    axLabel.textContent = parseFloat(thisT.toPrecision(5));
                 else {
@@ -206,6 +219,7 @@ var Layout = Object.create({}, {
                     var realHeight = lso*(Math.exp(thisT)-1);
                     axLabel.textContent = Number(realHeight.toPrecision(5)).toExponential()
                 }
+                */
 
 		svg.appendChild(axLabel);
 	    }
@@ -213,8 +227,8 @@ var Layout = Object.create({}, {
 	    // Draw ticks:
 	    var t = 0;
 	    while (t <= treeHeight) {
-		axisLine(t, this.logScale, this.logScaleRelOffset);
-		t += deltaT;
+		//axisLine(t, this.logScale, this.logScaleRelOffset);
+		t += delta;
 	    }
 
 	}

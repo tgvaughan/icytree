@@ -25,31 +25,31 @@
 
 // Tree layout object
 var Layout = Object.create({}, {
-    tree: {value: undefined, writable: true, configurable: true, enumerable: true},
-    nodePositions: {value: {}, writable: true, configurable: true, enumerable: true},
+    tree: {value: undefined, writable: true},
+    nodePositions: {value: {}, writable: true},
 
-    width: {value: 640, writable: true, configurable: true, enumerable: true},
-    height: {value: 480, writable: true, configurable: true, enumerable: true},
+    width: {value: 640, writable: true},
+    height: {value: 480, writable: true},
 
-    colourTrait: {value: undefined, writable: true, configurable: true, enumerable: true},
+    colourTrait: {value: undefined, writable: true},
     colourPallet: {value: ["blue", "red", "green", "purple", "orange", "#ff00ff"],
-		   writable: true, configurable: true, enumerable: true},
+                   writable: true},
 
-    tipTextTrait: {value: "label", writable: true, configurable: true, enumerable: true},
-    nodeTextTrait: {value: undefined, writable: true, configurable: true, enumerable: true},
+    tipTextTrait: {value: "label", writable: true},
+    nodeTextTrait: {value: undefined, writable: true},
 
-    axis: {value: false, writable: true, configurable: true, enumerable: true},
-    minAxisTicks: {value: 5, writable: true, configurable: true, enumerable: true},
+    axis: {value: false, writable: true},
+    maxAxisTicks: {value: 20, writable: true},
 
-    logScale: {value: false, writable: true, configurable: true, enumerable: true},
-    logScaleRelOffset: {value: 0.001, writable: true, configurable: true, enumerable: true},
+    logScale: {value: false, writable: true},
+    logScaleRelOffset: {value: 0.001, writable: true},
 
-    markSingletonNodes: {value: false, writable: true, configurable: true, enumerable: true},
+    markSingletonNodes: {value: false, writable: true},
 
-    lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
-    fontSize: {value: 11, writable: true, configurable: true, enumerable: true},
+    lineWidth: {value: 2, writable: true},
+    fontSize: {value: 11, writable: true},
 
-    zoomControl: {value: undefined, writable: true, configurable: true, enumerable: true},
+    zoomControl: {value: undefined, writable: true},
 
     init: {value: function(tree) {
 	this.tree = tree;
@@ -163,7 +163,7 @@ var Layout = Object.create({}, {
 	// Draw axis:
 	if (this.axis) {
 
-	    // Select number of ticks:
+	    // Select tick number and spacing
 	    var treeHeight = this.tree.root.height;
 	    if (this.tree.root.branchLength !== undefined)
 	        treeHeight += this.tree.root.branchLength;
@@ -171,23 +171,17 @@ var Layout = Object.create({}, {
 	        treeHeight += 0.01*this.tree.root.height; // short faux root edge
 
             var lso = this.logScaleRelOffset*treeHeight;
-            function scaledHeight(height, useLogScale) {
-                if (useLogScale) {
-                    return (Math.log(height + lso) - Math.log(lso))
-                        /(Math.log(treeHeight + lso) - Math.log(lso));
-                } else {
-                    return height/treeHeight;
-                }
+
+            var axisRange, delta;
+            if (!this.logScale) {
+                axisRange = treeHeight;
+	        var minDelta = axisRange/(this.maxAxisTicks-1);
+	        delta = Math.pow(10,Math.ceil(Math.log(minDelta)/Math.log(10)));
+            } else {
+                axisRange = 1;
+                delta = 2*axisRange/(this.maxAxisTicks-1);
             }
 
-            var axisRange;
-            if (!this.logScale)
-                axisRange = treeHeight;
-            else
-                axisRange = Math.log(treeHeight)/Math.log(10.0);
-
-	    var maxDelta = axisRange/(this.minAxisTicks-1);
-	    var delta = Math.pow(10,Math.floor(Math.log(maxDelta)/Math.log(10)));
 
 	    // Function for drawing one tick:
 	    function axisLine(thisH, thisLabel) {
@@ -211,24 +205,21 @@ var Layout = Object.create({}, {
 		axLabel.setAttribute("fill", "gray");
                 axLabel.textContent = thisLabel;
 
-                /*
-                if (!logScale)
-		    axLabel.textContent = parseFloat(thisT.toPrecision(5));
-                else {
-                    var lso = treeHeight*logScaleRelOffset;
-                    var realHeight = lso*(Math.exp(thisT)-1);
-                    axLabel.textContent = Number(realHeight.toPrecision(5)).toExponential()
-                }
-                */
-
 		svg.appendChild(axLabel);
 	    }
 
 	    // Draw ticks:
-	    var t = 0;
-	    while (t <= treeHeight) {
-		//axisLine(t, this.logScale, this.logScaleRelOffset);
-		t += delta;
+	    var h = 0;
+	    while (h <= axisRange) {
+                var label = "";
+                if (!this.logScale) {
+                    label = parseFloat(h.toPrecision(5));
+                } else {
+                    var trueHeight = lso*Math.pow(treeHeight/lso + 1, h) - lso
+                    label =  Number(trueHeight.toPrecision(5)).toExponential();
+                }
+		axisLine(h/axisRange, label);
+		h += delta;
 	    }
 
 	}
@@ -459,10 +450,10 @@ var Layout = Object.create({}, {
 // EdgeStatsControl object
 var EdgeStatsControl = Object.create({}, {
 
-    svg: {value: undefined, writable: true, configurable: true, enumerable: true},
-    tree: {value: undefined, writable: true, configurable: true, enumerable: true},
-    highlightedEdge: {value: undefined, writable: true, configurable: true, enumerable: true},
-    phyloStat: {value: undefined, writable: true, configurable: true, enumerable: true},
+    svg: {value: undefined, writable: true},
+    tree: {value: undefined, writable: true},
+    highlightedEdge: {value: undefined, writable: true},
+    phyloStat: {value: undefined, writable: true},
 
     init: {value: function(svg, tree) {
 	this.svg = svg;
@@ -620,20 +611,20 @@ var EdgeStatsControl = Object.create({}, {
 // (Just a tidy way to package up these event handlers.)
 var ZoomControl = Object.create({}, {
 
-    initialised: {value: false, writable: true, configurable: true, enumerable: true},
+    initialised: {value: false, writable: true},
 
-    svg: {value: undefined, writable: true, configurable: true, enumerable: true},
-    lineWidth: {value: 2, writable: true, configurable: true, enumerable: true},
+    svg: {value: undefined, writable: true},
+    lineWidth: {value: 2, writable: true},
 
-    zoomFactorX: {value: 1, writable: true, configurable: true, enumerable: true},
-    zoomFactorY: {value: 1, writable: true, configurable: true, enumerable: true},
-    centre: {value: [0,0], writable: true, configurable: true, enumerable: true},
+    zoomFactorX: {value: 1, writable: true},
+    zoomFactorY: {value: 1, writable: true},
+    centre: {value: [0,0], writable: true},
 
-    dragOrigin: {value: [0,0], writable: true, configurable: true, enumerable: false},
-    oldCentre: {value: [0,0], writable: true, configurable: true, enumerable: false},
+    dragOrigin: {value: [0,0], writable: true},
+    oldCentre: {value: [0,0], writable: true},
 
-    width: {value: undefined, writable: true, configurable: true, enumerable: false},
-    height: {value: undefined, writable: true, configurable: true, enumerable: false},
+    width: {value: undefined, writable: true},
+    height: {value: undefined, writable: true},
 
 
     init: {value: function(svg, lineWidth) {

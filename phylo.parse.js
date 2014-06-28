@@ -26,14 +26,14 @@
 // Node prototype object
 var Node = Object.create({}, {
 
-    parent: {value: undefined, writable: true, configurable: true, enumerable: true},
-    children: {value: [], writable: true, configurable: true, enumerable: true},
-    height: {value: undefined, writable: true, configurable: true, enumerable: true},
-    branchLength: {value: undefined, writable: true, configurable: true, enumerable: true},
-    label: {value: "", writable: true, configurable: true, enumerable: true},
-    annotation: {value: {}, writable: true, configurable: true, enumerable: true},
-    id: {value: undefined, writable: true, configurable: true, enumerable: true},
-    hybridID: {value: undefined, writable: true, configurable: true, enumerable: true},
+    parent: {value: undefined, writable: true},
+    children: {value: [], writable: true},
+    height: {value: undefined, writable: true},
+    branchLength: {value: undefined, writable: true},
+    label: {value: "", writable: true},
+    annotation: {value: {}, writable: true},
+    id: {value: undefined, writable: true},
+    hybridID: {value: undefined, writable: true},
 
     // Initialiser
     init: {value: function(id) {
@@ -107,10 +107,10 @@ var Node = Object.create({}, {
 
 // Tree prototype object
 var Tree = Object.create({}, {
-    root: {value: undefined, writable: true, configurable: true, enumerable: true},
-    nodeList: {value: [], writable: true, configurable: true, enumberable: true},
-    leafList: {value: [], writable: true, configurable: true, enumberable: true},
-    hybridEdgeList: {value: undefined, writable: true, configurable: true, enumerable: true},
+    root: {value: undefined, writable: true},
+    nodeList: {value: [], writable: true},
+    leafList: {value: [], writable: true},
+    hybridEdgeList: {value: undefined, writable: true},
 
     // Initialiser
     init: {value: function(root) {
@@ -419,9 +419,7 @@ var TreeFromNewick = Object.create(Tree, {
         ["HASH", /#/, false],
         ["STRING", /^"[^"]+"/, true],
         ["STRING",/^'[^']+'/, true],
-        ["STRING", /^[\w|*%/.\-\+]+/, true]
-
-    ], writeable: false, configurable: false},
+        ["STRING", /^[\w|*%/.\-\+]+/, true]]},
 
     // Lexical analysis
     doLex: { value: function(newick) {

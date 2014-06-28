@@ -42,7 +42,7 @@ var Layout = Object.create({}, {
     maxAxisTicks: {value: 20, writable: true},
 
     logScale: {value: false, writable: true},
-    logScaleRelOffset: {value: 0.001, writable: true},
+    logScaleRelOffset: {value: 0.01, writable: true},
 
     markSingletonNodes: {value: false, writable: true},
 

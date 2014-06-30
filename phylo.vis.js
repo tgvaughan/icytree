@@ -726,14 +726,17 @@ var ZoomControl = Object.create({}, {
     zoomEventHandler: {value: function(event) {
 	event.preventDefault();
 
+        if (event.altKey)
+            return
+
 	var dir = (event.wheelDelta || -event.detail);
+
 	var zoomFactorXP = this.zoomFactorX;
 	var zoomFactorYP = this.zoomFactorY;
-
 	var verticalZoomOnly = event.shiftKey;
 
 	if (dir>0) {
-	    // Zoom min
+	    // Zoom in
 	    zoomFactorYP *= 1.1;
 	    if (!verticalZoomOnly)
 		zoomFactorXP *= 1.1;

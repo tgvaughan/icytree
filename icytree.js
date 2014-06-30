@@ -33,6 +33,7 @@ var zoomControl = undefined;
 var lineWidth = 2;
 var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
+var logScaleRelOffset = 0.001;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -785,6 +786,7 @@ function update() {
     // Create layout object:
     var layout = Object.create(Layout).init(tree);
     layout.logScale = ($("#styleLogScale > span").length>0);
+    layout.logScaleRelOffset = logScaleRelOffset;
     layout.standard();
     
     // Assign chosen layout properties:
@@ -808,7 +810,28 @@ function update() {
     if ($("#styleAntiAlias > span").length==0)
         svg.style.shapeRendering = "crispEdges";
     $("#output").append(svg);
+
+    // Add log scale stretching event handler:
+    function logScaleStretchHandler(event) {
+        if (!event.altKey || event.shiftKey)
+            return
+
+        event.preventDefault();
+        
+        var dir = (event.wheelDelta || -event.detail);
+        if (dir>0)
+            logScaleRelOffset /= 1.5;
+        else
+            logScaleRelOffset *= 1.5;
+        update();
+    }
+    svg.addEventListener("mousewheel",
+			 logScaleStretchHandler); // Chrome
+    svg.addEventListener("DOMMouseScroll",
+			 logScaleStretchHandler); // FF (!!)
 }
+
+
 
 // Keyboard event handler:
 function keyPressHandler(event) {

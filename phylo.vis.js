@@ -733,19 +733,30 @@ var ZoomControl = Object.create({}, {
 
 	var zoomFactorXP = this.zoomFactorX;
 	var zoomFactorYP = this.zoomFactorY;
-	var verticalZoomOnly = event.shiftKey;
+
+        var verticalZoom = true;
+        var horizontalZoom = true;
+        if (event.shiftKey) {
+            horizontalZoom = false;
+        } else {
+            if (event.ctrlKey) {
+                verticalZoom = false;
+            }
+        }
 
 	if (dir>0) {
 	    // Zoom in
-	    zoomFactorYP *= 1.1;
-	    if (!verticalZoomOnly)
+            if (verticalZoom)
+	        zoomFactorYP *= 1.1;
+	    if (horizontalZoom)
 		zoomFactorXP *= 1.1;
 
 
 	} else {
 	    // Zoom out
-	    zoomFactorYP = Math.max(1, zoomFactorYP/1.1);
-	    if (!verticalZoomOnly)
+            if (verticalZoom)
+	        zoomFactorYP = Math.max(1, zoomFactorYP/1.1);
+	    if (horizontalZoom)
 		zoomFactorXP = Math.max(1, zoomFactorXP/1.1);
 	}
 

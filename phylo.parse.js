@@ -490,7 +490,7 @@ var TreeFromNewick = Object.create(Tree, {
 
 
         function acceptToken(token, mandatory) {
-            if (tokenList[idx][0] === token) {
+            if (idx<tokenList.length && tokenList[idx][0] === token) {
                 idx += 1;
                 return true;
             } else {
@@ -504,7 +504,7 @@ var TreeFromNewick = Object.create(Tree, {
         // T -> N;
         function ruleT() {
             var node = ruleN(undefined);
-            acceptToken("SEMI", true);
+            acceptToken("SEMI", false);
 
             return node;
         }

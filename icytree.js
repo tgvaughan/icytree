@@ -401,8 +401,8 @@ function displayError(string) {
 
     output.removeClass();
     output.addClass("error");
-    var divMainStr = "<div class='main'>Could not load tree!</div>"
-    var divMinorStr = "<div class='minor'>" + string + "</div>"
+    var divMainStr = "<div class='main'>Could not load tree!</div>";
+    var divMinorStr = "<div class='minor'>" + string + "</div>";
     output.html(divMainStr + divMinorStr);
 
     // Pad to centre of page. (Wish I could do this with CSS!)
@@ -516,7 +516,7 @@ function fontSizeChange(inc) {
 // Increment currently-displayed tree.
 function currentTreeInc(dir, big) {
     if (big)
-        inc = dir*Math.round(trees.length/10)
+        inc = dir*Math.round(trees.length/10);
     else
         inc = dir;
    
@@ -669,7 +669,7 @@ function exportSVGMulti(pages) {
     var newvbx = 0;
     var newvbwidth = width;
     var newvbheight = imageHeight;
-    zoomControl.zoomFactorX = 1
+    zoomControl.zoomFactorX = 1;
     zoomControl.zoomFactorY = pages;
 
     for (var i=0; i<pages; i++) {
@@ -839,11 +839,11 @@ function keyPressHandler(event) {
     if (event.target !== document.body)
         return;
 
-    var char = String.fromCharCode(event.charCode);
+    var eventChar = String.fromCharCode(event.charCode);
 
     // Presses valid at all times:
 
-    switch (char) {
+    switch (eventChar) {
     case "?":
         // Keyboard shortcut help
         $("#shortcutHelp").dialog("open");
@@ -873,7 +873,7 @@ function keyPressHandler(event) {
 
     // Presses valid only when a tree is displayed:
 
-    switch(char) {
+    switch(eventChar) {
     case "t":
         // Cycle tip text:
         cycleListItem($("#styleTipTextTrait"));

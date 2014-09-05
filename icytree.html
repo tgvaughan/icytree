@@ -48,9 +48,8 @@
 	  <ul id="fileMenu">
 	    <li><a href="#" id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</a></li>
 	    <li><a href="#" id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</a></li>
-	    <li><a href="#" id="fileReload"><span class="ui-icon ui-icon-refresh"></span>Reload file</a></li>
-	    <li><a href="#"><span class="ui-icon
-	    ui-icon-disk"></span>Export tree as...</a>
+	    <li class="ui-state-disabled"><a href="#" id="fileReload"><span class="ui-icon ui-icon-refresh"></span>Reload file</a></li>
+	    <li class="ui-state-disabled"><a href="#"><span class="ui-icon ui-icon-disk"></span>Export tree as...</a>
 	      <ul id="fileExport">
 		<li><a href="#" id="fileExportSVG">SVG image</a></li>
 		<li><a href="#" id="fileExportSVGMulti">Split SVG...</a></li>
@@ -58,7 +57,7 @@
 		<li><a href="#" id="fileExportNEXUS">NEXUS file</a></li>
 	      </ul>
 	    </li>
-<!--	    <li><a href="#" id="fileExport"><span class="ui-icon ui-icon-disk"></span>Export SVG</a></li>-->
+        <li class="ui-state-disabled"><a href="#" id="filePolling"></span>Periodic polling</a></li>
 	  </ul>
 	</div>
       </li>

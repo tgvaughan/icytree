@@ -34,6 +34,7 @@ var lineWidth = 2;
 var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
 var logScaleRelOffset = 0.001;
+var pollingIntervalID = undefined;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -122,7 +123,6 @@ $(document).ready(function() {
     $("#fileReload").click(reloadTreeData);
     $("#fileExportSVG").click(exportSVG);
 
-
     $("#multiSVGDialog").dialog({
         autoOpen: false,
         modal: true,
@@ -144,6 +144,11 @@ $(document).ready(function() {
 
     $("#fileExportNewick").click(exportNewick);
     $("#fileExportNEXUS").click(exportNEXUS);
+
+    $("#filePolling").click(function() {
+        toggleItem($(this));
+        togglePolling();
+    });
 
     $("#styleSort").on("click", "a", function() {
         selectListItem($(this));
@@ -333,6 +338,22 @@ function browserValid() {
     return true;
 }
 
+function updateMenuItems() {
+    if (treeFile === undefined) {
+        $("#fileReload").parent().addClass("ui-state-disabled");
+        $("#filePolling").parent().addClass("ui-state-disabled");
+    } else {
+        $("#fileReload").parent().removeClass("ui-state-disabled");
+        $("#filePolling").parent().removeClass("ui-state-disabled");
+    }
+
+    if (trees.length>0) {
+        $("#fileExport").parent().removeClass("ui-state-disabled");
+    } else {
+        $("#fileExport").parent().addClass("ui-state-disabled");
+    }
+}
+
 // Load tree data from file object treeFile
 function loadFile() {
     var reader = new FileReader();
@@ -344,6 +365,38 @@ function loadFile() {
         reloadTreeData();
     }
 
+}
+
+// Turn on/off automatic reloading of file
+function togglePolling() {
+    if ($("#filePolling > span").length>0) {
+        // Start polling
+
+        // Disable load and reload while polling is active
+        //$("#load").button({disabled: true});
+        //$("#reload").button({disabled: true});
+
+        pollingIntervalID = setInterval(pollingReloadData,
+                                        5000);
+
+    } else {
+        // Stop polling
+
+        clearInterval(pollingIntervalID);
+
+        // Re-enable load and reload when polling is finished
+        //$("#load").button({disabled: false});
+        //$("#reload").button({disabled: false});
+    }
+}
+
+function pollingReloadData() {
+    loadFile();
+
+    if (trees.length>0) {
+        currentTreeIdx = trees.length-1;
+        update();
+    }
 }
 
 // Display space-filling frame with big text
@@ -722,6 +775,7 @@ function exportNEXUS() {
 
 // Update display according to current tree model and display settings
 function update() {
+    updateMenuItems();
 
     // Update tree index selector:
     updateCurrentTreeControl();

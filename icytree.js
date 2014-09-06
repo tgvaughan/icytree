@@ -73,7 +73,7 @@ $(document).ready(function() {
 
     $("#menu > li").mouseover(function() {
         if (!$(this).find("button").first().hasClass("ui-state-disabled"))
-            $(this).find("ul").first().show();
+        $(this).find("ul").first().show();
     });
 
     $("#menu > li").mouseout(function() {
@@ -98,39 +98,39 @@ $(document).ready(function() {
 
                 // Trigger click on file input
                 if (!$(this).parent().hasClass("ui-state-disabled"))
-                    $("#fileInput").trigger("click");
-                break;
+        $("#fileInput").trigger("click");
+    break;
 
             case "fileReload":
-                reloadTreeData();
-                break;
+    reloadTreeData();
+    break;
 
             case "fileExportSVG":
-                exportSVG();
-                break;
+    exportSVG();
+    break;
 
             case "fileExportMultiSVG":
-                $("#multiSVGspinner").spinner().spinner("value",2);
-                $("#multiSVGDialog").dialog("open");
-                break;
+    $("#multiSVGspinner").spinner().spinner("value",2);
+    $("#multiSVGDialog").dialog("open");
+    break;
 
             case "fileExportNewick":
-                exportNewick();
-                break;
+    exportNewick();
+    break;
 
             case "fileExportNEXUS":
-                exportNEXUS();
-                break;
+    exportNEXUS();
+    break;
 
             case "filePolling":
-                togglePolling();
-                break;
+    togglePolling();
+    break;
 
             default:
-                break;
+    break;
         };
     });
-                  
+
     $("#styleMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
             case "styleMarkSingletons":
@@ -217,12 +217,12 @@ $(document).ready(function() {
                 reloadTreeData();
                 $(this).dialog("close");
             },
-            Clear: function() {
-                $(this).find("textArea").val("");
-            },
-            Cancel: function() {
-                $(this).dialog("close");
-            }}
+        Clear: function() {
+            $(this).find("textArea").val("");
+        },
+        Cancel: function() {
+            $(this).dialog("close");
+        }}
     });
 
     $("#fileInput").change(function() {
@@ -240,9 +240,9 @@ $(document).ready(function() {
                 exportSVGMulti($("#multiSVGspinner").spinner().spinner("value"));
                 $(this).dialog("close");
             },
-            Cancel: function() {
-                $(this).dialog("close");
-            }}
+        Cancel: function() {
+            $(this).dialog("close");
+        }}
     });
 
     $("#nodeSearchDialog").dialog({
@@ -265,26 +265,26 @@ $(document).ready(function() {
 
                 $.each(searchStrings, function(eidx, str) {
                     var matchVal = eidx+1;
-                    
+
                     // Find matching nodes
                     var matchingNodes = [];
                     $.each(tree.getNodeList(), function(nidx, node) {
                         if (node.label.search(str)>=0)
-                            matchingNodes = matchingNodes.concat(node)
+                        matchingNodes = matchingNodes.concat(node)
                     });
 
                     // Highlight additional nodes as required
 
                     if (highlightType === "monophyletic")
-                        matchingNodes = tree.getCladeNodes(matchingNodes);
+                    matchingNodes = tree.getCladeNodes(matchingNodes);
 
-                    if (highlightType === "ancestors")
-                        matchingNodes = tree.getAncestralNodes(matchingNodes);
+                if (highlightType === "ancestors")
+                    matchingNodes = tree.getAncestralNodes(matchingNodes);
 
-                    // Annotate selected nodes
-                    $.each(matchingNodes, function (nidx, node) {
-                        node.annotation[akey] = matchVal;
-                    });
+                // Annotate selected nodes
+                $.each(matchingNodes, function (nidx, node) {
+                    node.annotation[akey] = matchVal;
+                });
 
                 });
 
@@ -414,7 +414,7 @@ function togglePolling() {
         pollingIntervalID = setInterval(pollingReloadData, 5000);
     else
         clearInterval(pollingIntervalID);
-    
+
     updateMenuItems();
 }
 
@@ -447,10 +447,10 @@ function displayStartOutput() {
     var imgHeight = 150;
     var imgWidth = 368;
     output.append(
-        $("<img/>")
+            $("<img/>")
             .attr("src", "icytree_start.svg")
             .attr("height", imgHeight)
-    );
+            );
 
     // Pad to centre of page.
     var pad = Math.max(Math.floor((window.innerHeight-60-imgHeight)/2), 0) + "px";
@@ -551,7 +551,7 @@ function toggleItem (el) {
     } else {
         el.find("span").remove();
     }
-    
+
     update();
 }
 
@@ -561,19 +561,19 @@ function itemToggledOn(el) {
 
 // Update form elements containing trait selectors
 function updateTraitSelectors(tree) {
-    
+
     var elements = [$("#styleColourTrait"),
-                    $("#styleTipTextTrait"),
-                    $("#styleNodeTextTrait")];
+        $("#styleTipTextTrait"),
+        $("#styleNodeTextTrait")];
 
     $.each(elements, function (eidx, el) {
-        
+
         // Save currently selected trait:
         var selectedTrait =  el.find("span").parent().text();
-        
+
         // Clear old traits:
         el.html("");
-        
+
         // Obtain trait list:
         var traitList = ["None", "Node label"];
         traitList = traitList.concat(tree.getTraitList(false));
@@ -582,10 +582,10 @@ function updateTraitSelectors(tree) {
         for (var i=0; i<traitList.length; i++) {
             var selector = $("<li />").text(traitList[i]);
             if (traitList[i] === selectedTrait)
-                $("<span/>").addClass("ui-icon ui-icon-check").prependTo(selector);
-            el.append(selector);
+        $("<span/>").addClass("ui-icon ui-icon-check").prependTo(selector);
+    el.append(selector);
         }
-        
+
     });
 
     $("#styleMenu").menu("refresh");
@@ -609,7 +609,7 @@ function currentTreeInc(dir, big) {
         inc = dir*Math.round(trees.length/10);
     else
         inc = dir;
-   
+
     currentTreeIdx = Math.max(0, currentTreeIdx+inc);
     currentTreeIdx = Math.min(trees.length-1, currentTreeIdx);
 
@@ -623,7 +623,7 @@ function currentTreeChange(newVal) {
         updateCurrentTreeControl();
         return;
     }
-        
+
     currentTreeIdx = Math.max(0, Number(newVal)-1);
     currentTreeIdx = Math.min(trees.length-1, currentTreeIdx);
 
@@ -663,7 +663,7 @@ function updateCurrentTreeControl() {
     if (trees.length>1) {
         selectEl.style.display = "block";
         counterEl.textContent = "Tree number: " +
-        (currentTreeIdx+1) + " of " + trees.length;
+            (currentTreeIdx+1) + " of " + trees.length;
 
         var setTreeEl = document.getElementById("setTree");
         setTreeEl.value = currentTreeIdx+1;
@@ -690,7 +690,7 @@ function reloadTreeData() {
     if (treeData.length>500000) {
 
         // Parse large data set asynchronously and display loading screen
-        
+
         displayLoading();
 
         setTimeout(function() {
@@ -702,7 +702,7 @@ function reloadTreeData() {
                 console.log(e);
                 return;
             }
-            
+
             console.log("Successfully parsed " + trees.length + " trees.");
             update();
         }, 300);
@@ -717,7 +717,7 @@ function reloadTreeData() {
             console.log(e);
             return;
         }
-            
+
         console.log("Successfully parsed " + trees.length + " trees.");
         update();
     }
@@ -769,8 +769,8 @@ function exportSVGMulti(pages) {
 
         // Update viewbox
         svgEl.setAttribute("viewBox", newvbx + " " + newvby + " "
-                              + newvbwidth + " " + newvbheight);
-        
+                + newvbwidth + " " + newvbheight);
+
         // Hack to ensure text looks okay
         zoomControl.updateTextScaling();
 
@@ -781,7 +781,7 @@ function exportSVGMulti(pages) {
 
     // Revert to original viewbox and zoom
     svgEl.setAttribute("viewBox", vbx + " " + vby + " "
-                       + vbwidth + " " + vbheight);
+            + vbwidth + " " + vbheight);
     zoomControl.zoomFactorX = zoomFactorX;
     zoomControl.zoomFactorY = zoomFactorY;
     zoomControl.updateTextScaling();
@@ -830,48 +830,48 @@ function update() {
 
     // Sort tree nodes
     switch ($("#styleSort span").parent().text()) {
-    case "Ascending":
-        tree.sortNodes(false);
-        break;
-    case "Descending":
-        tree.sortNodes(true);
-        break;
-    default:
-        break;
+        case "Ascending":
+            tree.sortNodes(false);
+            break;
+        case "Descending":
+            tree.sortNodes(true);
+            break;
+        default:
+            break;
     }
 
     // Update trait selectors:
     updateTraitSelectors(tree);
-    
+
     // Determine whether colouring is required:
     var colourTrait = $("#styleColourTrait span").parent().text();
     if (colourTrait === "None")
         colourTrait = undefined;
-    
+
     // Determine whether tip labels are required:
     var tipTextTrait = $("#styleTipTextTrait span").parent().text();
     switch (tipTextTrait) {
-    case "None":
-        tipTextTrait = undefined;
-        break;
-    case "Node label":
-        tipTextTrait = "label";
-        break;
-    default:
-        break;
+        case "None":
+            tipTextTrait = undefined;
+            break;
+        case "Node label":
+            tipTextTrait = "label";
+            break;
+        default:
+            break;
     }
 
     // Determine whether internal node labels are required:
     var nodeTextTrait = $("#styleNodeTextTrait span").parent().text();
     switch (nodeTextTrait) {
-    case "None":
-        nodeTextTrait = undefined;
-        break;
-    case "Node label":
-        nodeTextTrait = "label";
-        break;
-    default:
-        break;
+        case "None":
+            nodeTextTrait = undefined;
+            break;
+        case "Node label":
+            nodeTextTrait = "label";
+            break;
+        default:
+            break;
     }
 
     // Create layout object:
@@ -879,7 +879,7 @@ function update() {
     layout.logScale = ($("#styleLogScale > span").length>0);
     layout.logScaleRelOffset = logScaleRelOffset;
     layout.standard();
-    
+
     // Assign chosen layout properties:
     layout.width = Math.max(window.innerWidth-5, 200);
     layout.height = Math.max(window.innerHeight-5, 200);
@@ -907,8 +907,8 @@ function update() {
         if (!event.altKey || event.shiftKey)
             return
 
-        event.preventDefault();
-        
+                event.preventDefault();
+
         var dir = (event.wheelDelta || -event.detail);
         if (dir>0)
             logScaleRelOffset /= 1.5;
@@ -917,9 +917,9 @@ function update() {
         update();
     }
     svg.addEventListener("mousewheel",
-			 logScaleStretchHandler); // Chrome
+            logScaleStretchHandler); // Chrome
     svg.addEventListener("DOMMouseScroll",
-			 logScaleStretchHandler); // FF (!!)
+            logScaleStretchHandler); // FF (!!)
 }
 
 
@@ -935,28 +935,28 @@ function keyPressHandler(event) {
     // Presses valid at all times:
 
     switch (eventChar) {
-    case "?":
-        // Keyboard shortcut help
-        $("#shortcutHelp").dialog("open");
-        event.preventDefault();
-        return;
+        case "?":
+            // Keyboard shortcut help
+            $("#shortcutHelp").dialog("open");
+            event.preventDefault();
+            return;
 
-    case "e":
-        // Enter trees directly
-        $("#fileEnter").trigger("click");
-        event.preventDefault();
-        return;
+        case "e":
+            // Enter trees directly
+            $("#fileEnter").trigger("click");
+            event.preventDefault();
+            return;
 
-    case "l":
-        // Load trees from file
-        $("#fileLoad").trigger("click");
-        event.preventDefault();
-        return;
+        case "l":
+            // Load trees from file
+            $("#fileLoad").trigger("click");
+            event.preventDefault();
+            return;
 
-    case "r":
-        // Reload:
-        loadFile();
-        break;
+        case "r":
+            // Reload:
+            loadFile();
+            break;
     }
 
     if (trees.length == 0)
@@ -965,99 +965,99 @@ function keyPressHandler(event) {
     // Presses valid only when a tree is displayed:
 
     switch(eventChar) {
-    case "t":
-        // Cycle tip text:
-        cycleListItem($("#styleTipTextTrait"));
-        event.preventDefault();
-        return;
+        case "t":
+            // Cycle tip text:
+            cycleListItem($("#styleTipTextTrait"));
+            event.preventDefault();
+            return;
 
-    case "i":
-        // Cycle internal node text:
-        cycleListItem($("#styleNodeTextTrait"));
-        event.preventDefault();
-        return;
+        case "i":
+            // Cycle internal node text:
+            cycleListItem($("#styleNodeTextTrait"));
+            event.preventDefault();
+            return;
 
-    case "c":
-        // Cycle branch colour:
-        cycleListItem($("#styleColourTrait"));
-        event.preventDefault();
-        return;
+        case "c":
+            // Cycle branch colour:
+            cycleListItem($("#styleColourTrait"));
+            event.preventDefault();
+            return;
 
-    case "m":
-        // Toggle marking of internal nodes:
-        toggleItem($("#styleMarkSingletons"));
-        event.preventDefault();
-        return;
+        case "m":
+            // Toggle marking of internal nodes:
+            toggleItem($("#styleMarkSingletons"));
+            event.preventDefault();
+            return;
 
-    case "a":
-        // Toggle axis display
-        toggleItem($("#styleDisplayAxis"));
-        event.preventDefault();
-        return;
+        case "a":
+            // Toggle axis display
+            toggleItem($("#styleDisplayAxis"));
+            event.preventDefault();
+            return;
 
-    case "s":
-        // Toggle log scale
-        toggleItem($("#styleLogScale"));
-        event.preventDefault();
-        return;
+        case "s":
+            // Toggle log scale
+            toggleItem($("#styleLogScale"));
+            event.preventDefault();
+            return;
 
-    case "z":
-        // Reset zoom.
-        zoomControl.reset();
-        event.preventDefault();
-        return;
+        case "z":
+            // Reset zoom.
+            zoomControl.reset();
+            event.preventDefault();
+            return;
 
-    case ".":
-        // Next tree
-        currentTreeInc(1, false);
-        event.preventDefault();
-        return;
+        case ".":
+            // Next tree
+            currentTreeInc(1, false);
+            event.preventDefault();
+            return;
 
-    case ",":
-        // Prev tree
-        currentTreeInc(-1, false);
-        event.preventDefault();
-        return;
+        case ",":
+            // Prev tree
+            currentTreeInc(-1, false);
+            event.preventDefault();
+            return;
 
-    case ">":
-        // Fast-forward tree 
-        currentTreeInc(1, true);
-        event.preventDefault();
-        return;
+        case ">":
+            // Fast-forward tree 
+            currentTreeInc(1, true);
+            event.preventDefault();
+            return;
 
-    case "<":
-        // Fast-backward tree
-        currentTreeInc(-1, true);
-        event.preventDefault();
-        return;
+        case "<":
+            // Fast-backward tree
+            currentTreeInc(-1, true);
+            event.preventDefault();
+            return;
 
-    case "+":
-    case "=":
-        // Increase line thickness
-        edgeThicknessChange(1);
-        event.preventDefault();
-        return;
+        case "+":
+        case "=":
+            // Increase line thickness
+            edgeThicknessChange(1);
+            event.preventDefault();
+            return;
 
-    case "-":
-        // Decrease line thickness
-        edgeThicknessChange(-1);
-        event.preventDefault();
-        return;
+        case "-":
+            // Decrease line thickness
+            edgeThicknessChange(-1);
+            event.preventDefault();
+            return;
 
-    case "]":
-        // Increase font size
-        fontSizeChange(2);
-        event.preventDefault();
-        return;
+        case "]":
+            // Increase font size
+            fontSizeChange(2);
+            event.preventDefault();
+            return;
 
-    case "[":
-        // Decrease font size
-        fontSizeChange(-2);
-        event.preventDefault();
-        return;
+        case "[":
+            // Decrease font size
+            fontSizeChange(-2);
+            event.preventDefault();
+            return;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 

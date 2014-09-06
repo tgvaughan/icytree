@@ -18,11 +18,7 @@ body {
     padding-right: 30px;
 }
 
-.menuDiv {
-    position: relative;
-}
-
-.menuDiv > ul {
+#menu > li > ul {
     position: absolute;
 }
 

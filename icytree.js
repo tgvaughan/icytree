@@ -73,11 +73,11 @@ $(document).ready(function() {
 
     $("#menu > li").mouseover(function() {
         if (!$(this).find("button").first().hasClass("ui-state-disabled"))
-            $(this).find(".menuDiv > ul").show();
+            $(this).find("ul").first().show();
     });
 
     $("#menu > li").mouseout(function() {
-        $(this).find(".menuDiv > ul").hide();
+        $(this).find("ul").first().hide();
     });
 
 

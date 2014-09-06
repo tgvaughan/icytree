@@ -15,10 +15,6 @@
     <script src="FileSaver.js"></script>
 
     <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-
-    <!--link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.3/themes/start/jquery-ui.css"/>
-    <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script-->
-
     <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.1/themes/start/jquery-ui.css"/>
     <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
 
@@ -48,7 +44,6 @@
     <!-- Drop down menu -->
     <ul id="menu">
       <li><button>File</button>
-        <div class="menuDiv">
             <ul id="fileMenu">
                 <li id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</li>
                 <li id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</li>
@@ -64,11 +59,9 @@
                     </ul>
                 </li>
             </ul>
-        </div>
     </li>
       
     <li><button>Style</button>
-	<div class="menuDiv">
 	  <ul id="styleMenu">
 	    <li>Sort nodes
             <ul id="styleSort">
@@ -111,26 +104,21 @@
         <li id="styleLogScale">Log scale</li>
 	    <li id="styleAntiAlias">Anti-alias</li>
 	  </ul>
-	</div>
       </li>
 
       <li><button>Search</button>
-	<div class="menuDiv">
 	  <ul id="searchMenu">
 	    <li id="searchNodes">Find nodes</li>
 	    <li id="searchClear">Clear search results</li>
 	  </ul>
-	</div>
       </li>
 
       <li><button>Help</button>
-	<div class="menuDiv">
 	  <ul id="helpMenu">
 	    <li id="helpTreeNav"><span class="ui-icon ui-icon-help"></span>Tree navigation...</li>
 	    <li id="helpShortcuts"><span class="ui-icon ui-icon-help"></span>Keyboard shortcuts...</li>
 	    <li id="helpAbout">About IcyTree...</li>
 	  </ul>
-	</div>
       </li>
     </ul>
     

@@ -74,7 +74,8 @@ $(document).ready(function() {
     $("#helpMenu").menu().hide();
 
     $("#menu > li").mouseover(function() {
-        $(this).find(".menuDiv > ul").show();
+        if (!$(this).find("button").first().hasClass("ui-state-disabled"))
+            $(this).find(".menuDiv > ul").show();
     });
 
     $("#menu > li").mouseout(function() {
@@ -101,27 +102,61 @@ $(document).ready(function() {
                 $(this).dialog("close");
             }}
     });
-                  
-    $("#fileEnter").click(function() {
-        $("#directEntry").dialog("open");
-        var textBox = $("#directEntry").find("textArea");
-        textBox.focus()
-        textBox.select()
-    });
-    $("#fileLoad").click(function() {
-        // Clear file input (otherwise can't reload same file)
-        $("#fileInput").replaceWith($("#fileInput").clone(true));
 
-        // Trigger click on file input
-        if (!$(this).parent().hasClass("ui-state-disabled"))
-            $("#fileInput").trigger("click");
+    $("#fileMenu").on("menuselect", function(event, ui) {
+        switch(ui.item.attr("id")) {
+            case "fileEnter":
+                $("#directEntry").dialog("open");
+                var textBox = $("#directEntry").find("textArea");
+                textBox.focus();
+                textBox.select();
+                break;
+
+            case "fileLoad":
+                // Clear file input (otherwise can't reload same file)
+                $("#fileInput").replaceWith($("#fileInput").clone(true));
+
+                // Trigger click on file input
+                if (!$(this).parent().hasClass("ui-state-disabled"))
+                    $("#fileInput").trigger("click");
+                break;
+
+            case "fileReload":
+                reloadTreeData();
+                break;
+
+            case "fileExportSVG":
+                exportSVG();
+                break;
+
+            case "fileExportMultiSVG":
+                $("#multiSVGspinner").spinner().spinner("value",2);
+                $("#multiSVGDialog").dialog("open");
+                break;
+
+            case "fileExportNewick":
+                exportNewick();
+                break;
+
+            case "fileExportNEXUS":
+                exportNEXUS();
+                break;
+
+            case "filePolling":
+                togglePolling();
+                break;
+
+            default:
+                break;
+        };
+
+        console.log(ui.item.attr("id"));
     });
+                  
     $("#fileInput").change(function() {
         treeFile = $("#fileInput").prop("files")[0];
         loadFile();
     });
-    $("#fileReload").click(reloadTreeData);
-    $("#fileExportSVG").click(exportSVG);
 
     $("#multiSVGDialog").dialog({
         autoOpen: false,
@@ -137,55 +172,42 @@ $(document).ready(function() {
                 $(this).dialog("close");
             }}
     });
-    $("#fileExportSVGMulti").click(function() {
-        $("#multiSVGspinner").spinner().spinner("value",2);
-        $("#multiSVGDialog").dialog("open");
-    });
 
-    $("#fileExportNewick").click(exportNewick);
-    $("#fileExportNEXUS").click(exportNEXUS);
+    $("#styleMenu").on("menuselect", function(event, ui) {
+        switch(ui.item.attr("id")) {
+            case "styleMarkSingletons":
+            case "styleDisplayAxis":
+            case "styleLogScale":
+            case "styleAntiAlias":
+                toggleItem(ui.item);
+                console.log(ui.item);
+                break;
 
-    $("#filePolling").click(function() {
-        toggleItem($(this));
-        togglePolling();
-    });
+            default:
+                switch(ui.item.parent().attr("id")) {
+                    case "styleSort":
+                    case "styleColourTrait":
+                    case "styleTipTextTrait":
+                    case "styleNodeTextTrait":
+                        selectListItem(ui.item);
+                        break;
 
-    $("#styleSort").on("click", "a", function() {
-        selectListItem($(this));
-    });
-    $("#styleColourTrait").on("click", "a", function() {
-        selectListItem($(this));
-    });
-    $("#styleTipTextTrait").on("click", "a", function() {
-        selectListItem($(this));
-    });
-    $("#styleNodeTextTrait").on("click", "a", function() {
-        selectListItem($(this));
-    });
-    $("#styleFontSize").on("click", "a", function() {
-        if ($(this).text() === "Increase")
-            fontSizeChange(2);
-        else
-            fontSizeChange(-2);
-    });
-    $("#styleEdgeThickness").on("click", "a", function() {
-        if ($(this).text() === "Increase")
-            edgeThicknessChange(1);
-        else
-            edgeThicknessChange(-1);
-    });
+                    case "styleFontSize":
+                        if (ui.item.text() === "Increase")
+                            fontSizeChange(2);
+                        else
+                            fontSizeChange(-2);
+                        break;
 
-    $("#styleMarkSingletons").click(function() {
-        toggleItem($(this));
-    });
-    $("#styleDisplayAxis").click(function() {
-        toggleItem($(this));
-    });
-    $("#styleLogScale").click(function() {
-        toggleItem($(this));
-    });
-    $("#styleAntiAlias").click(function() {
-        toggleItem($(this));
+                    case "styleEdgeThickness":
+                        if ($(this).text() === "Increase")
+                            edgeThicknessChange(1);
+                        else
+                            edgeThicknessChange(-1);
+                        break;
+                }
+                break;
+        }
     });
 
 
@@ -327,7 +349,7 @@ $(document).ready(function() {
     }
 });
 
-// Tests for the presence of requried browser functionaility
+// Tests for the presence of required browser functionality
 function browserValid() {
     if (typeof FileReader === "undefined") {
         // Can't load files
@@ -340,17 +362,21 @@ function browserValid() {
 
 function updateMenuItems() {
     if (treeFile === undefined) {
-        $("#fileReload").parent().addClass("ui-state-disabled");
-        $("#filePolling").parent().addClass("ui-state-disabled");
+        $("#fileReload").addClass("ui-state-disabled");
+        $("#filePolling").addClass("ui-state-disabled");
     } else {
-        $("#fileReload").parent().removeClass("ui-state-disabled");
-        $("#filePolling").parent().removeClass("ui-state-disabled");
+        $("#fileReload").removeClass("ui-state-disabled");
+        $("#filePolling").removeClass("ui-state-disabled");
     }
 
     if (trees.length>0) {
-        $("#fileExport").parent().removeClass("ui-state-disabled");
+        $("#fileExport").removeClass("ui-state-disabled");
+        $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
+        $("#searchMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
     } else {
-        $("#fileExport").parent().addClass("ui-state-disabled");
+        $("#fileExport").addClass("ui-state-disabled");
+        $("#styleMenu").closest("li").find("button").first().addClass("ui-state-disabled");
+        $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
     }
 }
 
@@ -482,8 +508,7 @@ function prepareOutputForTree() {
 // Update checked item in list:
 function selectListItem(el) {
 
-    // el is an <a> within the <li>
-    var li = el.parent();
+    var li = el;
     var ul = li.parent();
 
     if (el.find("span").length>0)

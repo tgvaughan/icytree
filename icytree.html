@@ -14,9 +14,13 @@
     
     <script src="FileSaver.js"></script>
 
-    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.3/themes/start/jquery-ui.css"/>
-    <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+    <!--link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.10.3/themes/start/jquery-ui.css"/>
+    <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script-->
+
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.1/themes/start/jquery-ui.css"/>
+    <script src="http://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
 
     <script src="icytree.js"></script>
     <link rel="stylesheet" type="text/css" href="icytree.css">
@@ -44,67 +48,68 @@
     <!-- Drop down menu -->
     <ul id="menu">
       <li><button>File</button>
-	<div class="menuDiv">
-	  <ul id="fileMenu">
-	    <li><a href="#" id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</a></li>
-	    <li><a href="#" id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</a></li>
-	    <li class="ui-state-disabled"><a href="#" id="fileReload"><span class="ui-icon ui-icon-refresh"></span>Reload file</a></li>
-	    <li class="ui-state-disabled"><a href="#"><span class="ui-icon ui-icon-disk"></span>Export tree as...</a>
-	      <ul id="fileExport">
-		<li><a href="#" id="fileExportSVG">SVG image</a></li>
-		<li><a href="#" id="fileExportSVGMulti">Split SVG...</a></li>
-		<li><a href="#" id="fileExportNewick">Newick file</a></li>
-		<li><a href="#" id="fileExportNEXUS">NEXUS file</a></li>
-	      </ul>
-	    </li>
-        <li class="ui-state-disabled"><a href="#" id="filePolling"></span>Periodic polling</a></li>
-	  </ul>
-	</div>
-      </li>
+        <div class="menuDiv">
+            <ul id="fileMenu">
+                <li id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</li>
+                <li id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</li>
+                <li id="fileReload" class="ui-state-disabled"><span class="ui-icon ui-icon-refresh"></span>Reload file</li>
+                <li id="filePolling" class="ui-state-disabled"></span>Periodic polling</li>
+                <li>---</li>
+                <li id="fileExport" class="ui-state-disabled"><span class="ui-icon ui-icon-disk"></span>Export tree as...
+                    <ul>
+                        <li id="fileExportSVG">SVG image</li>
+                        <li id="fileExportMultiSVG">Split SVG...</li>
+                        <li id="fileExportNewick">Newick file</li>
+                        <li id="fileExportNEXUS">NEXUS file</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </li>
       
-      <li><button>Style</button>
+    <li><button>Style</button>
 	<div class="menuDiv">
 	  <ul id="styleMenu">
-	    <li><a href="#">Sort nodes</a>
-	      <ul id="styleSort">
-		<li><a href="#"><span class="ui-icon ui-icon-check"></span>Descending</a></li>
-		<li><a href="#">Ascending</a></li>
-		<li><a href="#">Don't sort</a></li>
-	      </ul>
+	    <li>Sort nodes
+            <ul id="styleSort">
+                <li><span class="ui-icon ui-icon-check"></span>Descending</li>
+                <li>Ascending</li>
+                <li>Don't sort</li>
+            </ul>
 	    </li>
-	    <li><a href="#">Colour edges by</a>
+	    <li>Colour edges by
 	      <ul id="styleColourTrait">
-		<li><a href="#">None<span class="ui-icon ui-icon-check"></a></li>
+		<li>None<span class="ui-icon ui-icon-check"></li>
 	      </ul>
 	    </li>
-	    <li><a href="#">Tip text</a>
+	    <li>Tip text
 	      <ul id="styleTipTextTrait">
-		<li><a href="#">None</a></li>
-		<li><a href="#">Node label<span class="ui-icon ui-icon-check"></a></li>
+		<li>None</li>
+		<li>Node label<span class="ui-icon ui-icon-check"></li>
 	      </ul>
 	    </li>
-	    <li><a href="#">Internal node text</a>
+	    <li>Internal node text
 	      <ul id="styleNodeTextTrait">
-		<li><a href="#">None<span class="ui-icon ui-icon-check"></a></li>
-		<li><a href="#">Node label</a></li>
+		<li>None<span class="ui-icon ui-icon-check"></li>
+		<li>Node label</li>
 	      </ul>
 	    </li>
-	    <li><a href="#">Edge thickness</a>
+	    <li>Edge thickness
 	      <ul id="styleEdgeThickness" class="subsub">
-		<li><a href="#"><span class="ui-icon ui-icon-plus"></span>Increase</a></li>
-		<li><a href="#"><span class="ui-icon ui-icon-minus"></span>Decrease</a></li>
+		<li><span class="ui-icon ui-icon-plus"></span>Increase</li>
+		<li><span class="ui-icon ui-icon-minus"></span>Decrease</li>
 	      </ul>
 	    </li>
-	    <li><a href="#">Font size</a>
+	    <li>Font size
 	      <ul id="styleFontSize" class="subsub">
-		<li><a href="#"><span class="ui-icon ui-icon-plus"></span>Increase</a></li>
-		<li><a href="#"><span class="ui-icon ui-icon-minus"></span>Decrease</a></li>
+		<li><span class="ui-icon ui-icon-plus"></span>Increase</li>
+		<li><span class="ui-icon ui-icon-minus"></span>Decrease</li>
 	      </ul>
 	    </li>
-	    <li><a id="styleMarkSingletons">Mark singletons</a></li>
-	    <li><a id="styleDisplayAxis">Display axis</a></li>
-            <li><a id="styleLogScale">Log scale</a></li>
-	    <li><a id="styleAntiAlias">Anti-alias</a></li>
+	    <li id="styleMarkSingletons">Mark singletons</li>
+	    <li id="styleDisplayAxis" >Display axis</li>
+        <li id="styleLogScale">Log scale</li>
+	    <li id="styleAntiAlias">Anti-alias</li>
 	  </ul>
 	</div>
       </li>
@@ -112,8 +117,8 @@
       <li><button>Search</button>
 	<div class="menuDiv">
 	  <ul id="searchMenu">
-	    <li><a href="#" id="searchNodes">Find nodes</a></li>
-	    <li><a href="#" id="searchClear">Clear search results</a></li>
+	    <li>Find nodes</li>
+	    <li>Clear search results</li>
 	  </ul>
 	</div>
       </li>
@@ -121,9 +126,9 @@
       <li><button>Help</button>
 	<div class="menuDiv">
 	  <ul id="helpMenu">
-	    <li><a href="#" id="helpNav"><span class="ui-icon ui-icon-help"></span>Tree navigation...</a></li>
-	    <li><a href="#" id="helpShortcuts"><span class="ui-icon ui-icon-help"></span>Keyboard shortcuts...</a></li>
-	    <li><a href="#" id="helpAbout">About IcyTree...</a></li>
+	    <li><span class="ui-icon ui-icon-help"></span>Tree navigation...</li>
+	    <li><span class="ui-icon ui-icon-help"></span>Keyboard shortcuts...</li>
+	    <li>About IcyTree...</li>
 	  </ul>
 	</div>
       </li>

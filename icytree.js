@@ -210,6 +210,41 @@ $(document).ready(function() {
         }
     });
 
+    $("#searchMenu").on("menuselect", function(event, ui) {
+        switch(ui.item.attr("id")) {
+            case "searchNodes":
+                if (trees.length>currentTreeIdx && currentTreeIdx>=0)
+                    $("#nodeSearchDialog").dialog("open");
+                break;
+
+            case "searchClear":
+                var tree = trees[currentTreeIdx];
+                var akey = $("#searchAnnotationKey").val();
+                $.each(tree.getNodeList(), function(nidx, node) {
+                    delete node.annotation[akey];
+                });
+
+                var noneElement = $($("#styleColourTrait a")[0]);
+                selectListItem(noneElement);
+
+                update();
+                break;
+        }
+    });
+
+    $("#helpMenu").on("menuselect", function(event, ui) {
+        switch(ui.item.attr("id")) {
+            case "helpTreeNav":
+                $("#navHelp").dialog("open");
+                break;
+            case "helpShortcuts":
+                $("#shortcutHelp").dialog("open");
+                break;
+            case "helpAbout":
+                $("#about").dialog("open");
+                break;
+        }
+    });
 
     $("#nodeSearchDialog").dialog({
         autoOpen: false,
@@ -272,25 +307,7 @@ $(document).ready(function() {
                 $(this).dialog("close");
             }}
     });
-    $("#searchNodes").click(function() {
-        if (trees.length>currentTreeIdx && currentTreeIdx>=0)
-            $("#nodeSearchDialog").dialog("open");
-    });
 
-    $("#searchClear").click(function() {
-        if (trees.length>currentTreeIdx && currentTreeIdx>=0) {
-            var tree = trees[currentTreeIdx];
-            var akey = $("#searchAnnotationKey").val();
-            $.each(tree.getNodeList(), function(nidx, node) {
-                delete node.annotation[akey];
-            });
-
-            var noneElement = $($("#styleColourTrait a")[0]);
-            selectListItem(noneElement);
-
-            update();
-        }
-    });
 
     $("#shortcutHelp").dialog({
         autoOpen: false,
@@ -300,9 +317,6 @@ $(document).ready(function() {
             Ok: function() {
                 $(this).dialog("close");
             }}
-    });
-    $("#helpShortcuts").click(function() {
-        $("#shortcutHelp").dialog("open");
     });
 
     $("#navHelp").dialog({
@@ -314,9 +328,6 @@ $(document).ready(function() {
                 $(this).dialog("close");
             }}
     });
-    $("#helpNav").click(function() {
-        $("#navHelp").dialog("open");
-    });
 
     $("#about").dialog({
         autoOpen: false,
@@ -326,9 +337,6 @@ $(document).ready(function() {
             Ok: function() {
                 $(this).dialog("close");
             }}
-    });
-    $("#helpAbout").click(function() {
-        $("#about").dialog("open");
     });
 
     $("#warning").dialog({

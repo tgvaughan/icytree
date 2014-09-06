@@ -505,11 +505,11 @@ function prepareOutputForTree() {
     output.css("padding", "0px");
 }
 
-// Update checked item in list:
+// Update checked item in list.
+// el is li
 function selectListItem(el) {
 
-    var li = el;
-    var ul = li.parent();
+    var ul = el.parent();
 
     if (el.find("span").length>0)
         return;
@@ -530,9 +530,9 @@ function cycleListItem(el) {
     // el is <ul>
     var currentItem = el.find("span").closest("li");
     if (currentItem.is(el.find("li").last()))
-        selectListItem(el.find("li").first().children());
+        selectListItem(el.find("li").first());
     else
-        selectListItem(currentItem.next().children());
+        selectListItem(currentItem.next());
 }
 
 function toggleItem (el) {
@@ -566,11 +566,9 @@ function updateTraitSelectors(tree) {
 
         // Construct selector trait lists:
         for (var i=0; i<traitList.length; i++) {
-            var selector = $("<li />");
-            var a = $("<a/>").attr("href","#").text(traitList[i]);
-            selector.append(a);
+            var selector = $("<li />").text(traitList[i]);
             if (traitList[i] === selectedTrait)
-                $("<span/>").addClass("ui-icon ui-icon-check").prependTo(a);
+                $("<span/>").addClass("ui-icon ui-icon-check").prependTo(selector);
             el.append(selector);
         }
         

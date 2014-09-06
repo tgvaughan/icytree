@@ -35,6 +35,7 @@ var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
 var logScaleRelOffset = 0.001;
 var pollingIntervalID = undefined;
+var pollingInterval = 5;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -97,37 +98,45 @@ $(document).ready(function() {
                 $("#fileInput").replaceWith($("#fileInput").clone(true));
 
                 // Trigger click on file input
-                if (!$(this).parent().hasClass("ui-state-disabled"))
-        $("#fileInput").trigger("click");
-    break;
+                if (!$(this).parent().hasClass("ui-state-disabled")) {
+                    $("#fileInput").trigger("click");
+                }
+                break;
 
             case "fileReload":
-    reloadTreeData();
-    break;
+                reloadTreeData();
+                break;
 
             case "fileExportSVG":
-    exportSVG();
-    break;
+                exportSVG();
+                break;
 
             case "fileExportMultiSVG":
-    $("#multiSVGspinner").spinner().spinner("value",2);
-    $("#multiSVGDialog").dialog("open");
-    break;
+                $("#multiSVGspinner").spinner().spinner("value",2);
+                $("#multiSVGDialog").dialog("open");
+                break;
 
             case "fileExportNewick":
-    exportNewick();
-    break;
+                exportNewick();
+                break;
 
             case "fileExportNEXUS":
-    exportNEXUS();
-    break;
+                exportNEXUS();
+                break;
 
             case "filePolling":
-    togglePolling();
-    break;
+                togglePolling();
+                break;
 
             default:
-    break;
+                switch(ui.item.parent().attr("id")) {
+                    case "filePollingInterval":
+                        selectListItem(ui.item);
+                        pollingInterval = ui.item.data()["value"];
+                        updatePollingInterval();
+                        break;
+                }
+                break;
         };
     });
 
@@ -366,6 +375,7 @@ function browserValid() {
     return true;
 }
 
+// Ensure menu items are appropriately blurred/unblurred.
 function updateMenuItems() {
     if (treeFile === undefined) {
         $("#fileReload").addClass("ui-state-disabled");
@@ -385,12 +395,16 @@ function updateMenuItems() {
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
     }
 
+    $("#fileLoad").removeClass("ui-state-disabled");
+    $("#fileEnter").removeClass("ui-state-disabled");
+
     if (itemToggledOn($("#filePolling"))) {
+        $("#fileLoad").addClass("ui-state-disabled");
+        $("#fileEnter").addClass("ui-state-disabled");
         $("#fileReload").addClass("ui-state-disabled");
         $("#fileExport").addClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
     }
-
 }
 
 // Load tree data from file object treeFile
@@ -411,7 +425,7 @@ function togglePolling() {
     toggleItem($("#filePolling"));
 
     if (itemToggledOn($("#filePolling")))
-        pollingIntervalID = setInterval(pollingReloadData, 5000);
+        pollingIntervalID = setInterval(pollingReloadData, pollingInterval*1000);
     else
         clearInterval(pollingIntervalID);
 
@@ -432,6 +446,13 @@ function pollingReloadData() {
             update();
         }
 
+    }
+}
+
+function updatePollingInterval() {
+    if (itemToggledOn($("#filePolling"))) {
+        clearInterval(pollingIntervalID);
+        pollingIntervalID = setInterval(pollingReloadData, pollingInterval*1000);
     }
 }
 

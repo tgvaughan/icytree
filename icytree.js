@@ -62,8 +62,6 @@ $(document).ready(function() {
     // Create new zoomControl object (don't initialise):
     zoomControl = Object.create(ZoomControl, {});
 
-    // Set up dialogs:
-
 
     // Set up menus:
     $("#menu > li > button").button();
@@ -82,26 +80,8 @@ $(document).ready(function() {
         $(this).find(".menuDiv > ul").hide();
     });
 
-    // Menu item events:
 
-    $("#directEntry").dialog({
-        autoOpen: false,
-        modal: true,
-        width: 500,
-        height: 400,
-        buttons: {
-            Done: function() {
-                treeData = $(this).find("textArea").val();
-                reloadTreeData();
-                $(this).dialog("close");
-            },
-            Clear: function() {
-                $(this).find("textArea").val("");
-            },
-            Cancel: function() {
-                $(this).dialog("close");
-            }}
-    });
+    // Menu item events:
 
     $("#fileMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
@@ -149,30 +129,8 @@ $(document).ready(function() {
             default:
                 break;
         };
-
-        console.log(ui.item.attr("id"));
     });
                   
-    $("#fileInput").change(function() {
-        treeFile = $("#fileInput").prop("files")[0];
-        loadFile();
-    });
-
-    $("#multiSVGDialog").dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400,
-        height: 300,
-        buttons: {
-            Export: function() {
-                exportSVGMulti($("#multiSVGspinner").spinner().spinner("value"));
-                $(this).dialog("close");
-            },
-            Cancel: function() {
-                $(this).dialog("close");
-            }}
-    });
-
     $("#styleMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
             case "styleMarkSingletons":
@@ -200,7 +158,7 @@ $(document).ready(function() {
                         break;
 
                     case "styleEdgeThickness":
-                        if ($(this).text() === "Increase")
+                        if (ui.item.text() === "Increase")
                             edgeThicknessChange(1);
                         else
                             edgeThicknessChange(-1);
@@ -213,8 +171,7 @@ $(document).ready(function() {
     $("#searchMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
             case "searchNodes":
-                if (trees.length>currentTreeIdx && currentTreeIdx>=0)
-                    $("#nodeSearchDialog").dialog("open");
+                $("#nodeSearchDialog").dialog("open");
                 break;
 
             case "searchClear":
@@ -244,6 +201,48 @@ $(document).ready(function() {
                 $("#about").dialog("open");
                 break;
         }
+    });
+
+
+    // Set up dialogs:
+
+    $("#directEntry").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 500,
+        height: 400,
+        buttons: {
+            Done: function() {
+                treeData = $(this).find("textArea").val();
+                reloadTreeData();
+                $(this).dialog("close");
+            },
+            Clear: function() {
+                $(this).find("textArea").val("");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }}
+    });
+
+    $("#fileInput").change(function() {
+        treeFile = $("#fileInput").prop("files")[0];
+        loadFile();
+    });
+
+    $("#multiSVGDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 400,
+        height: 300,
+        buttons: {
+            Export: function() {
+                exportSVGMulti($("#multiSVGspinner").spinner().spinner("value"));
+                $(this).dialog("close");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }}
     });
 
     $("#nodeSearchDialog").dialog({
@@ -293,13 +292,12 @@ $(document).ready(function() {
 
                 // Colour tree using highlighting trait
                 var hlElement = undefined;
-                $("#styleColourTrait a").each(function(eidx) {
-                    if ($(this).text() === akey)
+                $("#styleColourTrait").children().each(function(eidx) {
+                    if ($(this).text() === akey) {
                         hlElement = $(this);
+                    }
                 });
                 selectListItem(hlElement);
-
-                update();
 
                 $(this).dialog("close");
             },
@@ -386,6 +384,13 @@ function updateMenuItems() {
         $("#styleMenu").closest("li").find("button").first().addClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
     }
+
+    if (itemToggledOn($("#filePolling"))) {
+        $("#fileReload").addClass("ui-state-disabled");
+        $("#fileExport").addClass("ui-state-disabled");
+        $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
+    }
+
 }
 
 // Load tree data from file object treeFile
@@ -403,33 +408,30 @@ function loadFile() {
 
 // Turn on/off automatic reloading of file
 function togglePolling() {
-    if ($("#filePolling > span").length>0) {
-        // Start polling
+    toggleItem($("#filePolling"));
 
-        // Disable load and reload while polling is active
-        //$("#load").button({disabled: true});
-        //$("#reload").button({disabled: true});
-
-        pollingIntervalID = setInterval(pollingReloadData,
-                                        5000);
-
-    } else {
-        // Stop polling
-
+    if (itemToggledOn($("#filePolling")))
+        pollingIntervalID = setInterval(pollingReloadData, 5000);
+    else
         clearInterval(pollingIntervalID);
-
-        // Re-enable load and reload when polling is finished
-        //$("#load").button({disabled: false});
-        //$("#reload").button({disabled: false});
-    }
+    
+    updateMenuItems();
 }
 
 function pollingReloadData() {
-    loadFile();
+    var reader = new FileReader();
+    reader.onload = fileLoaded;
+    reader.readAsText(treeFile);
 
-    if (trees.length>0) {
-        currentTreeIdx = trees.length-1;
-        update();
+    function fileLoaded(evt) {
+        treeData = evt.target.result;
+        reloadTreeData();
+
+        if (trees.length>0) {
+            currentTreeIdx = trees.length-1;
+            update();
+        }
+
     }
 }
 
@@ -517,10 +519,10 @@ function prepareOutputForTree() {
 // el is li
 function selectListItem(el) {
 
-    var ul = el.parent();
-
-    if (el.find("span").length>0)
+    if (itemToggledOn(el))
         return;
+
+    var ul = el.parent();
 
     // Uncheck old selected element:
     ul.find("span").remove();
@@ -551,6 +553,10 @@ function toggleItem (el) {
     }
     
     update();
+}
+
+function itemToggledOn(el) {
+    return el.find("span").length>0;
 }
 
 // Update form elements containing trait selectors

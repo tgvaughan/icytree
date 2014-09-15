@@ -58,14 +58,18 @@ $(document).ready(function() {
     });
 
     // Set up keyboard handler:
-    $(document).on("keypress", keyPressHandler);
+    $(window).on("keypress", keyPressHandler);
 
     // Create new zoomControl object (don't initialise):
     zoomControl = Object.create(ZoomControl, {});
 
 
     // Set up menus:
-    $("#menu > li > button").button();
+    $("#menu > li > button").button().click(function() {
+        // Hack to avoid loosing ability to handle keypress events when one of
+        // these buttons is clicked.
+        $(this).blur();
+    });
 
     $("#fileMenu").menu().hide();
     $("#styleMenu").menu().hide();

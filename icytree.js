@@ -930,9 +930,9 @@ function update() {
     // Add log scale stretching event handler:
     function logScaleStretchHandler(event) {
         if (!event.altKey || event.shiftKey)
-            return
+            return;
 
-                event.preventDefault();
+        event.preventDefault();
 
         var dir = (event.wheelDelta || -event.detail);
         if (dir>0)
@@ -953,6 +953,9 @@ function update() {
 function keyPressHandler(event) {
 
     if (event.target !== document.body)
+        return;
+
+    if (event.altKey || event.shiftKey || event.ctrlKey)
         return;
 
     var eventChar = String.fromCharCode(event.charCode);

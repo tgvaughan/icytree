@@ -955,7 +955,7 @@ function keyPressHandler(event) {
     if (event.target !== document.body)
         return;
 
-    if (event.altKey || event.shiftKey || event.ctrlKey)
+    if (event.altKey || event.ctrlKey)
         return;
 
     var eventChar = String.fromCharCode(event.charCode);

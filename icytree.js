@@ -564,7 +564,7 @@ function cycleListItem(el) {
 
     // el is <ul>
     var currentItem = el.find("span").closest("li");
-    if (currentItem.is(el.find("li").last()))
+    if (currentItem.is(el.find("li").last()) || currentItem.length == 0)
         selectListItem(el.find("li").first());
     else
         selectListItem(currentItem.next());

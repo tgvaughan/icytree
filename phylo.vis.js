@@ -140,7 +140,7 @@ var Layout = Object.create({}, {
         var ymargin = 0.05*this.height;
 
         var treePosY = 1 - (svgPos[0] - xmargin)/(this.width - 2*xmargin);
-        var treePosX = 1 - (svgPos[1] - ymargin)/(this.width - 2*ymargin);
+        var treePosX = 1 - (svgPos[1] - ymargin)/(this.height - 2*ymargin);
 
         return [treePosX, treePosY];
     }},

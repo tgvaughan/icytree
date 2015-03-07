@@ -34,8 +34,6 @@ var lineWidth = 2;
 var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
 var logScaleRelOffset = 0.001;
-var pollingIntervalID = undefined;
-var pollingInterval = 5;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -128,19 +126,6 @@ $(document).ready(function() {
                 exportNEXUS();
                 break;
 
-            case "filePolling":
-                togglePolling();
-                break;
-
-            default:
-                switch(ui.item.parent().attr("id")) {
-                    case "filePollingInterval":
-                        selectListItem(ui.item);
-                        pollingInterval = ui.item.data()["value"];
-                        updatePollingInterval();
-                        break;
-                }
-                break;
         };
     });
 
@@ -383,10 +368,8 @@ function browserValid() {
 function updateMenuItems() {
     if (treeFile === undefined) {
         $("#fileReload").addClass("ui-state-disabled");
-        $("#filePolling").addClass("ui-state-disabled");
     } else {
         $("#fileReload").removeClass("ui-state-disabled");
-        $("#filePolling").removeClass("ui-state-disabled");
     }
 
     if (trees.length>0) {
@@ -401,14 +384,6 @@ function updateMenuItems() {
 
     $("#fileLoad").removeClass("ui-state-disabled");
     $("#fileEnter").removeClass("ui-state-disabled");
-
-    if (itemToggledOn($("#filePolling"))) {
-        $("#fileLoad").addClass("ui-state-disabled");
-        $("#fileEnter").addClass("ui-state-disabled");
-        $("#fileReload").addClass("ui-state-disabled");
-        $("#fileExport").addClass("ui-state-disabled");
-        $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
-    }
 }
 
 // Load tree data from file object treeFile
@@ -422,42 +397,6 @@ function loadFile() {
         reloadTreeData();
     }
 
-}
-
-// Turn on/off automatic reloading of file
-function togglePolling() {
-    toggleItem($("#filePolling"));
-
-    if (itemToggledOn($("#filePolling")))
-        pollingIntervalID = setInterval(pollingReloadData, pollingInterval*1000);
-    else
-        clearInterval(pollingIntervalID);
-
-    updateMenuItems();
-}
-
-function pollingReloadData() {
-    var reader = new FileReader();
-    reader.onload = fileLoaded;
-    reader.readAsText(treeFile);
-
-    function fileLoaded(evt) {
-        treeData = evt.target.result;
-        reloadTreeData();
-
-        if (trees.length>0) {
-            currentTreeIdx = trees.length-1;
-            update();
-        }
-
-    }
-}
-
-function updatePollingInterval() {
-    if (itemToggledOn($("#filePolling"))) {
-        clearInterval(pollingIntervalID);
-        pollingIntervalID = setInterval(pollingReloadData, pollingInterval*1000);
-    }
 }
 
 // Display space-filling frame with big text

@@ -441,7 +441,7 @@ var Layout = Object.create({}, {
         }
 
         function newNodeMark(node) {
-            var pos = this.posXform(savedThis.nodePositions[node]);
+            var pos = savedThis.posXform(savedThis.nodePositions[node]);
 
             var dash = document.createElementNS(NS, "line");
             dash.setAttribute("x1", pos[0]-2*savedThis.lineWidth);

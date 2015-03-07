@@ -180,11 +180,11 @@ var Layout = Object.create({}, {
 
             var axisStart, axisEnd, delta;
             if (!this.logScale) {
-                axisStart = Math.max(0.0, bottomRight[1]);
-                axisEnd = Math.min(1.0, topLeft[1]);
-                var minDelta = treeHeight*(axisEnd-axisStart)/(this.maxAxisTicks-1);
+                axisStart = treeHeight*Math.max(0.0, bottomRight[1]);
+                axisEnd = treeHeight*Math.min(1.0, topLeft[1]);
+                var minDelta = (axisEnd-axisStart)/(this.maxAxisTicks-1);
                 delta = Math.pow(10,Math.ceil(Math.log(minDelta)/Math.log(10)));
-                axisStart = Math.ceil(axisStart/delta);
+                axisStart = delta*Math.ceil(axisStart/delta);
             } else {
                 axisStart = 0;
                 axisEnd = 1.0

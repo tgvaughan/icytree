@@ -186,8 +186,8 @@ var Layout = Object.create({}, {
                 delta = Math.pow(10,Math.ceil(Math.log(minDelta)/Math.log(10)));
                 axisStart = delta*Math.ceil(axisStart/delta);
             } else {
-                axisStart = 0;
-                axisEnd = 1.0
+                axisStart = Math.max(0.0, bottomRight[1]);
+                axisEnd = Math.min(1.0, topLeft[1]);
                 delta = 2*(axisEnd-axisStart)/(this.maxAxisTicks-1);
             }
 
@@ -228,7 +228,7 @@ var Layout = Object.create({}, {
                     var trueHeight = lso*Math.pow(treeHeight/lso + 1, h) - lso
                         label =  Number(trueHeight.toPrecision(5)).toExponential();
                 }
-                axisLine(h/treeHeight, label, bottomRight[0], topLeft[0]);
+                axisLine(h/(axisEnd-axisStart), label, bottomRight[0], topLeft[0]);
                 h += delta;
             }
         }

@@ -239,20 +239,70 @@ var Layout = Object.create({}, {
 
         if (this.legend && this.seenColourTraitValues != null) {
 
+            function transformToSVG(screenCoord) {
+                if (svg.viewBox.baseVal != null) {
+                    coord.x = svg.viewBox.baseVal.x +  coord.x*svg.viewBox.baseVal.width/savedThis.width
+                    coord.y = svg.viewBox.baseVal.y +  coord.y*svg.viewBox.baseVal.height/savedThis.height
+                }
+
+                return coord;
+            }
+
+            function getSVGWidth(screenWidth) {
+                if (svg.viewBox.baseVal != null)
+                    return screenWidth*svg.viewBox.baseVal.width/savedThis.width;
+                else
+                    return screenWidth;
+            }
+
+            function getSVGHeight(screenHeight) {
+                if (svg.viewBox.baseVal != null)
+                    return screenHeight*svg.viewBox.baseVal.height/savedThis.height;
+                else
+                    return screenHeight;
+            }
+
+
+            if (this.seenColourTraitValues.length>0) {
+                var coord = svg.createSVGPoint();
+                coord.x = 10;
+                coord.y = this.height - this.seenColourTraitValues.length*20 - 30 - 15;
+                transformToSVG(coord);
+
+                var title = document.createElementNS(NS, "text");
+                title.setAttribute("class", "axisComponent");
+                title.setAttribute("x",  coord.x);
+                title.setAttribute("y",  coord.y);
+                title.textContent = "Legend:";
+                svg.appendChild(title);
+            }
+
             for (var i=0; i<this.seenColourTraitValues.length; i++) {
-                pnt.x = 10;
-                pnt.y = 10 + i*10;
-                var svgCTM = svg.getScreenCTM();
-                var ipnt = pnt.matrixTransform(svgCTM.inverse());
 
-                var point = document.createElementNS(NS, "circle");
-                point.setAttribute("cx", pnt.x);
-                point.setAttribute("cy", pnt.y);
-                point.setAttribute("r", 2);
-                point.setAttribute("fill", this.colourPallet[i%this.colourPallet.length]);
-                point.setAttribute("class", "axisComponent");
+                var coord = svg.createSVGPoint();
+                coord.x = 20;
+                coord.y = this.height - this.seenColourTraitValues.length*20 - 30 + i*20;
+                transformToSVG(coord);
 
-                svg.appendChild(point);
+                var dot = document.createElementNS(NS, "rect");
+                dot.setAttribute("x", coord.x - getSVGWidth(5));
+                dot.setAttribute("y", coord.y - getSVGHeight(5));
+                dot.setAttribute("width", getSVGWidth(10));
+                dot.setAttribute("height", getSVGHeight(10));
+                dot.setAttribute("fill", this.colourPallet[i%this.colourPallet.length]);
+                dot.setAttribute("stroke", "black");
+                dot.setAttribute("stroke-width", "1px");
+                //dot.setAttribute("style", "shape-rendering:auto");
+                dot.setAttribute("vector-effect", "non-scaling-stroke");
+                dot.setAttribute("class", "axisComponent");
+                svg.appendChild(dot);
+
+                var label = document.createElementNS(NS, "text");
+                label.setAttribute("class", "axisComponent");
+                label.setAttribute("x", coord.x + getSVGWidth(15));
+                label.setAttribute("y", coord.y + getSVGHeight(5));
+                label.textContent = this.seenColourTraitValues[i];
+                svg.appendChild(label);
             }
 
         }
@@ -265,6 +315,7 @@ var Layout = Object.create({}, {
 
         // Save this for inline functions:
         var savedThis = this;
+
         // Create SVG element:
         var NS="http://www.w3.org/2000/svg";
         var svg = document.createElementNS(NS, "svg");
@@ -286,7 +337,7 @@ var Layout = Object.create({}, {
         svg.appendChild(rect);
 
         // Draw axis:
-        //this.updateAxis(svg);
+        //this.updateAxis(svg); // Drawn by zoom controller.
 
         // Draw tree:
 
@@ -298,7 +349,7 @@ var Layout = Object.create({}, {
 
             var traitValue = node.annotation[savedThis.colourTrait];
 
-            if (savedThis.seenColourTraitValues.indexOf(traitValue)<0) {
+            if (traitValue !== undefined && savedThis.seenColourTraitValues.indexOf(traitValue)<0) {
                 savedThis.seenColourTraitValues = savedThis.seenColourTraitValues.concat(traitValue);
             }
 

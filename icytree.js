@@ -133,6 +133,7 @@ $(document).ready(function() {
         switch(ui.item.attr("id")) {
             case "styleMarkSingletons":
             case "styleDisplayAxis":
+            case "styleDisplayLegend":
             case "styleLogScale":
             case "styleAntiAlias":
                 toggleItem(ui.item);
@@ -852,6 +853,7 @@ function update() {
     layout.nodeTextTrait = nodeTextTrait;
     layout.markSingletonNodes = ($("#styleMarkSingletons > span").length>0);
     layout.axis = ($("#styleDisplayAxis > span").length>0);
+    layout.legend = ($("#styleDisplayLegend > span").length>0);
     layout.lineWidth = lineWidth;
     layout.fontSize = fontSize;
 
@@ -959,6 +961,12 @@ function keyPressHandler(event) {
         case "a":
             // Toggle axis display
             toggleItem($("#styleDisplayAxis"));
+            event.preventDefault();
+            return;
+
+        case "g":
+            // Toggle legend display
+            toggleItem($("#styleDisplayLegend"));
             event.preventDefault();
             return;
 

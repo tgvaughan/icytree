@@ -33,12 +33,15 @@ var Layout = Object.create({}, {
 
     colourTrait: {value: undefined, writable: true},
     colourPallet: {value: ["blue", "red", "green", "purple", "orange", "#ff00ff"], writable: true},
+    seenColourTraits: {value: [], writable: true},
 
     tipTextTrait: {value: "label", writable: true},
     nodeTextTrait: {value: undefined, writable: true},
 
     axis: {value: false, writable: true},
     maxAxisTicks: {value: 20, writable: true},
+
+    legend: {value: false, writable: true},
 
     logScale: {value: false, writable: true},
     logScaleRelOffset: {value: 0.01, writable: true},
@@ -155,7 +158,7 @@ var Layout = Object.create({}, {
         while (svg.getElementsByClassName("axisComponent").length>0) {
             svg.removeChild(svg.getElementsByClassName("axisComponent")[0]);
         }
-        
+
         if (this.axis) {
 
             // Select tick number and spacing
@@ -233,6 +236,26 @@ var Layout = Object.create({}, {
                 h += delta;
             }
         }
+
+        if (this.legend && this.seenColourTraitValues != null) {
+
+            for (var i=0; i<this.seenColourTraitValues.length; i++) {
+                pnt.x = 10;
+                pnt.y = 10 + i*10;
+                var svgCTM = svg.getScreenCTM();
+                var ipnt = pnt.matrixTransform(svgCTM.inverse());
+
+                var point = document.createElementNS(NS, "circle");
+                point.setAttribute("cx", pnt.x);
+                point.setAttribute("cy", pnt.y);
+                point.setAttribute("r", 2);
+                point.setAttribute("fill", this.colourPallet[i%this.colourPallet.length]);
+                point.setAttribute("class", "axisComponent");
+
+                svg.appendChild(point);
+            }
+
+        }
     }},
 
     // Visualize tree on SVG object
@@ -263,11 +286,11 @@ var Layout = Object.create({}, {
         svg.appendChild(rect);
 
         // Draw axis:
-        this.updateAxis(svg);
+        //this.updateAxis(svg);
 
         // Draw tree:
 
-        var seenColourTraitValues = [];
+        this.seenColourTraitValues = [];
 
         function selectColourTrait(node) {
             if (savedThis.colourTrait === undefined)
@@ -275,8 +298,8 @@ var Layout = Object.create({}, {
 
             var traitValue = node.annotation[savedThis.colourTrait];
 
-            if (seenColourTraitValues.indexOf(traitValue)<0) {
-                seenColourTraitValues = seenColourTraitValues.concat(traitValue);
+            if (savedThis.seenColourTraitValues.indexOf(traitValue)<0) {
+                savedThis.seenColourTraitValues = savedThis.seenColourTraitValues.concat(traitValue);
             }
 
             return traitValue;
@@ -309,7 +332,7 @@ var Layout = Object.create({}, {
             pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
             pathStr += " H " + parentPos[0];
             pathStr += " V " + parentPos[1];
-            var path = document.createElementNS(NS, "path");
+            var path = document.createElementNS(NYS, "path");
             path.setAttribute("d", pathStr);
             path.setAttribute("fill", "none");
 
@@ -334,9 +357,9 @@ var Layout = Object.create({}, {
 
             // Skip leaf hybrid nodes.
             if (thisNode.isHybrid() && thisNode.isLeaf())
-                continue
+                continue;
 
-                    var thisPos = this.posXform(this.nodePositions[thisNode]);
+            var thisPos = this.posXform(this.nodePositions[thisNode]);
 
             var parentPos;
             if (!thisNode.isRoot())
@@ -364,19 +387,19 @@ var Layout = Object.create({}, {
 
         // Assign colours to trait classes:
         var traitsAreNumeric = true;
-        for (var traitVal in seenColourTraitValues) {
+        for (var traitVal in this.seenColourTraitValues) {
             if (isNaN(traitVal-0)) {
                 traitsAreNumeric = false;
                 break;
             }
         }
         if (traitsAreNumeric) {
-            seenColourTraitValues.sort(function(a, b) {return a-b});
+            this.seenColourTraitValues.sort(function(a, b) {return a-b});
         } else {
-            seenColourTraitValues.sort();
+            this.seenColourTraitValues.sort();
         }
-        for (var t=0; t<seenColourTraitValues.length; t++ ) {
-            var thisVal = seenColourTraitValues[t];
+        for (var t=0; t<this.seenColourTraitValues.length; t++ ) {
+            var thisVal = this.seenColourTraitValues[t];
             var lines = svg.getElementsByClassName("trait_" + window.btoa(thisVal));
             for (var l=0; l<lines.length; l++) {
                 lines[l].setAttribute("stroke", this.colourPallet[t%this.colourPallet.length]);

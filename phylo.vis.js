@@ -383,7 +383,7 @@ var Layout = Object.create({}, {
             pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
             pathStr += " H " + parentPos[0];
             pathStr += " V " + parentPos[1];
-            var path = document.createElementNS(NYS, "path");
+            var path = document.createElementNS(NS, "path");
             path.setAttribute("d", pathStr);
             path.setAttribute("fill", "none");
 

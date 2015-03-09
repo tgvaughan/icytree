@@ -326,6 +326,7 @@ var Layout = Object.create({}, {
         svg.setAttribute('preserveAspectRatio', 'none');
         svg.style.strokeWidth = this.lineWidth + "px";
         svg.style.fontSize = this.fontSize + "px";
+        svg.style.fontFamily = "sans-serif";
 
         // Add white background rectangle:
         var rect = document.createElementNS(NS, "rect");

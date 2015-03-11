@@ -58,6 +58,37 @@ var Layout = Object.create({}, {
         return this;
     }},
 
+    // Helper methods
+
+    transformToSVG: {value: function(svg, coord) {
+        if (svg.viewBox.baseVal != null
+                || (svg.viewBox.baseVal.width == 0
+                && svg.viewBox.baseVal.height == 0)) {
+            coord.x = svg.viewBox.baseVal.x +  coord.x*svg.viewBox.baseVal.width/this.width;
+            coord.y = svg.viewBox.baseVal.y +  coord.y*svg.viewBox.baseVal.height/this.height;
+        }
+
+        return coord;
+    }},
+
+    getSVGWidth: {value: function(svg, screenWidth) {
+        if (svg.viewBox.baseVal == null
+                || svg.viewBox.baseVal.width == 0
+                || svg.viewBox.baseVal.height == 0)
+            return screenWidth;
+        else
+            return screenWidth*svg.viewBox.baseVal.width/this.width;
+    }},
+
+    getSVGHeight: {value: function(svg, screenHeight) {
+        if (svg.viewBox.baseVal == null
+                || svg.viewBox.baseVal.width == 0
+                || svg.viewBox.baseVal.height == 0)
+            return screenHeight;
+        else
+            return screenHeight*svg.viewBox.baseVal.height/this.height;
+    }},
+
     // Produce a standard rectangular layout:
     standard: {value: function() {
 
@@ -239,35 +270,11 @@ var Layout = Object.create({}, {
 
         if (this.legend && this.seenColourTraitValues != null) {
 
-            function transformToSVG(screenCoord) {
-                if (svg.viewBox.baseVal != null) {
-                    coord.x = svg.viewBox.baseVal.x +  coord.x*svg.viewBox.baseVal.width/savedThis.width
-                    coord.y = svg.viewBox.baseVal.y +  coord.y*svg.viewBox.baseVal.height/savedThis.height
-                }
-
-                return coord;
-            }
-
-            function getSVGWidth(screenWidth) {
-                if (svg.viewBox.baseVal != null)
-                    return screenWidth*svg.viewBox.baseVal.width/savedThis.width;
-                else
-                    return screenWidth;
-            }
-
-            function getSVGHeight(screenHeight) {
-                if (svg.viewBox.baseVal != null)
-                    return screenHeight*svg.viewBox.baseVal.height/savedThis.height;
-                else
-                    return screenHeight;
-            }
-
-
             if (this.seenColourTraitValues.length>0) {
                 var coord = svg.createSVGPoint();
                 coord.x = 10;
                 coord.y = this.height - this.seenColourTraitValues.length*20 - 30 - 15;
-                transformToSVG(coord);
+                this.transformToSVG(svg, coord);
 
                 var title = document.createElementNS(NS, "text");
                 title.setAttribute("class", "axisComponent");
@@ -282,25 +289,22 @@ var Layout = Object.create({}, {
                 var coord = svg.createSVGPoint();
                 coord.x = 20;
                 coord.y = this.height - this.seenColourTraitValues.length*20 - 30 + i*20;
-                transformToSVG(coord);
+                this.transformToSVG(svg, coord);
 
                 var dot = document.createElementNS(NS, "rect");
-                dot.setAttribute("x", coord.x - getSVGWidth(5));
-                dot.setAttribute("y", coord.y - getSVGHeight(5));
-                dot.setAttribute("width", getSVGWidth(10));
-                dot.setAttribute("height", getSVGHeight(10));
+                dot.setAttribute("x", coord.x - this.getSVGWidth(svg, 5));
+                dot.setAttribute("y", coord.y - this.getSVGHeight(svg, 5));
+                dot.setAttribute("width", this.getSVGWidth(svg, 10));
+                dot.setAttribute("height", this.getSVGHeight(svg, 10));
                 dot.setAttribute("fill", this.colourPallet[i%this.colourPallet.length]);
-                dot.setAttribute("stroke", "black");
-                dot.setAttribute("stroke-width", "1px");
-                //dot.setAttribute("style", "shape-rendering:auto");
-                dot.setAttribute("vector-effect", "non-scaling-stroke");
                 dot.setAttribute("class", "axisComponent");
                 svg.appendChild(dot);
 
                 var label = document.createElementNS(NS, "text");
                 label.setAttribute("class", "axisComponent");
-                label.setAttribute("x", coord.x + getSVGWidth(15));
-                label.setAttribute("y", coord.y + getSVGHeight(5));
+                label.setAttribute("x", coord.x + this.getSVGWidth(svg, 15));
+                label.setAttribute("y", coord.y + this.getSVGHeight(svg, 5));
+                label.setAttribute("fill", this.colourPallet[i%this.colourPallet.length]);
                 label.textContent = this.seenColourTraitValues[i];
                 svg.appendChild(label);
             }
@@ -518,14 +522,15 @@ var Layout = Object.create({}, {
         function newNodeMark(node) {
             var pos = savedThis.posXform(savedThis.nodePositions[node]);
 
-            var dash = document.createElementNS(NS, "line");
-            dash.setAttribute("x1", pos[0]-2*savedThis.lineWidth);
-            dash.setAttribute("x2", pos[0]+2*savedThis.lineWidth);
-            dash.setAttribute("y1", pos[1]-2*savedThis.lineWidth);
-            dash.setAttribute("y2", pos[1]+2*savedThis.lineWidth);
-            dash.setAttribute("stroke", "black");
-            dash.setAttribute("vector-effect", "non-scaling-stroke");
-            svg.appendChild(dash);
+            var bullet = document.createElementNS(NS, "ellipse");
+            bullet.setAttribute("cx", pos[0]);
+            bullet.setAttribute("cy", pos[1]);
+            bullet.setAttribute("rx", 2*savedThis.lineWidth)
+            bullet.setAttribute("ry", 2*savedThis.lineWidth)
+            bullet.setAttribute("fill", "black");
+            bullet.setAttribute("shape-rendering", "auto");
+            bullet.setAttribute("class","internalNodeMark");
+            svg.appendChild(bullet);
         }
 
         // Mark internal nodes:
@@ -828,45 +833,47 @@ var ZoomControl = Object.create({}, {
             if (axisElements[i].tagName != "text")
                 continue;
 
-            var textEl = axisElements[i];
-            var textPosX = textEl.getAttribute("x")*1.0;
-            var textPosY = textEl.getAttribute("y")*1.0;
-            var tlate = this.svg.createSVGMatrix();
-            tlate.e = textPosX*(this.zoomFactorX - 1.0);
-            tlate.f = textPosY*(this.zoomFactorY - 1.0);
-
-            var scaleMat = this.svg.createSVGMatrix();
-            scaleMat.a = 1.0/this.zoomFactorX;
-            scaleMat.d = 1.0/this.zoomFactorY;
-            var scaleXform = this.svg.createSVGTransformFromMatrix(scaleMat);
-
-            textEl.transform.baseVal.clear();
-            textEl.transform.baseVal.appendItem(scaleXform);
-            textEl.transform.baseVal.appendItem(this.svg.createSVGTransformFromMatrix(tlate));
+            this.updateTextElementScaling(axisElements[i]);
         }
     }},
 
     updateNonAxisTextScaling: {value: function() {
         var textElements = this.svg.getElementsByTagName("text");
         for (var i=0; i<textElements.length; i++) {
-            var textEl = textElements[i];
-            if (textEl.className == "axisComponent")
+            if (textElements[i].className == "axisComponent")
                 continue;
 
-            var textPosX = textEl.getAttribute("x")*1.0;
-            var textPosY = textEl.getAttribute("y")*1.0;
-            var tlate = this.svg.createSVGMatrix();
-            tlate.e = textPosX*(this.zoomFactorX - 1.0);
-            tlate.f = textPosY*(this.zoomFactorY - 1.0);
+            this.updateTextElementScaling(textElements[i]);
+        }
+    }},
 
-            var scaleMat = this.svg.createSVGMatrix();
-            scaleMat.a = 1.0/this.zoomFactorX;
-            scaleMat.d = 1.0/this.zoomFactorY;
-            var scaleXform = this.svg.createSVGTransformFromMatrix(scaleMat);
+    updateTextElementScaling: {value: function(textEl) {
+        var textPosX = textEl.getAttribute("x")*1.0;
+        var textPosY = textEl.getAttribute("y")*1.0;
+        var tlate = this.svg.createSVGMatrix();
+        tlate.e = textPosX*(this.zoomFactorX - 1.0);
+        tlate.f = textPosY*(this.zoomFactorY - 1.0);
 
-            textEl.transform.baseVal.clear();
-            textEl.transform.baseVal.appendItem(scaleXform);
-            textEl.transform.baseVal.appendItem(this.svg.createSVGTransformFromMatrix(tlate));
+        var scaleMat = this.svg.createSVGMatrix();
+        scaleMat.a = 1.0/this.zoomFactorX;
+        scaleMat.d = 1.0/this.zoomFactorY;
+        var scaleXform = this.svg.createSVGTransformFromMatrix(scaleMat);
+
+        textEl.transform.baseVal.clear();
+        textEl.transform.baseVal.appendItem(scaleXform);
+        textEl.transform.baseVal.appendItem(this.svg.createSVGTransformFromMatrix(tlate));
+    }},
+
+    updateInternalNodeMarkScaling: {value: function() {
+        var nodeMarkElements = this.svg.getElementsByClassName("internalNodeMark");
+        for (var i=0; i<nodeMarkElements.length; i++) {
+            var dash = nodeMarkElements[i];
+
+            var w = this.layout.getSVGWidth(this.svg, 2*this.layout.lineWidth);
+            var h = this.layout.getSVGHeight(this.svg, 2*this.layout.lineWidth);
+
+            dash.setAttribute("rx", w);
+            dash.setAttribute("ry", h);
         }
     }},
 
@@ -930,6 +937,7 @@ var ZoomControl = Object.create({}, {
 
         this.updateView();
         this.updateNonAxisTextScaling();
+        this.updateInternalNodeMarkScaling();
     }},
 
     panEventHandler: {value: function(event) {

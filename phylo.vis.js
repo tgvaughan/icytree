@@ -778,8 +778,9 @@ var ZoomControl = Object.create({}, {
 
         this.updateView();
 
-        // Ensure text positions are correct
+        // Ensure text positions and node mark sizes are correct
         this.updateNonAxisTextScaling();
+        this.updateInternalNodeMarkScaling();
 
         // Add mouse event handlers
         svg.addEventListener("mousewheel",

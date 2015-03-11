@@ -72,6 +72,33 @@ var Node = Object.create({}, {
         return (this.hybridID !== undefined);
     }},
 
+    getAncestors: {value: function() {
+        if (this.isRoot())
+            return [this];
+        else
+            return [this].concat(this.parent.getAncestors());
+    }},
+
+    // Returns true if this node is left of the argument on the
+    // tree.  If one node is the direct ancestor of the other,
+    // the result is undefined.
+    isLeftOf: {value: function(other) {
+        var ancestors = this.getAncestors().reverse();
+        var otherAncestors = other.getAncestors().reverse();
+
+        var i;
+        for (i=1; i<Math.min(ancestors.length, otherAncestors.length); i++) {
+            if (ancestors[i] != otherAncestors[i]) {
+                var mrca = ancestors[i-1];
+
+                return mrca.children.indexOf(ancestors[i])
+                    < mrca.children.indexOf(otherAncestors[i]);
+            }
+        }
+
+        return undefined;
+    }},
+
     // Produce a deep copy of the clade below this node
     copy: {value: function() {
         
@@ -169,7 +196,7 @@ var Tree = Object.create({}, {
             for (var i=0; i<hybridNodeList.length; i++) {
                 var node = hybridNodeList[i];
                 if (node.hybridID in this.hybridEdgeList) {
-                    var edge = this.getHybridEdgeList()[node.hybridID];
+                    var edge = this.hybridEdgeList[node.hybridID];
                     if (node.isLeaf())
                         edge.push(node);
                     else
@@ -213,6 +240,33 @@ var Tree = Object.create({}, {
         }
         
         sortNodesRecurse(this.root);
+
+        // Keep hybrid leaves as close to their non-leaf pairs
+        // as possible:
+        /*
+        for (var hybridID in this.getHybridEdgeList()) {
+
+            var edge = this.getHybridEdgeList()[hybridID];
+
+            var parent = edge[1].parent;
+            if (edge[0].isLeftOf(edge[1])) {
+                var leftMostChild = parent.children[0];
+                if (leftMostChild != edge[1]) {
+                    var otherIdx = parent.children.indexOf(edge[1]);
+                    parent.children[otherIdx] = leftMostChild;
+                    parent.children[0] = edge[1];
+                }
+            } else {
+                var rightIdx = parent.children.length-1;
+                var rightMostChild = parent.children[rightIdx];
+                if (rightMostChild != edge[1]) {
+                    var otherIdx = parent.children.indexOf(edge[1]);
+                    parent.children[otherIdx] = rightMostChild;
+                    parent.children[rightIdx] = edge[1];
+                }
+            }
+        }
+        */
         
         // Clear out-of-date leaf list
         this.leafList = [];

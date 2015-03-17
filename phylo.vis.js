@@ -619,6 +619,13 @@ var EdgeStatsControl = Object.create({}, {
 
         // Add event handler
         svg.addEventListener("mousemove", this.mouseMoveEventHandler.bind(this));
+
+        // Avoid conflict with zooming controls:
+        this.phyloStat.addEventListener("mousewheel",
+                function(event) {event.preventDefault()});
+        this.phyloStat.addEventListener("DOMMouseScroll",
+                function(event) {event.preventDefault()});
+
     }},
 
     mouseMoveEventHandler: {value: function(event) {

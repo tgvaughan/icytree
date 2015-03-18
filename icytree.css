@@ -48,6 +48,7 @@ body {
 #output.start {
     margin: 20px;
     border: dashed gray 5px;
+    border-radius: 50px;
 
     left: 0px;
     top: 10px;
@@ -58,6 +59,7 @@ body {
 #output.loading {
     margin: 20px;
     border: dashed gray 5px;
+    border-radius: 50px;
 
     left: 0px;
     top: 10px;
@@ -71,6 +73,7 @@ body {
 #output.error {
     margin: 20px;
     border: dashed gray 5px;
+    border-radius: 50px;
 
     left: 0px;
     top: 10px;

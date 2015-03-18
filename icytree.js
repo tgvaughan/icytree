@@ -570,6 +570,7 @@ function fontSizeChange(inc) {
 
 // Increment currently-displayed tree.
 function currentTreeInc(dir, big) {
+    var inc;
     if (big)
         inc = dir*Math.round(trees.length/10);
     else

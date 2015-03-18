@@ -889,9 +889,9 @@ var ZoomControl = Object.create({}, {
         event.preventDefault();
 
         if (event.altKey)
-            return
+            return;
 
-                var dir = (event.wheelDelta || -event.detail);
+        var dir = (event.wheelDelta || -event.detail);
 
         var zoomFactorXP = this.zoomFactorX;
         var zoomFactorYP = this.zoomFactorY;

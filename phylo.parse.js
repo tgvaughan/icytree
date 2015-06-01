@@ -272,14 +272,19 @@ var Tree = Object.create({}, {
         this.leafList = [];
     }},
 
-    // Retrieve list of traits defined on tree
-    getTraitList: {value: function() {
+    // Retrieve list of traits defined on tree.  Optional filter function can
+    // be used to disregard traits defined on a particular subset of nodes.
+    getTraitList: {value: function(filter) {
         if (this.root === undefined)
             return [];
 
         var traitSet = {};
         for (var i=0; i<this.getNodeList().length; i++) {
-            for (var trait in this.getNodeList()[i].annotation)
+            var thisNode = this.getNodeList()[i];
+            if (filter !== undefined && !filter(thisNode))
+                continue;
+
+            for (var trait in thisNode.annotation)
                 traitSet[trait] = true;
         }
 

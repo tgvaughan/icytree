@@ -37,6 +37,7 @@ var Layout = Object.create({}, {
 
     tipTextTrait: {value: "label", writable: true},
     nodeTextTrait: {value: undefined, writable: true},
+    recombTextTrait: {value: undefined, writable: true},
 
     axis: {value: false, writable: true},
     maxAxisTicks: {value: 20, writable: true},
@@ -280,7 +281,9 @@ var Layout = Object.create({}, {
                 title.setAttribute("class", "axisComponent");
                 title.setAttribute("x",  coord.x);
                 title.setAttribute("y",  coord.y);
-                title.textContent = "Legend:";
+                //title.textContent = "Legend:";
+                var trait = this.colourTrait;
+                title.textContent = trait[0].toUpperCase() + trait.substr(1).toLowerCase();
                 svg.appendChild(title);
             }
 
@@ -477,17 +480,24 @@ var Layout = Object.create({}, {
             return(text);
         }
 
-        // Draw tip labels:
+        // Draw tip and recombinant edge labels:
 
         if (this.tipTextTrait !== undefined) {
             for (var i=0; i<this.tree.getLeafList().length; i++) {
                 var thisNode = this.tree.getLeafList()[i];
+
+                var trait;
+                if (thisNode.isHybrid())
+                    trait = this.recombTextTrait;
+                else
+                    trait = this.tipTextTrait;
+
                 var traitValue;
-                if (this.tipTextTrait === "label")
+                if (trait === "label")
                     traitValue = thisNode.label;
                 else {
-                    if (thisNode.annotation[this.tipTextTrait] !== undefined)
-                        traitValue = thisNode.annotation[this.tipTextTrait];
+                    if (thisNode.annotation[trait] !== undefined)
+                        traitValue = thisNode.annotation[trait];
                     else
                         traitValue = "";
                 }

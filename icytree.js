@@ -146,6 +146,7 @@ $(document).ready(function() {
                     case "styleColourTrait":
                     case "styleTipTextTrait":
                     case "styleNodeTextTrait":
+                    case "styleRecombTextTrait":
                         selectListItem(ui.item);
                         break;
 
@@ -529,6 +530,7 @@ function updateTraitSelectors(tree) {
 
     var elements = [$("#styleColourTrait"),
         $("#styleTipTextTrait"),
+        $("#styleRecombTextTrait"),
         $("#styleNodeTextTrait")];
 
     $.each(elements, function (eidx, el) {
@@ -540,8 +542,25 @@ function updateTraitSelectors(tree) {
         el.html("");
 
         // Obtain trait list:
-        var traitList = ["None", "Node label"];
-        traitList = traitList.concat(tree.getTraitList(false));
+        var filter = undefined;
+        switch(el.attr('id')) {
+            case "styleTipTextTrait":
+                filter = function(node) {return !(node.isLeaf() && node.isHybrid());};
+                break;
+
+            case "styleRecombTextTrait":
+                filter = function(node) {return (node.isLeaf() && node.isHybrid());};
+                break;
+
+            case "styleNodeTextTrait":
+                filter = function(node) {return !node.isLeaf();};
+                break;
+
+            default:
+                filter = function(node) {return true;};
+        }
+        var traitList = ["None", "Label"];
+        traitList = traitList.concat(tree.getTraitList(filter));
 
         // Construct selector trait lists:
         for (var i=0; i<traitList.length; i++) {
@@ -820,7 +839,7 @@ function update() {
         case "None":
             tipTextTrait = undefined;
             break;
-        case "Node label":
+        case "Label":
             tipTextTrait = "label";
             break;
         default:
@@ -833,8 +852,21 @@ function update() {
         case "None":
             nodeTextTrait = undefined;
             break;
-        case "Node label":
+        case "Label":
             nodeTextTrait = "label";
+            break;
+        default:
+            break;
+    }
+
+    // Determine whether recombinant edge labels are required:
+    var recombTextTrait = $("#styleRecombTextTrait span").parent().text();
+    switch (recombTextTrait) {
+        case "None":
+            recombTextTrait = undefined;
+            break;
+        case "Label":
+            recombTextTrait = "label";
             break;
         default:
             break;
@@ -852,6 +884,7 @@ function update() {
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;
+    layout.recombTextTrait = recombTextTrait;
     layout.markSingletonNodes = ($("#styleMarkSingletons > span").length>0);
     layout.axis = ($("#styleDisplayAxis > span").length>0);
     layout.legend = ($("#styleDisplayLegend > span").length>0);
@@ -944,6 +977,12 @@ function keyPressHandler(event) {
         case "i":
             // Cycle internal node text:
             cycleListItem($("#styleNodeTextTrait"));
+            event.preventDefault();
+            return;
+
+        case "n":
+            // Cycle recomb text:
+            cycleListItem($("#styleRecombTextTrait"));
             event.preventDefault();
             return;
 

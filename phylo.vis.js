@@ -486,7 +486,7 @@ var Layout = Object.create({}, {
             for (var i=0; i<this.tree.getLeafList().length; i++) {
                 var thisNode = this.tree.getLeafList()[i];
 
-                if (thisNode.isHybrid) {
+                if (thisNode.isHybrid()) {
                    if (this.recombTextTrait === undefined)
                        continue;
                 } else {

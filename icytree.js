@@ -132,6 +132,7 @@ $(document).ready(function() {
     $("#styleMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
             case "styleMarkSingletons":
+            case "styleDisplayRecomb":
             case "styleDisplayAxis":
             case "styleDisplayLegend":
             case "styleLogScale":
@@ -885,6 +886,7 @@ function update() {
     layout.nodeTextTrait = nodeTextTrait;
     layout.recombTextTrait = recombTextTrait;
     layout.markSingletonNodes = ($("#styleMarkSingletons > span").length>0);
+    layout.displayRecomb = ($("#styleDisplayRecomb > span").length>0);
     layout.axis = ($("#styleDisplayAxis > span").length>0);
     layout.legend = ($("#styleDisplayLegend > span").length>0);
     layout.lineWidth = lineWidth;
@@ -996,6 +998,13 @@ function keyPressHandler(event) {
             toggleItem($("#styleMarkSingletons"));
             event.preventDefault();
             return;
+
+        case "d":
+            // Toggle display of recombinant edges:
+            toggleItem($("#styleDisplayRecomb"));
+            event.preventDefault();
+            return;
+
 
         case "a":
             // Toggle axis display

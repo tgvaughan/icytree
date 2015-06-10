@@ -49,6 +49,8 @@ var Layout = Object.create({}, {
 
     markSingletonNodes: {value: false, writable: true},
 
+    displayRecomb: {value: true, writable: true},
+
     lineWidth: {value: 2, writable: true},
     fontSize: {value: 11, writable: true},
 
@@ -432,16 +434,18 @@ var Layout = Object.create({}, {
         }
 
         // Draw recombinant edges
-        for (var hybridID in this.tree.getHybridEdgeList()) {
-            var edge = this.tree.getHybridEdgeList()[hybridID];
+        if (this.displayRecomb) {
+            for (var hybridID in this.tree.getHybridEdgeList()) {
+                var edge = this.tree.getHybridEdgeList()[hybridID];
 
-            var childPos = this.posXform(this.nodePositions[edge[0]]);
-            var childPrimePos = this.posXform(this.nodePositions[edge[1]]);
-            var parentPos = this.posXform(this.nodePositions[edge[1].parent]);
+                var childPos = this.posXform(this.nodePositions[edge[0]]);
+                var childPrimePos = this.posXform(this.nodePositions[edge[1]]);
+                var parentPos = this.posXform(this.nodePositions[edge[1].parent]);
 
-            var branch = newRecombinantBranch(childPos, childPrimePos, parentPos, selectColourTrait(edge[1]));
-            branch.id = edge[1];
-            svg.appendChild(branch);
+                var branch = newRecombinantBranch(childPos, childPrimePos, parentPos, selectColourTrait(edge[1]));
+                branch.id = edge[1];
+                svg.appendChild(branch);
+            }
         }
 
         // Assign colours to trait classes:
@@ -482,23 +486,14 @@ var Layout = Object.create({}, {
 
         // Draw tip and recombinant edge labels:
 
-        if (this.tipTextTrait !== undefined || this.recombTextTrait !== undefined) {
+        if (this.tipTextTrait !== undefined) {
             for (var i=0; i<this.tree.getLeafList().length; i++) {
                 var thisNode = this.tree.getLeafList()[i];
 
-                if (thisNode.isHybrid()) {
-                   if (this.recombTextTrait === undefined)
-                       continue;
-                } else {
-                    if (this.tipTextTrait === undefined)
-                        continue;
-                }
-
-                var trait;
                 if (thisNode.isHybrid())
-                    trait = this.recombTextTrait;
-                else
-                    trait = this.tipTextTrait;
+                    continue;
+
+                var trait = this.tipTextTrait;
 
                 var traitValue;
                 if (trait === "label")
@@ -513,6 +508,30 @@ var Layout = Object.create({}, {
                 svg.appendChild(newNodeText(thisNode, traitValue));
             }
         }
+
+        if (this.displayRecomb && this.recombTextTrait !== undefined) {
+            for (var i=0; i<this.tree.getLeafList().length; i++) {
+                var thisNode = this.tree.getLeafList()[i];
+
+                if (!thisNode.isHybrid())
+                    continue;
+
+                var trait = this.recombTextTrait;
+
+                var traitValue;
+                if (trait === "label")
+                    traitValue = thisNode.label;
+                else {
+                    if (thisNode.annotation[trait] !== undefined)
+                        traitValue = thisNode.annotation[trait];
+                    else
+                        traitValue = "";
+                }
+
+                svg.appendChild(newNodeText(thisNode, traitValue));
+            }
+        }
+
 
         // Draw internal node labels:
 
@@ -543,8 +562,8 @@ var Layout = Object.create({}, {
             var bullet = document.createElementNS(NS, "ellipse");
             bullet.setAttribute("cx", pos[0]);
             bullet.setAttribute("cy", pos[1]);
-            bullet.setAttribute("rx", 2*savedThis.lineWidth)
-            bullet.setAttribute("ry", 2*savedThis.lineWidth)
+            bullet.setAttribute("rx", 2*savedThis.lineWidth);
+            bullet.setAttribute("ry", 2*savedThis.lineWidth);
             bullet.setAttribute("fill", "black");
             bullet.setAttribute("shape-rendering", "auto");
             bullet.setAttribute("class","internalNodeMark");

@@ -482,9 +482,17 @@ var Layout = Object.create({}, {
 
         // Draw tip and recombinant edge labels:
 
-        if (this.tipTextTrait !== undefined) {
+        if (this.tipTextTrait !== undefined || this.recombTextTrait !== undefined) {
             for (var i=0; i<this.tree.getLeafList().length; i++) {
                 var thisNode = this.tree.getLeafList()[i];
+
+                if (thisNode.isHybrid) {
+                   if (this.recombTextTrait === undefined)
+                       continue;
+                } else {
+                    if (this.tipTextTrait === undefined)
+                        continue;
+                }
 
                 var trait;
                 if (thisNode.isHybrid())

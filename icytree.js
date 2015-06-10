@@ -1,5 +1,5 @@
 /**
- * @licstart  The following is the entire license notice for the 
+ * @licstart  The following is the entire license notice for the
  *  JavaScript code in this page.
  *
  * Copyright (C) 2014  Tim Vaughan
@@ -24,12 +24,12 @@
  */
 
 // Global variables
-var treeFile = undefined;
+var treeFile;
 var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
 var controlsHidden = false;
-var zoomControl = undefined;
+var zoomControl;
 var lineWidth = 2;
 var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
@@ -126,7 +126,7 @@ $(document).ready(function() {
                 exportNEXUS();
                 break;
 
-        };
+        }
     });
 
     $("#styleMenu").on("menuselect", function(event, ui) {
@@ -270,7 +270,7 @@ $(document).ready(function() {
                     var matchingNodes = [];
                     $.each(tree.getNodeList(), function(nidx, node) {
                         if (node.label.search(str)>=0)
-                        matchingNodes = matchingNodes.concat(node)
+                            matchingNodes = matchingNodes.concat(node);
                     });
 
                     // Highlight additional nodes as required
@@ -291,7 +291,7 @@ $(document).ready(function() {
                 updateTraitSelectors(tree);
 
                 // Colour tree using highlighting trait
-                var hlElement = undefined;
+                var hlElement;
                 $("#styleColourTrait").children().each(function(eidx) {
                     if ($(this).text() === akey) {
                         hlElement = $(this);
@@ -505,7 +505,7 @@ function cycleListItem(el) {
 
     // el is <ul>
     var currentItem = el.find("span").closest("li");
-    if (currentItem.is(el.find("li").last()) || currentItem.length == 0)
+    if (currentItem.is(el.find("li").last()) || currentItem.length === 0)
         selectListItem(el.find("li").first());
     else
         selectListItem(currentItem.next());
@@ -542,7 +542,7 @@ function updateTraitSelectors(tree) {
         el.html("");
 
         // Obtain trait list:
-        var filter = undefined;
+        var filter;
         switch(el.attr('id')) {
             case "styleTipTextTrait":
                 filter = function(node) {return !(node.isLeaf() && node.isHybrid());};
@@ -753,8 +753,8 @@ function exportSVGMulti(pages) {
         var newvby = i*imageHeight;
 
         // Update viewbox
-        svgEl.setAttribute("viewBox", newvbx + " " + newvby + " "
-                + newvbwidth + " " + newvbheight);
+        svgEl.setAttribute("viewBox", newvbx + " " + newvby + " " +
+                           newvbwidth + " " + newvbheight);
 
         // Hack to ensure text looks okay
         zoomControl.updateTextScaling();
@@ -765,8 +765,8 @@ function exportSVGMulti(pages) {
     }
 
     // Revert to original viewbox and zoom
-    svgEl.setAttribute("viewBox", vbx + " " + vby + " "
-            + vbwidth + " " + vbheight);
+    svgEl.setAttribute("viewBox", vbx + " " + vby + " " +
+                       vbwidth + " " + vbheight);
     zoomControl.zoomFactorX = zoomFactorX;
     zoomControl.zoomFactorY = zoomFactorY;
     zoomControl.updateTextScaling();
@@ -787,9 +787,8 @@ function exportNEXUS() {
     if (currentTreeIdx>=trees.length || currentTreeIdx<0)
         return false;
 
-    var nexusStr = "#nexus\n\nbegin trees;\ntree tree_1 = [&R] "
-        + trees[currentTreeIdx].getNewick(true) + "\n"
-        + "end;\n";
+    var nexusStr = "#nexus\n\nbegin trees;\ntree tree_1 = [&R] " +
+        trees[currentTreeIdx].getNewick(true) + "\n" + "end;\n";
 
     var blob = new Blob([nexusStr], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "tree.nexus");
@@ -898,7 +897,7 @@ function update() {
     $("#output").html("");
     var svg = layout.display();
     svg.setAttribute("id", "SVG");
-    if ($("#styleAntiAlias > span").length==0)
+    if ($("#styleAntiAlias > span").length === 0)
         svg.style.shapeRendering = "crispEdges";
     $("#output").append(svg);
 
@@ -962,7 +961,7 @@ function keyPressHandler(event) {
             break;
     }
 
-    if (trees.length == 0)
+    if (trees.length === 0)
         return;
 
     // Presses valid only when a tree is displayed:
@@ -1035,7 +1034,7 @@ function keyPressHandler(event) {
             return;
 
         case ">":
-            // Fast-forward tree 
+            // Fast-forward tree
             currentTreeInc(1, true);
             event.preventDefault();
             return;

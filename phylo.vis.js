@@ -64,9 +64,8 @@ var Layout = Object.create({}, {
     // Helper methods
 
     transformToSVG: {value: function(svg, coord) {
-        if (svg.viewBox.baseVal != null
-                || (svg.viewBox.baseVal.width == 0
-                && svg.viewBox.baseVal.height == 0)) {
+        if (svg.viewBox.baseVal !== null ||
+                (svg.viewBox.baseVal.width === 0 && svg.viewBox.baseVal.height === 0)) {
             coord.x = svg.viewBox.baseVal.x +  coord.x*svg.viewBox.baseVal.width/this.width;
             coord.y = svg.viewBox.baseVal.y +  coord.y*svg.viewBox.baseVal.height/this.height;
         }
@@ -75,18 +74,18 @@ var Layout = Object.create({}, {
     }},
 
     getSVGWidth: {value: function(svg, screenWidth) {
-        if (svg.viewBox.baseVal == null
-                || svg.viewBox.baseVal.width == 0
-                || svg.viewBox.baseVal.height == 0)
+        if (svg.viewBox.baseVal === null ||
+                svg.viewBox.baseVal.width === 0 ||
+                    svg.viewBox.baseVal.height === 0)
             return screenWidth;
         else
             return screenWidth*svg.viewBox.baseVal.width/this.width;
     }},
 
     getSVGHeight: {value: function(svg, screenHeight) {
-        if (svg.viewBox.baseVal == null
-                || svg.viewBox.baseVal.width == 0
-                || svg.viewBox.baseVal.height == 0)
+        if (svg.viewBox.baseVal === null ||
+                svg.viewBox.baseVal.width === 0 ||
+                    svg.viewBox.baseVal.height === 0)
             return screenHeight;
         else
             return screenHeight*svg.viewBox.baseVal.height/this.height;
@@ -111,8 +110,8 @@ var Layout = Object.create({}, {
         var lso = this.logScaleRelOffset*treeHeight;
         function scaledHeight(height, useLogScale) {
             if (useLogScale) {
-                return (Math.log(height + lso) - Math.log(lso))
-                    /(Math.log(treeHeight + lso) - Math.log(lso));
+                return (Math.log(height + lso) - Math.log(lso))/
+                    (Math.log(treeHeight + lso) - Math.log(lso));
             } else {
                 return height/treeHeight;
             }
@@ -206,7 +205,7 @@ var Layout = Object.create({}, {
 
             // Acquire coordinates of viewBox
             var topLeft, bottomRight;
-            if (svg.viewBox.baseVal == null) {
+            if (svg.viewBox.baseVal === null) {
                 topLeft = this.invXform([0,0]);
                 bottomRight = this.invXform([this.width, this.height]);
             } else {
@@ -271,7 +270,7 @@ var Layout = Object.create({}, {
             }
         }
 
-        if (this.legend && this.seenColourTraitValues != null) {
+        if (this.legend && this.seenColourTraitValues !== null) {
 
             if (this.seenColourTraitValues.length>0) {
                 var coord = svg.createSVGPoint();
@@ -457,7 +456,7 @@ var Layout = Object.create({}, {
             }
         }
         if (traitsAreNumeric) {
-            this.seenColourTraitValues.sort(function(a, b) {return a-b});
+            this.seenColourTraitValues.sort(function(a, b) {return a-b;});
         } else {
             this.seenColourTraitValues.sort();
         }
@@ -659,16 +658,16 @@ var EdgeStatsControl = Object.create({}, {
 
         // Avoid conflict with zooming controls:
         this.phyloStat.addEventListener("mousewheel",
-                function(event) {event.preventDefault()});
+                function(event) {event.preventDefault();});
         this.phyloStat.addEventListener("DOMMouseScroll",
-                function(event) {event.preventDefault()});
+                function(event) {event.preventDefault();});
 
     }},
 
     mouseMoveEventHandler: {value: function(event) {
         var classAttr = event.target.getAttribute("class");
         if (classAttr === null || classAttr.split(" ").indexOf("treeEdge")<0) {
-            if (this.highlightedEdge != undefined) {
+            if (this.highlightedEdge !== undefined) {
                 this.hideStatsBox();
                 this.highlightedEdge.removeAttribute("stroke-width");
                 this.highlightedEdge = undefined;
@@ -681,8 +680,8 @@ var EdgeStatsControl = Object.create({}, {
             var curStrokeWidth = Number(this.svg.style.strokeWidth.split("px")[0]);
 
             // Choose new stroke width
-            var f = this.svg.width.baseVal.value/this.svg.viewBox.baseVal.width
-                var newStrokeWidth = Math.max(curStrokeWidth*1.5, 8/f);
+            var f = this.svg.width.baseVal.value/this.svg.viewBox.baseVal.width;
+            var newStrokeWidth = Math.max(curStrokeWidth*1.5, 8/f);
 
             this.highlightedEdge.setAttribute("stroke-width", newStrokeWidth+"px");
             this.displayStatsBox(event.target.getAttribute("id"), event.pageX, event.pageY);
@@ -729,11 +728,11 @@ var EdgeStatsControl = Object.create({}, {
         }
 
         var bl = "NA";
-        if (node.branchLength != undefined)
-            bl = pretty(node.branchLength)
+        if (node.branchLength !== undefined)
+            bl = pretty(node.branchLength);
 
-                var pa = "NA";
-        if (node.parent != undefined)
+        var pa = "NA";
+        if (node.parent !== undefined)
             pa = pretty(node.parent.height);
 
         var ca = pretty(node.height);
@@ -749,7 +748,7 @@ var EdgeStatsControl = Object.create({}, {
             var ul =  document.createElement("ul");
             ul.style.margin = "0px";
             ul.style.padding = "0px";
-            for (att in node.annotation) {
+            for (var att in node.annotation) {
                 var li = document.createElement("li");
                 li.innerHTML = att + ": " + pretty(node.annotation[att]);
                 ul.appendChild(li);
@@ -837,10 +836,10 @@ var ZoomControl = Object.create({}, {
 
         // Prevent default handling of these events (Firefox uses them for drag+drop.)
         svg.addEventListener("mousedown",
-                function(event) {event.preventDefault()});
+                function(event) {event.preventDefault();});
 
         svg.addEventListener("mouseup",
-                function(event) {event.preventDefault()});
+                function(event) {event.preventDefault();});
     }},
 
 
@@ -863,8 +862,8 @@ var ZoomControl = Object.create({}, {
         var x = Math.max(0, this.centre[0] - 0.5*widthZoomed);
         var y = Math.max(0, this.centre[1] - 0.5*heightZoomed);
 
-        this.svg.setAttribute("viewBox", x + " " + y + " "
-                + widthZoomed + " " + heightZoomed);
+        this.svg.setAttribute("viewBox", x + " " + y + " " +
+                              widthZoomed + " " + heightZoomed);
 
         // Ensure displayed axis is up to date.
         this.layout.updateAxis(this.svg);
@@ -993,7 +992,7 @@ var ZoomControl = Object.create({}, {
         else
             b = event.which;   // Chrome
 
-        if (b == 0) {
+        if (b === 0) {
             this.dragOrigin = [event.layerX, event.layerY];
             this.oldCentre = [this.centre[0], this.centre[1]];
             return false;

@@ -512,8 +512,19 @@ function cycleListItem(el) {
         selectListItem(currentItem.next());
 }
 
+// Cycle checked item in list in reverse order:
+function reverseCycleListItem(el) {
+
+    // el is <ul>
+    var currentItem = el.find("span").closest("li");
+    if (currentItem.is(el.find("li").first()) || currentItem.length === 0)
+        selectListItem(el.find("li").last());
+    else
+        selectListItem(currentItem.prev());
+}
+
 function toggleItem (el) {
-    if (el.find("span").length===0) {
+    if (el.find("span").length === 0) {
         el.prepend($("<span/>").addClass("ui-icon ui-icon-check"));
     } else {
         el.find("span").remove();
@@ -975,9 +986,21 @@ function keyPressHandler(event) {
             event.preventDefault();
             return;
 
+        case "T":
+            // Reverse cycle tip text:
+            reverseCycleListItem($("#styleTipTextTrait"));
+            event.preventDefault();
+            return;
+
         case "i":
             // Cycle internal node text:
             cycleListItem($("#styleNodeTextTrait"));
+            event.preventDefault();
+            return;
+
+        case "I":
+            // Reverse cycle internal node text:
+            reverseCycleListItem($("#styleNodeTextTrait"));
             event.preventDefault();
             return;
 
@@ -987,9 +1010,21 @@ function keyPressHandler(event) {
             event.preventDefault();
             return;
 
+        case "N":
+            // Reverse cycle recomb text:
+            reverseCycleListItem($("#styleRecombTextTrait"));
+            event.preventDefault();
+            return;
+
         case "c":
             // Cycle branch colour:
             cycleListItem($("#styleColourTrait"));
+            event.preventDefault();
+            return;
+
+        case "C":
+            // Reverse cycle branch colour:
+            reverseCycleListItem($("#styleColourTrait"));
             event.preventDefault();
             return;
 

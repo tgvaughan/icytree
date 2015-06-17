@@ -93,44 +93,52 @@ var Layout = Object.create({}, {
             return screenHeight*svg.viewBox.baseVal.height/this.height;
     }},
 
-    // Produce a standard rectangular layout:
-    standard: {value: function() {
-
-        this.nodePositions = {};
-
+    getTotalTreeHeight: {value: function() {
         var treeHeight = this.tree.root.height;
         if (this.tree.root.branchLength !== undefined)
             treeHeight += this.tree.root.branchLength;
         else
             treeHeight += 0.01*this.tree.root.height; // short faux root edge
 
+        return treeHeight;
+    }},
+
+    getScaledHeight: {value: function(height, useLogScale) {
+        var treeHeight = this.getTotalTreeHeight();
+        var lso = this.logScaleRelOffset*treeHeight;
+        if (useLogScale) {
+            return (Math.log(height + lso) - Math.log(lso))/
+                (Math.log(treeHeight + lso) - Math.log(lso));
+        } else {
+            return height/treeHeight;
+        }
+    }},
+
+
+    // Produce a standard rectangular layout:
+    standard: {value: function() {
+
+        var savedThis = this;
+
+        this.nodePositions = {};
+
+        var treeHeight = this.getTotalTreeHeight();
         var treeWidth;
 
         // Position leaves
         var leaves = this.tree.getLeafList();
-
-        var lso = this.logScaleRelOffset*treeHeight;
-        function scaledHeight(height, useLogScale) {
-            if (useLogScale) {
-                return (Math.log(height + lso) - Math.log(lso))/
-                    (Math.log(treeHeight + lso) - Math.log(lso));
-            } else {
-                return height/treeHeight;
-            }
-        }
-
         if (leaves.length === 1) {
             // Special case for single-leaf trees
             this.nodePositions[leaves[0]] = [
                 0.5,
-                scaledHeight(leaves[0].height, this.logScale)
+                this.getScaledHeight(leaves[0].height, this.logScale)
             ];
             treeWidth = 1.0;
         } else {
             for (var i=0; i<leaves.length; i++) {
                 this.nodePositions[leaves[i]] = [
                     i/(leaves.length-1),
-                    scaledHeight(leaves[i].height, this.logScale)
+                    this.getScaledHeight(leaves[i].height, this.logScale)
                 ];
             }
             treeWidth = leaves.length-1;
@@ -149,7 +157,7 @@ var Layout = Object.create({}, {
 
             nodePositions[node] = [
                 xpos,
-                scaledHeight(node.height, logScale)
+                savedThis.getScaledHeight(node.height, logScale)
             ];
 
             return xpos;
@@ -197,12 +205,7 @@ var Layout = Object.create({}, {
         if (this.axis) {
 
             // Select tick number and spacing
-            var treeHeight = this.tree.root.height;
-            if (this.tree.root.branchLength !== undefined)
-                treeHeight += this.tree.root.branchLength;
-            else
-                treeHeight += 0.01*this.tree.root.height; // short faux root edge
-
+            var treeHeight = this.getTotalTreeHeight();
             var lso = this.logScaleRelOffset*treeHeight;
 
             // Acquire coordinates of viewBox
@@ -470,10 +473,7 @@ var Layout = Object.create({}, {
             }
         }
 
-        function newNodeBar(node, minHeight, maxHeight) {
-            var nodePos = savedThis.nodePositions[node];
-            var minPos = savedThis.posXform([nodePos[0], savedThis.scaledHeight(minHeight, savedThis.logScale)]);
-            var maxPos = savedThis.posXform([nodePos[0], savedThis.scaledHeight(maxHeight, savedThis.logScale)]);
+        function newNodeBar(minPos, maxPos) {
 
             var bar = document.createElementNS(NS, "line");
             bar.setAttribute("x1", minPos[0]);
@@ -482,10 +482,9 @@ var Layout = Object.create({}, {
             bar.setAttribute("y2", maxPos[1]);
             bar.setAttribute("vector-effect", "non-scaling-stroke");
             bar.setAttribute("stroke", "black");
-            bar.setAttribute("stroke-opacity", "0.5");
-            bar.setAttribute("width", "4");
+            bar.setAttribute("stroke-opacity", "0.4");
+            bar.setAttribute("stroke-width", savedThis.lineWidth*3);
             bar.setAttribute("class", "errorBar");
-
             return(bar);
         }
 
@@ -496,7 +495,11 @@ var Layout = Object.create({}, {
 
                 var traitValue = thisNode.annotation[this.nodeBarTrait];
                 if (traitValue !== undefined && traitValue.length === 2) {
-                    svg.appendChild(newNodeBar(thisNode, traitValue[0], traitValue[1]));
+                    var nodePos = this.nodePositions[thisNode];
+                    var minPos = this.posXform([nodePos[0], this.getScaledHeight(traitValue[0], this.logScale)]);
+                    var maxPos = this.posXform([nodePos[0], this.getScaledHeight(traitValue[1], this.logScale)]);
+
+                    svg.appendChild(newNodeBar(minPos, maxPos));
                 }
             }
         }

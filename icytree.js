@@ -148,6 +148,7 @@ $(document).ready(function() {
                     case "styleTipTextTrait":
                     case "styleNodeTextTrait":
                     case "styleRecombTextTrait":
+                    case "styleNodeBarTrait":
                         selectListItem(ui.item);
                         break;
 
@@ -543,7 +544,8 @@ function updateTraitSelectors(tree) {
     var elements = [$("#styleColourTrait"),
         $("#styleTipTextTrait"),
         $("#styleRecombTextTrait"),
-        $("#styleNodeTextTrait")];
+        $("#styleNodeTextTrait"),
+        $("#styleNodeBarTrait")];
 
     $.each(elements, function (eidx, el) {
 
@@ -870,6 +872,16 @@ function update() {
             break;
     }
 
+    // Determine whether node bars are required:
+    var nodeBarTrait = $("#styleNodeBarTrait span").parent().text();
+    switch (nodeBarTrait) {
+        case "None":
+            nodeBarTrait = undefined;
+            break;
+        default:
+            break;
+    }
+
     // Determine whether recombinant edge labels are required:
     var recombTextTrait = $("#styleRecombTextTrait span").parent().text();
     switch (recombTextTrait) {
@@ -882,7 +894,6 @@ function update() {
         default:
             break;
     }
-
     // Create layout object:
     var layout = Object.create(Layout).init(tree);
     layout.logScale = ($("#styleLogScale > span").length>0);
@@ -895,6 +906,7 @@ function update() {
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;
+    layout.nodeBarTrait = nodeBarTrait;
     layout.recombTextTrait = recombTextTrait;
     layout.markSingletonNodes = ($("#styleMarkSingletons > span").length>0);
     layout.displayRecomb = ($("#styleDisplayRecomb > span").length>0);

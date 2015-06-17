@@ -39,6 +39,8 @@ var Layout = Object.create({}, {
     nodeTextTrait: {value: undefined, writable: true},
     recombTextTrait: {value: undefined, writable: true},
 
+    nodeBarTrait: {value: undefined, writable: true},
+
     axis: {value: false, writable: true},
     maxAxisTicks: {value: 20, writable: true},
 
@@ -468,6 +470,37 @@ var Layout = Object.create({}, {
             }
         }
 
+        function newNodeBar(node, minHeight, maxHeight) {
+            var nodePos = savedThis.nodePositions[node];
+            var minPos = savedThis.posXform([nodePos[0], savedThis.scaledHeight(minHeight, savedThis.logScale)]);
+            var maxPos = savedThis.posXform([nodePos[0], savedThis.scaledHeight(maxHeight, savedThis.logScale)]);
+
+            var bar = document.createElementNS(NS, "line");
+            bar.setAttribute("x1", minPos[0]);
+            bar.setAttribute("y1", minPos[1]);
+            bar.setAttribute("x2", maxPos[0]);
+            bar.setAttribute("y2", maxPos[1]);
+            bar.setAttribute("vector-effect", "non-scaling-stroke");
+            bar.setAttribute("stroke", "black");
+            bar.setAttribute("stroke-opacity", "0.5");
+            bar.setAttribute("width", "4");
+            bar.setAttribute("class", "errorBar");
+
+            return(bar);
+        }
+
+        // Draw node height error bars:
+        if (this.nodeBarTrait !== undefined) {
+            for (var i=0; i<this.tree.getNodeList().length; i++) {
+                var thisNode = this.tree.getNodeList()[i];
+
+                var traitValue = thisNode.annotation[this.nodeBarTrait];
+                if (traitValue !== undefined && traitValue.length === 2) {
+                    svg.appendChild(newNodeBar(thisNode, traitValue[0], traitValue[1]));
+                }
+            }
+        }
+
         function newNodeText(node, string) {
             var pos = savedThis.posXform(savedThis.nodePositions[node]);
 
@@ -484,7 +517,6 @@ var Layout = Object.create({}, {
         }
 
         // Draw tip and recombinant edge labels:
-
         if (this.tipTextTrait !== undefined) {
             for (var i=0; i<this.tree.getLeafList().length; i++) {
                 var thisNode = this.tree.getLeafList()[i];

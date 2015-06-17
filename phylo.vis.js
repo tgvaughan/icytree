@@ -676,7 +676,7 @@ var EdgeStatsControl = Object.create({}, {
                     colEls[i].style.width = "40%";
                 else {
                     colEls[i].style.width = "auto";
-                    colEls[i].style.whiteSpace = "nowrap";
+                    //colEls[i].style.whiteSpace = "nowrap";
                 }
                 colEls[i].style.textAlign = "left";
                 colEls[i].style.overflow = "hidden";
@@ -785,7 +785,16 @@ var EdgeStatsControl = Object.create({}, {
             ul.style.padding = "0px";
             for (var att in node.annotation) {
                 var li = document.createElement("li");
-                li.innerHTML = att + ": " + pretty(node.annotation[att]);
+                li.innerHTML = att + ": ";
+                if (!Array.isArray(node.annotation[att])) {
+                    li.innerHTML += pretty(node.annotation[att]);
+                } else {
+                    for (var i = 0; i<node.annotation[att].length; i++) {
+                        if (i>0)
+                            li.innerHTML += ", ";
+                        li.innerHTML += pretty(node.annotation[att][i]);
+                    }
+                }
                 ul.appendChild(li);
             }
 

@@ -149,6 +149,8 @@ $(document).ready(function() {
                     case "styleNodeTextTrait":
                     case "styleRecombTextTrait":
                     case "styleNodeBarTrait":
+                    case "styleEdgeOpacityTrait":
+                    case "styleRecombOpacityTrait":
                         selectListItem(ui.item);
                         break;
 
@@ -159,11 +161,11 @@ $(document).ready(function() {
                             fontSizeChange(-2);
                         break;
 
-                    case "styleEdgeThickness":
+                    case "styleEdgeWidth":
                         if (ui.item.text() === "Increase")
-                            edgeThicknessChange(1);
+                            edgeWidthChange(1);
                         else
-                            edgeThicknessChange(-1);
+                            edgeWidthChange(-1);
                         break;
                 }
                 break;
@@ -545,7 +547,9 @@ function updateTraitSelectors(tree) {
         $("#styleTipTextTrait"),
         $("#styleRecombTextTrait"),
         $("#styleNodeTextTrait"),
-        $("#styleNodeBarTrait")];
+        $("#styleNodeBarTrait"),
+        $("#styleEdgeOpacityTrait"),
+        $("#styleRecombOpacityTrait")];
 
     $.each(elements, function (eidx, el) {
 
@@ -556,19 +560,22 @@ function updateTraitSelectors(tree) {
         el.html("");
 
         // Obtain trait list:
-        var traitList = ["None", "Label"];
+        var traitList;
         var filter;
         switch(el.attr('id')) {
             case "styleTipTextTrait":
                 filter = function(node) {return !(node.isLeaf() && node.isHybrid());};
+                traitList = ["None", "Label"];
                 break;
 
             case "styleRecombTextTrait":
                 filter = function(node) {return (node.isLeaf() && node.isHybrid());};
+                traitList = ["None", "Label"];
                 break;
 
             case "styleNodeTextTrait":
                 filter = function(node) {return !node.isLeaf();};
+                traitList = ["None", "Label"];
                 break;
 
             case "styleNodeBarTrait":
@@ -578,8 +585,29 @@ function updateTraitSelectors(tree) {
                 traitList = ["None"];
                 break;
 
+            case "styleEdgeOpacityTrait":
+                filter = function(node, trait) {
+                    if (node.isHybrid() && node.isLeaf())
+                        return false;
+                    var nVal = Number(node.annotation[trait]);
+                    return !Number.isNaN(nVal) && nVal>=0 && nVal<=1;
+                };
+                traitList = ["None"];
+                break;
+
+            case "styleRecombOpacityTrait":
+                filter = function(node, trait) {
+                    if (!node.isHybrid() || !node.isLeaf())
+                        return false;
+                    var nVal = Number(node.annotation[trait]);
+                    return !Number.isNaN(nVal) && nVal>=0 && nVal<=1;
+                };
+                traitList = ["None"];
+                break;
+
             default:
                 filter = function(node) {return true;};
+                traitList = ["None", "Label"];
         }
         traitList = traitList.concat(tree.getTraitList(filter));
 
@@ -597,7 +625,7 @@ function updateTraitSelectors(tree) {
 }
 
 // Alter line width used in visualisation.
-function edgeThicknessChange(inc) {
+function edgeWidthChange(inc) {
     lineWidth = Math.max(1, lineWidth + inc);
     update();
 }
@@ -901,6 +929,28 @@ function update() {
         default:
             break;
     }
+
+    // Determine whether edge opacities are required
+    var edgeOpacityTrait = $("#styleEdgeOpacityTrait span").parent().text();
+    switch (edgeOpacityTrait) {
+        case "None":
+            edgeOpacityTrait = undefined;
+            break;
+        default:
+            break;
+    }
+
+
+    // Determine whether recomb edge opacities are required
+    var recombOpacityTrait = $("#styleRecombOpacityTrait span").parent().text();
+    switch (recombOpacityTrait) {
+        case "None":
+            recombOpacityTrait = undefined;
+            break;
+        default:
+            break;
+    }
+
     // Create layout object:
     var layout = Object.create(Layout).init(tree);
     layout.logScale = ($("#styleLogScale > span").length>0);
@@ -915,6 +965,8 @@ function update() {
     layout.nodeTextTrait = nodeTextTrait;
     layout.nodeBarTrait = nodeBarTrait;
     layout.recombTextTrait = recombTextTrait;
+    layout.edgeOpacityTrait = edgeOpacityTrait;
+    layout.recombOpacityTrait = recombOpacityTrait;
     layout.markSingletonNodes = ($("#styleMarkSingletons > span").length>0);
     layout.displayRecomb = ($("#styleDisplayRecomb > span").length>0);
     layout.axis = ($("#styleDisplayAxis > span").length>0);
@@ -1059,6 +1111,30 @@ function keyPressHandler(event) {
             event.preventDefault();
             return;
 
+        case "o":
+            // Cycle edge opacity:
+            cycleListItem($("#styleEdgeOpacityTrait"));
+            event.preventDefault();
+            return;
+
+        case "O":
+            // Reverse cycle edge opacity:
+            reverseCycleListItem($("#styleEdgeOpacityTrait"));
+            event.preventDefault();
+            return;
+
+        case "p":
+            // Cycle recomb opacity:
+            cycleListItem($("#styleRecombOpacityTrait"));
+            event.preventDefault();
+            return;
+
+        case "p":
+            // Reverse cycle recomb opacity:
+            reverseCycleListItem($("#styleRecombOpacityTrait"));
+            event.preventDefault();
+            return;
+
         case "m":
             // Toggle marking of internal nodes:
             toggleItem($("#styleMarkSingletons"));
@@ -1122,14 +1198,14 @@ function keyPressHandler(event) {
 
         case "+":
         case "=":
-            // Increase line thickness
-            edgeThicknessChange(1);
+            // Increase line width
+            edgeWidthChange(1);
             event.preventDefault();
             return;
 
         case "-":
-            // Decrease line thickness
-            edgeThicknessChange(-1);
+            // Decrease line width
+            edgeWidthChange(-1);
             event.preventDefault();
             return;
 

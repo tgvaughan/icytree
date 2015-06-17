@@ -281,11 +281,11 @@ var Tree = Object.create({}, {
         var traitSet = {};
         for (var i=0; i<this.getNodeList().length; i++) {
             var thisNode = this.getNodeList()[i];
-            if (filter !== undefined && !filter(thisNode))
-                continue;
-
-            for (var trait in thisNode.annotation)
+            for (var trait in thisNode.annotation) {
+                if (filter !== undefined && !filter(thisNode, trait))
+                    continue;
                 traitSet[trait] = true;
+            }
         }
 
         // Create list from set

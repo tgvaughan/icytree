@@ -556,6 +556,7 @@ function updateTraitSelectors(tree) {
         el.html("");
 
         // Obtain trait list:
+        var traitList = ["None", "Label"];
         var filter;
         switch(el.attr('id')) {
             case "styleTipTextTrait":
@@ -570,10 +571,16 @@ function updateTraitSelectors(tree) {
                 filter = function(node) {return !node.isLeaf();};
                 break;
 
+            case "styleNodeBarTrait":
+                filter = function(node, trait) {
+                    return !node.isLeaf() && node.annotation[trait].length == 2;
+                };
+                traitList = ["None"];
+                break;
+
             default:
                 filter = function(node) {return true;};
         }
-        var traitList = ["None", "Label"];
         traitList = traitList.concat(tree.getTraitList(filter));
 
         // Construct selector trait lists:
@@ -1037,6 +1044,18 @@ function keyPressHandler(event) {
         case "C":
             // Reverse cycle branch colour:
             reverseCycleListItem($("#styleColourTrait"));
+            event.preventDefault();
+            return;
+
+        case "b":
+            // Cycle node bars:
+            cycleListItem($("#styleNodeBarTrait"));
+            event.preventDefault();
+            return;
+
+        case "B":
+            // Reverse cycle node bars:
+            reverseCycleListItem($("#styleNodeBarTrait"));
             event.preventDefault();
             return;
 

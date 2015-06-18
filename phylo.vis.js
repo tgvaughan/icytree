@@ -372,6 +372,8 @@ var Layout = Object.create({}, {
             return traitValue;
         }
 
+        // Draw node height error bars:
+
         function newNodeBar(minPos, maxPos) {
 
             var bar = document.createElementNS(NS, "line");
@@ -387,7 +389,6 @@ var Layout = Object.create({}, {
             return(bar);
         }
 
-        // Draw node height error bars:
         if (this.nodeBarTrait !== undefined) {
             for (var i=0; i<this.tree.getNodeList().length; i++) {
                 var thisNode = this.tree.getNodeList()[i];
@@ -395,13 +396,19 @@ var Layout = Object.create({}, {
                 var traitValue = thisNode.annotation[this.nodeBarTrait];
                 if (traitValue !== undefined && traitValue.length === 2) {
                     var nodePos = this.nodePositions[thisNode];
-                    var minPos = this.posXform([nodePos[0], this.getScaledHeight(traitValue[0], this.logScale)]);
-                    var maxPos = this.posXform([nodePos[0], this.getScaledHeight(traitValue[1], this.logScale)]);
+                    var minPos = this.posXform([nodePos[0],
+                                               this.getScaledHeight(Number(traitValue[0]),
+                                                                    this.logScale)]);
+                    var maxPos = this.posXform([nodePos[0],
+                                               this.getScaledHeight(Number(traitValue[1]),
+                                                                    this.logScale)]);
 
                     svg.appendChild(newNodeBar(minPos, maxPos));
                 }
             }
         }
+
+        // Draw tree edges:
 
         function newBranch(childPos, parentPos, colourTrait, edgeOpacityFactor) {
             var pathStr = "M " + childPos[0] + " " + childPos[1];
@@ -426,33 +433,6 @@ var Layout = Object.create({}, {
 
             return(path);
         }
-
-        function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor) {
-            var pathStr = "M " + childPos[0] + " " + childPos[1];
-            pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
-            pathStr += " H " + parentPos[0];
-            pathStr += " V " + parentPos[1];
-            var path = document.createElementNS(NS, "path");
-            path.setAttribute("d", pathStr);
-            path.setAttribute("fill", "none");
-
-            var classes = "treeEdge";
-            if (colourTrait !== undefined)
-                classes += " trait_" + window.btoa(colourTrait);
-            else
-                path.setAttribute("stroke", "black");
-
-            path.setAttribute("stroke-opacity", recombOpacityFactor);
-
-            path.setAttribute("class", classes);
-
-            path.setAttribute("vector-effect", "non-scaling-stroke");
-            path.setAttribute("stroke-dasharray", "5, 2");
-
-            return(path);
-        }
-
-        // Draw tree edges:
 
         for (var i=0; i<this.tree.getNodeList().length; i++) {
             var thisNode = this.tree.getNodeList()[i];
@@ -481,6 +461,33 @@ var Layout = Object.create({}, {
         }
 
         // Draw recombinant edges
+
+        function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor) {
+            var pathStr = "M " + childPos[0] + " " + childPos[1];
+            pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
+            pathStr += " H " + parentPos[0];
+            pathStr += " V " + parentPos[1];
+            var path = document.createElementNS(NS, "path");
+            path.setAttribute("d", pathStr);
+            path.setAttribute("fill", "none");
+
+            var classes = "treeEdge";
+            if (colourTrait !== undefined)
+                classes += " trait_" + window.btoa(colourTrait);
+            else
+                path.setAttribute("stroke", "black");
+
+            path.setAttribute("stroke-opacity", recombOpacityFactor);
+
+            path.setAttribute("class", classes);
+
+            path.setAttribute("vector-effect", "non-scaling-stroke");
+            path.setAttribute("stroke-dasharray", "5, 2");
+
+            return(path);
+        }
+
+
         if (this.displayRecomb) {
             for (var hybridID in this.tree.getHybridEdgeList()) {
                 var edge = this.tree.getHybridEdgeList()[hybridID];
@@ -503,6 +510,7 @@ var Layout = Object.create({}, {
         }
 
         // Assign colours to trait classes:
+
         var traitsAreNumeric = true;
         for (var traitVal in this.seenColourTraitValues) {
             if (isNaN(traitVal-0)) {
@@ -523,6 +531,8 @@ var Layout = Object.create({}, {
             }
         }
 
+        // Draw tip and recombinant edge labels:
+
         function newNodeText(node, string) {
             var pos = savedThis.posXform(savedThis.nodePositions[node]);
 
@@ -538,7 +548,6 @@ var Layout = Object.create({}, {
             return(text);
         }
 
-        // Draw tip and recombinant edge labels:
         if (this.tipTextTrait !== undefined) {
             for (var i=0; i<this.tree.getLeafList().length; i++) {
                 var thisNode = this.tree.getLeafList()[i];
@@ -609,6 +618,8 @@ var Layout = Object.create({}, {
             }
         }
 
+        // Mark internal nodes:
+
         function newNodeMark(node) {
             var pos = savedThis.posXform(savedThis.nodePositions[node]);
 
@@ -622,8 +633,6 @@ var Layout = Object.create({}, {
             bullet.setAttribute("class","internalNodeMark");
             svg.appendChild(bullet);
         }
-
-        // Mark internal nodes:
 
         if (this.markSingletonNodes) {
             for (var i=0; i<this.tree.getNodeList().length; i++) {

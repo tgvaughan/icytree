@@ -780,7 +780,7 @@ var EdgeStatsControl = Object.create({}, {
         // Pretty print numbers
         function pretty(val) {
             var nVal = Number(val);
-            if (String(nVal) === "NaN")
+            if (Number.isNaN(nVal))
                 return val;
 
             val = nVal.toPrecision(5);

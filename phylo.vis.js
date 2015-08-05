@@ -1086,5 +1086,7 @@ var ZoomControl = Object.create({}, {
         this.zoomFactorX = 1.0;
         this.zoomFactorY = 1.0;
         this.updateView();
+        this.updateNonAxisTextScaling();
+        this.updateInternalNodeMarkScaling();
     }}
 });

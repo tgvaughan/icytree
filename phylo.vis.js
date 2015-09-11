@@ -118,7 +118,7 @@ var Layout = Object.create({}, {
 
 
     // Produce a standard rectangular layout:
-    standard: {value: function() {
+    standardLayout: {value: function() {
 
         var savedThis = this;
 
@@ -156,6 +156,56 @@ var Layout = Object.create({}, {
                 xpos += positionInternals(node.children[i], nodePositions, logScale);
 
             xpos /= node.children.length;
+
+            nodePositions[node] = [
+                xpos,
+                savedThis.getScaledHeight(node.height, logScale)
+            ];
+
+            return xpos;
+        }
+        positionInternals(this.tree.root, this.nodePositions, this.logScale);
+
+        return this;
+    }},
+
+    // Produce a rectangular layout suitable for transmission trees:
+    transmissionLayout: {value: function() {
+
+        var savedThis = this;
+
+        this.nodePositions = {};
+
+        var treeHeight = this.getTotalTreeHeight();
+        var treeWidth;
+
+        // Position leaves
+        var leaves = this.tree.getLeafList();
+        if (leaves.length === 1) {
+            // Special case for single-leaf trees
+            this.nodePositions[leaves[0]] = [
+                0.5,
+                this.getScaledHeight(leaves[0].height, this.logScale)
+            ];
+            treeWidth = 1.0;
+        } else {
+            for (var i=0; i<leaves.length; i++) {
+                this.nodePositions[leaves[i]] = [
+                    i/(leaves.length-1),
+                    this.getScaledHeight(leaves[i].height, this.logScale)
+                ];
+            }
+            treeWidth = leaves.length-1;
+        }
+
+        // Position internal nodes
+        function positionInternals(node, nodePositions, logScale) {
+            if (node.isLeaf())
+                return nodePositions[node][0];
+
+            xpos = positionInternals(node.children[0], nodePositions, logScale);
+            for (var i=1; i<node.children.length; i++)
+                positionInternals(node.children[i], nodePositions, logScale);
 
             nodePositions[node] = [
                 xpos,

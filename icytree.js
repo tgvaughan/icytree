@@ -144,6 +144,7 @@ $(document).ready(function() {
             default:
                 switch(ui.item.parent().attr("id")) {
                     case "styleSort":
+                    case "styleNodePosition":
                     case "styleColourTrait":
                     case "styleTipTextTrait":
                     case "styleNodeTextTrait":
@@ -955,7 +956,12 @@ function update() {
     var layout = Object.create(Layout).init(tree);
     layout.logScale = ($("#styleLogScale > span").length>0);
     layout.logScaleRelOffset = logScaleRelOffset;
-    layout.standard();
+
+    // Position internal nodes
+    if ($("#styleNodePosition span").parent().text() == "Standard")
+        layout.standardLayout();
+    else
+        layout.transmissionLayout();
 
     // Assign chosen layout properties:
     layout.width = Math.max(window.innerWidth-5, 200);

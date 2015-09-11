@@ -203,7 +203,7 @@ var Layout = Object.create({}, {
             if (node.isLeaf())
                 return nodePositions[node][0];
 
-            xpos = positionInternals(node.children[0], nodePositions, logScale);
+            var xpos = positionInternals(node.children[0], nodePositions, logScale);
             for (var i=1; i<node.children.length; i++)
                 positionInternals(node.children[i], nodePositions, logScale);
 

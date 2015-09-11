@@ -144,7 +144,6 @@ $(document).ready(function() {
             default:
                 switch(ui.item.parent().attr("id")) {
                     case "styleSort":
-                    case "styleNodePosition":
                     case "styleColourTrait":
                     case "styleTipTextTrait":
                     case "styleNodeTextTrait":
@@ -864,10 +863,10 @@ function update() {
 
     // Sort tree nodes
     switch ($("#styleSort span").parent().text()) {
-        case "Ascending":
+        case "Sorted (ascending)":
             tree.sortNodes(false);
             break;
-        case "Descending":
+        case "Sorted (descending)":
             tree.sortNodes(true);
             break;
         default:
@@ -958,10 +957,10 @@ function update() {
     layout.logScaleRelOffset = logScaleRelOffset;
 
     // Position internal nodes
-    if ($("#styleNodePosition span").parent().text() == "Standard")
-        layout.standardLayout();
-    else
+    if ($("#styleSort span").parent().text() == "Transmission tree")
         layout.transmissionLayout();
+    else
+        layout.standardLayout();
 
     // Assign chosen layout properties:
     layout.width = Math.max(window.innerWidth-5, 200);

@@ -54,6 +54,7 @@ var Layout = Object.create({}, {
     markSingletonNodes: {value: false, writable: true},
 
     displayRecomb: {value: true, writable: true},
+    inlineRecomb: {value: true, writable: true},
 
     lineWidth: {value: 2, writable: true},
     fontSize: {value: 11, writable: true},
@@ -151,11 +152,20 @@ var Layout = Object.create({}, {
             if (node.isLeaf())
                 return nodePositions[node][0];
 
-            var xpos = 0;
-            for (var i=0; i<node.children.length; i++)
-                xpos += positionInternals(node.children[i], nodePositions, logScale);
+            console.log(savedThis.inlineRecomb);
 
-            xpos /= node.children.length;
+            var xpos = 0;
+            var nonHybridCount = 0;
+            for (var i=0; i<node.children.length; i++) {
+                if (savedThis.inlineRecomb && node.children[i].isHybrid() && node.children[i].isLeaf()) {
+                    positionInternals(node.children[i], nodePositions, logScale);
+                } else {
+                    xpos += positionInternals(node.children[i], nodePositions, logScale);
+                    nonHybridCount += 1;
+                }
+            }
+
+            xpos /= nonHybridCount;
 
             nodePositions[node] = [
                 xpos,
@@ -684,22 +694,20 @@ var Layout = Object.create({}, {
             svg.appendChild(bullet);
         }
 
-        if (this.markSingletonNodes) {
             for (var i=0; i<this.tree.getNodeList().length; i++) {
                 var thisNode = this.tree.getNodeList()[i];
-                if (thisNode.children.length !== 1)
-                    continue;
 
-                newNodeMark(thisNode);
+                if (this.markSingletonNodes && thisNode.children.length == 1) {
+                    newNodeMark(thisNode);
+                } else {
+                    if (thisNode.isHybrid()) {
+                        if (thisNode.children.length == 1)
+                            newNodeMark(thisNode);
+                        else if (this.inlineRecomb && thisNode.isLeaf())
+                            newNodeMark(thisNode.parent);
+                    }
+                }
             }
-        } else {
-            // Always mark internal hybrid nodes:
-            for (var hybridID in this.tree.getHybridEdgeList()) {
-                var edge = this.tree.getHybridEdgeList()[hybridID];
-
-                newNodeMark(edge[0]);
-            }
-        }
 
 
         // Attach event handlers for pan and zoom:

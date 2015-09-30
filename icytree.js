@@ -133,12 +133,12 @@ $(document).ready(function() {
         switch(ui.item.attr("id")) {
             case "styleMarkSingletons":
             case "styleDisplayRecomb":
+            case "styleInlineRecomb":
             case "styleDisplayAxis":
             case "styleDisplayLegend":
             case "styleLogScale":
             case "styleAntiAlias":
                 toggleItem(ui.item);
-                console.log(ui.item);
                 break;
 
             default:
@@ -953,8 +953,10 @@ function update() {
 
     // Create layout object:
     var layout = Object.create(Layout).init(tree);
-    layout.logScale = ($("#styleLogScale > span").length>0);
+
+    layout.logScale = itemToggledOn($("#styleLogScale"));
     layout.logScaleRelOffset = logScaleRelOffset;
+    layout.inlineRecomb = itemToggledOn($("#styleInlineRecomb"));
 
     // Position internal nodes
     if ($("#styleSort span").parent().text() == "Transmission tree")
@@ -962,7 +964,7 @@ function update() {
     else
         layout.standardLayout();
 
-    // Assign chosen layout properties:
+    // Assign chosen style properties:
     layout.width = Math.max(window.innerWidth-5, 200);
     layout.height = Math.max(window.innerHeight-5, 200);
     layout.colourTrait = colourTrait;
@@ -972,10 +974,10 @@ function update() {
     layout.recombTextTrait = recombTextTrait;
     layout.edgeOpacityTrait = edgeOpacityTrait;
     layout.recombOpacityTrait = recombOpacityTrait;
-    layout.markSingletonNodes = ($("#styleMarkSingletons > span").length>0);
-    layout.displayRecomb = ($("#styleDisplayRecomb > span").length>0);
-    layout.axis = ($("#styleDisplayAxis > span").length>0);
-    layout.legend = ($("#styleDisplayLegend > span").length>0);
+    layout.markSingletonNodes = itemToggledOn($("#styleMarkSingletons"));
+    layout.displayRecomb = itemToggledOn($("#styleDisplayRecomb"));
+    layout.axis = itemToggledOn($("#styleDisplayAxis"));
+    layout.legend = itemToggledOn($("#styleDisplayLegend"));
     layout.lineWidth = lineWidth;
     layout.fontSize = fontSize;
 
@@ -1149,6 +1151,12 @@ function keyPressHandler(event) {
         case "d":
             // Toggle display of recombinant edges:
             toggleItem($("#styleDisplayRecomb"));
+            event.preventDefault();
+            return;
+
+        case "w":
+            // Toggle inlining of recombinant edges:
+            toggleItem($("#styleInlineRecomb"));
             event.preventDefault();
             return;
 

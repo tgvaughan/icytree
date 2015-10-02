@@ -152,10 +152,9 @@ var Layout = Object.create({}, {
             if (node.isLeaf())
                 return nodePositions[node][0];
 
-            console.log(savedThis.inlineRecomb);
-
             var xpos = 0;
             var nonHybridCount = 0;
+
             for (var i=0; i<node.children.length; i++) {
                 if (savedThis.inlineRecomb && node.children[i].isHybrid() && node.children[i].isLeaf()) {
                     positionInternals(node.children[i], nodePositions, logScale);
@@ -165,7 +164,10 @@ var Layout = Object.create({}, {
                 }
             }
 
-            xpos /= nonHybridCount;
+            if (nonHybridCount > 0)
+                xpos /= nonHybridCount;
+            else
+                xpos = nodePositions[node.children[0]][0]
 
             nodePositions[node] = [
                 xpos,

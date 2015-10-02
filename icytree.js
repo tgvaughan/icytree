@@ -106,7 +106,7 @@ $(document).ready(function() {
                 break;
 
             case "fileReload":
-                reloadTreeData();
+                loadFile();
                 break;
 
             case "fileExportSVG":

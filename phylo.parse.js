@@ -323,7 +323,7 @@ var Tree = Object.create({}, {
         return undefined;
     }},
 
-    // Obtain Newick representation of tree
+    // Obtain (extended) Newick representation of tree (network):
     getNewick: {value: function(annotate) {
 
         if (annotate === undefined)
@@ -338,11 +338,14 @@ var Tree = Object.create({}, {
                         res += ",";
                     res += newickRecurse(node.children[i]);
                 }
-                res += ")"
+                res += ")";
             }
 
             if (node.label.length>0)
                 res += "\"" + node.label + "\"";
+
+            if (node.hybridID !== undefined)
+                res += "#" + node.hybridID;
 
             if (annotate) {
                 var keys = Object.keys(node.annotation);

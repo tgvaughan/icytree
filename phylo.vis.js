@@ -1114,6 +1114,13 @@ var ZoomControl = Object.create({}, {
         this.updateView();
         this.updateNonAxisTextScaling();
         this.updateInternalNodeMarkScaling();
+
+        this.zeroPanOrigin(event.layerX, event.layerY);
+    }},
+
+    zeroPanOrigin: {value: function(x, y) {
+        this.dragOrigin = [x,y];
+        this.oldCentre = [this.centre[0], this.centre[1]];
     }},
 
     panEventHandler: {value: function(event) {
@@ -1125,8 +1132,7 @@ var ZoomControl = Object.create({}, {
             b = event.which;   // Chrome
 
         if (b === 0) {
-            this.dragOrigin = [event.layerX, event.layerY];
-            this.oldCentre = [this.centre[0], this.centre[1]];
+            this.zeroPanOrigin(event.layerX, event.layerY);
             return false;
         }
 

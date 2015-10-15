@@ -738,11 +738,14 @@ var getTreesFromString = function(string, defaultBranchLength) {
         var fullLine = "";
         var tmap = {};
         for (var i=1; i<lines.length; i++) {
-            
+
             fullLine += lines[i].trim();
             if (fullLine[fullLine.length-1] !== ";") {
                 continue;
             }
+
+            // Remove comments:
+            fullLine = fullLine.replace(/\[[^&][^\]]*\]/,"").trim();
             
             if (!inTrees) {
                 if (fullLine.toLowerCase() === "begin trees;")

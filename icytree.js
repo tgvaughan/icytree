@@ -34,6 +34,7 @@ var lineWidth = 2;
 var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
 var logScaleRelOffset = 0.001;
+var pollingIntervalID;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -126,6 +127,13 @@ $(document).ready(function() {
                 exportNEXUS();
                 break;
 
+            default:
+                switch(ui.item.parent().parent().attr("id")) {
+                    case "filePolling":
+                        selectListItemNoUpdate(ui.item);
+                        setupPolling(ui.item.data("interval"));
+                        break;
+                }
         }
     });
 
@@ -280,16 +288,15 @@ $(document).ready(function() {
                     // Highlight additional nodes as required
 
                     if (highlightType === "monophyletic")
-                    matchingNodes = tree.getCladeNodes(matchingNodes);
+                        matchingNodes = tree.getCladeNodes(matchingNodes);
 
-                if (highlightType === "ancestors")
-                    matchingNodes = tree.getAncestralNodes(matchingNodes);
+                    if (highlightType === "ancestors")
+                        matchingNodes = tree.getAncestralNodes(matchingNodes);
 
-                // Annotate selected nodes
-                $.each(matchingNodes, function (nidx, node) {
-                    node.annotation[akey] = matchVal;
-                });
-
+                    // Annotate selected nodes
+                    $.each(matchingNodes, function (nidx, node) {
+                        node.annotation[akey] = matchVal;
+                    });
                 });
 
                 updateTraitSelectors(tree);
@@ -374,22 +381,38 @@ function browserValid() {
 function updateMenuItems() {
     if (treeFile === undefined) {
         $("#fileReload").addClass("ui-state-disabled");
+        $("#filePolling").addClass("ui-state-disabled");
     } else {
-        $("#fileReload").removeClass("ui-state-disabled");
+        if (pollingIntervalID === undefined)
+            $("#fileReload").removeClass("ui-state-disabled");
+        else
+            $("#fileReload").addClass("ui-state-disabled");
+        $("#filePolling").removeClass("ui-state-disabled");
     }
 
     if (trees.length>0) {
-        $("#fileExport").removeClass("ui-state-disabled");
         $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
-        $("#searchMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
+        if (pollingIntervalID === undefined) {
+            $("#searchMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
+            $("#fileExport").removeClass("ui-state-disabled");
+        } else {
+            $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
+            $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
+            $("#fileExport").addClass("ui-state-disabled");
+        }
     } else {
         $("#fileExport").addClass("ui-state-disabled");
         $("#styleMenu").closest("li").find("button").first().addClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
     }
 
-    $("#fileLoad").removeClass("ui-state-disabled");
-    $("#fileEnter").removeClass("ui-state-disabled");
+    if (pollingIntervalID === undefined) {
+        $("#fileLoad").removeClass("ui-state-disabled");
+        $("#fileEnter").removeClass("ui-state-disabled");
+    } else {
+        $("#fileLoad").addClass("ui-state-disabled");
+        $("#fileEnter").addClass("ui-state-disabled");
+    }
 }
 
 // Load tree data from file object treeFile
@@ -403,6 +426,65 @@ function loadFile() {
         reloadTreeData();
     }
 
+}
+
+// Used to reload file when polling
+function pollingReload() {
+    var reader = new FileReader();
+    reader.onload = pollingFileLoaded;
+    reader.readAsText(treeFile);
+
+    function pollingFileLoaded(evt) {
+        treeData = evt.target.result;
+
+        // Clear existing trees
+        trees = []
+
+        // Early check for empty tree data
+        if (treeData.replace(/\s+/g,"").length === 0) {
+            displayError("No trees found!");
+            console.log("No trees found!");
+            return;
+        }
+
+        try {
+            trees = getTreesFromString(treeData, defaultBranchLength);
+        } catch (e) {
+            displayError(e);
+            console.log(e);
+            return;
+        }
+        
+        console.log("Successfully parsed " + trees.length + " trees.");
+        currentTreeIdx = trees.length - 1;
+        update();
+    }
+}
+
+// Set up polling as required
+function setupPolling(interval) {
+    if (interval > 0) {
+        // Reload NOW:
+        pollingReload()
+
+        if (pollingIntervalID === undefined) {
+            // Start polling
+
+            pollingIntervalID = setInterval(pollingReload, interval*1000);
+        } else {
+            // Change polling interval
+
+            clearInterval(pollingIntervalID);
+            pollingIntervalID = setInterval(pollingReload, interval*1000);
+        }
+    } else {
+        // Stop polling
+
+        clearInterval(pollingIntervalID);
+        pollingIntervalID = undefined;
+    }
+
+    updateMenuItems();
 }
 
 // Display space-filling frame with big text
@@ -474,7 +556,8 @@ function displayError(string) {
     output.css("paddingRight", "0px");
 
     setTimeout(function() {
-        displayStartOutput();
+        //displayStartOutput();
+        update();
     }, 4000);
 }
 
@@ -487,7 +570,7 @@ function prepareOutputForTree() {
 
 // Update checked item in list.
 // el is li
-function selectListItem(el) {
+function selectListItemNoUpdate(el) {
 
     if (itemToggledOn(el))
         return;
@@ -499,6 +582,12 @@ function selectListItem(el) {
 
     // Check this element:
     $("<span/>").addClass("ui-icon ui-icon-check").prependTo(el);
+}
+
+// Update checked item in list.
+// el is li
+function selectListItem(el) {
+    selectListItemNoUpdate(el);
 
     // Update
     update();

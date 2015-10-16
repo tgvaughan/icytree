@@ -50,6 +50,14 @@ ga('send', 'pageview');
                     <li id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</li>
                     <li id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</li>
                     <li id="fileReload" class="ui-state-disabled"><span class="ui-icon ui-icon-refresh"></span>Reload file</li>
+                    <li id="filePolling" class="ui-state-disabled"><span class="ui-icon ui-icon-clock"></span>Polling interval...
+                        <ul>
+                            <li data-interval="5">5 seconds</li>
+                            <li data-interval="10">10 seconds</li>
+                            <li data-interval="60">1 minute</li>
+                            <li data-interval="0">No polling<span class="ui-icon ui-icon-check"></span></li>
+                        </ul>
+                    </li>
                     <li>---</li>
                     <li id="fileExport" class="ui-state-disabled"><span class="ui-icon ui-icon-disk"></span>Export tree as...
                         <ul>

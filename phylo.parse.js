@@ -745,7 +745,7 @@ var getTreesFromString = function(string, defaultBranchLength) {
             }
 
             // Remove comments:
-            fullLine = fullLine.replace(/\[[^&][^\]]*\]/,"").trim();
+            fullLine = fullLine.replace(/\[[^&][^\]]*\]/g,"").trim();
             
             if (!inTrees) {
                 if (fullLine.toLowerCase() === "begin trees;")
@@ -772,7 +772,7 @@ var getTreesFromString = function(string, defaultBranchLength) {
             }
 
             // Parse tree line:
-            var matches = fullLine.toLowerCase().match(/tree \w+ *= *(\[&[^\]]*] *)* */);
+            var matches = fullLine.toLowerCase().match(/tree (\w|\.)+ *= *(\[&[^\]]*] *)* */);
             if (matches === null)
                 throw "Error parsing NEXUS";
 

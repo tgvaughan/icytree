@@ -574,7 +574,7 @@ var Layout = Object.create({}, {
         // Assign colours to trait classes:
 
         var traitsAreNumeric = true;
-        for (var traitVal in this.seenColourTraitValues) {
+        for (var traitVal of this.seenColourTraitValues) {
             if (isNaN(traitVal-0)) {
                 traitsAreNumeric = false;
                 break;

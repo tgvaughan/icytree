@@ -331,16 +331,16 @@ var Layout = Object.create({}, {
                 var label = "";
                 if (!this.logScale) {
                     if (this.axisForwards)
-                        label = axisOffset - parseFloat(h.toPrecision(5));
+                        label = parseFloat((axisOffset - h).toPrecision(5));
                     else
-                        label = parseFloat(h.toPrecision(5)) + axisOffset;
+                        label = parseFloat((h + axisOffset).toPrecision(5));
                     axisLine(h/treeHeight, label, bottomRight[0], topLeft[0]);
                 } else {
                     var trueHeight = lso*Math.pow(treeHeight/lso + 1, h) - lso;
                     if (this.axisForwards)
-                        label = (axisOffset - Number(trueHeight.toPrecision(5))).toExponential();
+                        label = Number((axisOffset - trueHeight).toPrecision(5)).toExponential();
                     else
-                        label =  (Number(trueHeight.toPrecision(5)) + axisOffset).toExponential();
+                        label =  Number((trueHeight + axisOffset).toPrecision(5)).toExponential();
                     axisLine(h, label, bottomRight[0], topLeft[0]);
                 }
                 h += delta;

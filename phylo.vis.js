@@ -44,6 +44,8 @@ var Layout = Object.create({}, {
     nodeBarTrait: {value: undefined, writable: true},
 
     axis: {value: false, writable: true},
+    axisForwards: {value: false, writable: true},
+    axisOffset: {value: 0, writable: true},
     maxAxisTicks: {value: 20, writable: true},
 
     legend: {value: false, writable: true},
@@ -328,11 +330,17 @@ var Layout = Object.create({}, {
             while (h <= axisEnd) {
                 var label = "";
                 if (!this.logScale) {
-                    label = parseFloat(h.toPrecision(5));
+                    if (this.axisForwards)
+                        label = axisOffset - parseFloat(h.toPrecision(5));
+                    else
+                        label = parseFloat(h.toPrecision(5)) + axisOffset;
                     axisLine(h/treeHeight, label, bottomRight[0], topLeft[0]);
                 } else {
                     var trueHeight = lso*Math.pow(treeHeight/lso + 1, h) - lso;
-                    label =  Number(trueHeight.toPrecision(5)).toExponential();
+                    if (this.axisForwards)
+                        label = (axisOffset - Number(trueHeight.toPrecision(5))).toExponential();
+                    else
+                        label =  (Number(trueHeight.toPrecision(5)) + axisOffset).toExponential();
                     axisLine(h, label, bottomRight[0], topLeft[0]);
                 }
                 h += delta;

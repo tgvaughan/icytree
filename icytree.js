@@ -35,6 +35,7 @@ var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
 var logScaleRelOffset = 0.001;
 var pollingIntervalID;
+var axisOffset = 0;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -142,11 +143,15 @@ $(document).ready(function() {
             case "styleMarkSingletons":
             case "styleDisplayRecomb":
             case "styleInlineRecomb":
-            case "styleDisplayAxis":
             case "styleDisplayLegend":
             case "styleLogScale":
             case "styleAntiAlias":
                 toggleItem(ui.item);
+                break;
+
+            case "styleSetAxisOffset":
+                $("#axisOffsetInput").val(axisOffset);
+                $("#axisOffsetDialog").dialog("open");
                 break;
 
             default:
@@ -159,6 +164,7 @@ $(document).ready(function() {
                     case "styleNodeBarTrait":
                     case "styleEdgeOpacityTrait":
                     case "styleRecombOpacityTrait":
+                    case "styleAxis":
                         selectListItem(ui.item);
                         break;
 
@@ -255,6 +261,21 @@ $(document).ready(function() {
         Cancel: function() {
             $(this).dialog("close");
         }}
+    });
+
+    $("#axisOffsetDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 400,
+        buttons: {
+            Ok: function() {
+                axisOffset = Number($("#axisOffsetInput").val());
+                $(this).dialog("close");
+                update();
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }}
     });
 
     $("#nodeSearchDialog").dialog({
@@ -438,7 +459,7 @@ function pollingReload() {
         treeData = evt.target.result;
 
         // Clear existing trees
-        trees = []
+        trees = [];
 
         // Early check for empty tree data
         if (treeData.replace(/\s+/g,"").length === 0) {
@@ -454,7 +475,7 @@ function pollingReload() {
             console.log(e);
             return;
         }
-        
+
         console.log("Successfully parsed " + trees.length + " trees.");
         currentTreeIdx = trees.length - 1;
         update();
@@ -465,7 +486,7 @@ function pollingReload() {
 function setupPolling(interval) {
     if (interval > 0) {
         // Reload NOW:
-        pollingReload()
+        pollingReload();
 
         if (pollingIntervalID === undefined) {
             // Start polling
@@ -1040,6 +1061,22 @@ function update() {
             break;
     }
 
+    // Determine which kind of axis (if any) should be displayed
+    var axisOn, axisForwards;
+    switch ($("#styleAxis span").parent().text()) {
+        case "Age":
+            axisOn = true;
+            axisForwards = false;
+            break;
+        case "Forwards time":
+            axisOn = true;
+            axisForwards = true;
+            break;
+        default:
+            axisOn = false;
+    }
+
+
     // Create layout object:
     var layout = Object.create(Layout).init(tree);
 
@@ -1065,7 +1102,9 @@ function update() {
     layout.recombOpacityTrait = recombOpacityTrait;
     layout.markSingletonNodes = itemToggledOn($("#styleMarkSingletons"));
     layout.displayRecomb = itemToggledOn($("#styleDisplayRecomb"));
-    layout.axis = itemToggledOn($("#styleDisplayAxis"));
+    layout.axis = axisOn;
+    layout.axisForwards = axisForwards;
+    layout.axisOffset = axisOffset;
     layout.legend = itemToggledOn($("#styleDisplayLegend"));
     layout.lineWidth = lineWidth;
     layout.fontSize = fontSize;
@@ -1249,10 +1288,15 @@ function keyPressHandler(event) {
             event.preventDefault();
             return;
 
-
         case "a":
-            // Toggle axis display
-            toggleItem($("#styleDisplayAxis"));
+            // Cycle axis display
+            cycleListItem($("#styleAxis"));
+            event.preventDefault();
+            return;
+
+        case "A":
+            // Reverse cycle axis display
+            reverseCycleListItem($("#styleAxis"));
             event.preventDefault();
             return;
 

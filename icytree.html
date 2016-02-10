@@ -137,8 +137,15 @@ ga('send', 'pageview');
                         </ul>
                     </li>
                     <li id="styleMarkSingletons">Mark singletons</li>
-                    <li id="styleDisplayAxis" >Display axis</li>
-                    <li id="styleDisplayLegend" >Display legend</li>
+                    <li>Axis
+                        <ul id="styleAxis" class="subsub">
+                            <li><span class="ui-icon ui-icon-check"></span>None</li>
+                            <li>Age</li>
+                            <li>Forwards time</li>
+                        </ul>
+                    </li>
+                    <li id="styleSetAxisOffset">Set axis offset</li>
+                    <li id="styleDisplayLegend">Display legend</li>
                     <li id="styleLogScale">Log scale</li>
                     <li id="styleAntiAlias">Anti-alias</li>
                 </ul>
@@ -191,6 +198,14 @@ ga('send', 'pageview');
 
         <!-- File input element -->
         <input id="fileInput" type="file"/>
+
+        <!-- Axis offset dialog-->
+        <div id="axisOffsetDialog" title="Set axis offset">
+            <p>The following number will be added to all axis tick values.  For age axes, this is the age
+            of the most recent sample.  For time axes, this is the time of the most recent sample.</p>
+
+            <input type="text" id="axisOffsetInput" value="0"></input>
+        </div>
 
         <!-- Node search dialog -->
         <div id="nodeSearchDialog" title="Search nodes">
@@ -264,7 +279,7 @@ ga('send', 'pageview');
                 <tr><td>m</td> <td>Toggle marking of internal nodes</td></tr>
                 <tr><td>d</td> <td>Toggle display of recombinant edges</td></tr>
                 <tr><td>w</td> <td>Toggle inline recombinant nodes </td></tr>
-                <tr><td>a</td> <td>Toggle axis display</td></tr>
+                <tr><td>a A</td> <td>Cycle axis display</td></tr>
                 <tr><td>g</td> <td>Toggle legend display</td></tr>
                 <tr><td>s</td> <td>Toggle log scale</td></tr>
                 <tr><td>z</td> <td>Reset zoom</td></tr>
@@ -299,13 +314,11 @@ ga('send', 'pageview');
             <p><b>Your mileage may vary with other browser/OS
                 combinations.</b></p>
 
-            <p>All components of IcyTree are licensed under version 3 of the
-            GNU <a target="new"
-                   href="http://www.gnu.org/licenses/gpl-3.0.html">General Public
-                   License</a> (GPL).  Source is available
-               on <a target="new"
-                     href="https://github.com/tgvaughan/icytree">GitHub</a>. Please
-                 feel free to open an issue on the project page if you find a bug.</p>
+            <p>IcyTree is licensed under version 3 of the GNU
+            <a target="new" href="http://www.gnu.org/licenses/gpl-3.0.html">General Public License</a>
+            (GPL).  Source is available on
+            <a target="new" href="https://github.com/tgvaughan/icytree">GitHub</a>.
+            Please feel free to open an issue on the project page if you find a bug.</p>
         </div>
 
         <!-- Browser warning -->

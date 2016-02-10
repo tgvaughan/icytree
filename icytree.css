@@ -142,6 +142,11 @@ body {
     left: -9999px;  /* So ugly! */
 }
 
+/* Axis offset */
+#axisOffsetDialog {
+    font: 14px sans-serif;
+}
+
 /* Taxon search */
 
 #nodeSearchDialog {

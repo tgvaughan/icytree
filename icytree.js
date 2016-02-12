@@ -150,8 +150,11 @@ $(document).ready(function() {
                 break;
 
             case "styleSetAxisOffset":
-                $("#axisOffsetInput").val(axisOffset);
                 $("#axisOffsetDialog").dialog("open");
+                var inputBox = $("#axisOffsetInput");
+                inputBox.val(axisOffset);
+                inputBox.focus();
+                inputBox.select();
                 break;
 
             default:

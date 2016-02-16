@@ -28,11 +28,16 @@ body {
 
 .ui-menu {
     font: 12px sans-serif;
-    width: 190px;
+    width: 200px;
 }
 
 .ui-menu .ui-menu {
     width: 150px;
+}
+
+.ks {
+    color: #0000a0;
+    float: right;
 }
 
 /* Output */

@@ -621,7 +621,7 @@ function selectListItem(el) {
 function cycleListItem(el) {
 
     // el is <ul>
-    var currentItem = el.find("span").closest("li");
+    var currentItem = el.find("span.ui-icon-check").closest("li");
     if (currentItem.is(el.find("li").last()) || currentItem.length === 0)
         selectListItem(el.find("li").first());
     else
@@ -632,7 +632,7 @@ function cycleListItem(el) {
 function reverseCycleListItem(el) {
 
     // el is <ul>
-    var currentItem = el.find("span").closest("li");
+    var currentItem = el.find("span.ui-icon-check").closest("li");
     if (currentItem.is(el.find("li").first()) || currentItem.length === 0)
         selectListItem(el.find("li").last());
     else
@@ -640,17 +640,17 @@ function reverseCycleListItem(el) {
 }
 
 function toggleItem (el) {
-    if (el.find("span").length === 0) {
+    if (el.find("span.ui-icon-check").length === 0) {
         el.prepend($("<span/>").addClass("ui-icon ui-icon-check"));
     } else {
-        el.find("span").remove();
+        el.find("span.ui-icon-check").remove();
     }
 
     update();
 }
 
 function itemToggledOn(el) {
-    return el.find("span").length>0;
+    return el.find("span.ui-icon-check").length>0;
 }
 
 // Update form elements containing trait selectors
@@ -1369,6 +1369,13 @@ function keyPressHandler(event) {
             fontSizeChange(-2);
             event.preventDefault();
             return;
+
+        case "/":
+            // Find nodes
+            $("#nodeSearchDialog").dialog("open");
+            event.preventDefault();
+            return;
+
 
         default:
             break;

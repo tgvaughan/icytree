@@ -47,9 +47,12 @@ ga('send', 'pageview');
         <ul id="menu">
             <li><button>File</button>
                 <ul id="fileMenu">
-                    <li id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...</li>
-                    <li id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...</li>
-                    <li id="fileReload" class="ui-state-disabled"><span class="ui-icon ui-icon-refresh"></span>Reload file</li>
+                    <li id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...
+                        <span class="ks">e</span></li>
+                    <li id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...
+                        <span class="ks">l</span></li>
+                    <li id="fileReload" class="ui-state-disabled"><span class="ui-icon ui-icon-refresh"></span>Reload file
+                        <span class="ks">r</span></li>
                     <li id="filePolling" class="ui-state-disabled"><span class="ui-icon ui-icon-clock"></span>Polling interval...
                         <ul>
                             <li data-interval="5">5 seconds</li>
@@ -86,28 +89,33 @@ ga('send', 'pageview');
                         <ul id="styleColourTrait">
                             <li>None<span class="ui-icon ui-icon-check"></li>
                         </ul>
+                        <span class="ks">c</span>
                     </li>
                     <li>Tip text
                         <ul id="styleTipTextTrait">
                             <li>None</li>
                             <li>Label<span class="ui-icon ui-icon-check"></span></li>
                         </ul>
+                        <span class="ks">t</span>
                     </li>
                     <li>Internal node text
                         <ul id="styleNodeTextTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                             <li>Label</li>
                         </ul>
+                        <span class="ks">n</span>
                     </li>
                      <li>Node height error bars
                         <ul id="styleNodeBarTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                         </ul>
+                        <span class="ks">b</span>
                     </li>
                     <li>Edge opacity
                         <ul id="styleEdgeOpacityTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                         </ul>
+                        <span class="ks">o</span>
                     </li>
                     <li id="styleMarkSingletons">Mark singletons</li>
                    <li>--</li>
@@ -116,25 +124,39 @@ ga('send', 'pageview');
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                             <li>Label</li>
                         </ul>
+                        <span class="ks">o</span>
                     </li>
                     <li>Recomb. edge opacity
                         <ul id="styleRecombOpacityTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                         </ul>
+                        <span class="ks">p</span>
                     </li>
-                    <li id="styleDisplayRecomb"><span class="ui-icon ui-icon-check"></span>Display recomb. edges</li>
-                    <li id="styleInlineRecomb">Inline recomb. edges</li>
+                    <li id="styleDisplayRecomb"><span class="ui-icon ui-icon-check"></span>Display recomb. edges
+                        <span class="ks">d</span>
+                    </li>
+                    <li id="styleInlineRecomb">Inline recomb. edges
+                        <span class="ks">w</span>
+                    </li>
                     <li>--</li>
                     <li>Edge width
                         <ul id="styleEdgeWidth" class="subsub">
-                            <li><span class="ui-icon ui-icon-plus"></span>Increase</li>
-                            <li><span class="ui-icon ui-icon-minus"></span>Decrease</li>
+                            <li><span class="ui-icon ui-icon-plus"></span>Increase
+                                <span class="ks">+</span>
+                            </li>
+                            <li><span class="ui-icon ui-icon-minus"></span>Decrease
+                                <span class="ks">-</span>
+                            </li>
                         </ul>
                     </li>
                     <li>Font size
                         <ul id="styleFontSize" class="subsub">
-                            <li><span class="ui-icon ui-icon-plus"></span>Increase</li>
-                            <li><span class="ui-icon ui-icon-minus"></span>Decrease</li>
+                            <li><span class="ui-icon ui-icon-plus"></span>Increase
+                                <span class="ks">[</span>
+                            </li>
+                            <li><span class="ui-icon ui-icon-minus"></span>Decrease
+                                <span class="ks">]</span>
+                            </li>
                         </ul>
                     </li>
                     <li>Axis
@@ -143,25 +165,28 @@ ga('send', 'pageview');
                             <li>Age</li>
                             <li>Forwards time</li>
                         </ul>
+                        <span class="ks">a</span>
                     </li>
                     <li id="styleSetAxisOffset">Set axis offset</li>
-                    <li id="styleDisplayLegend">Display legend</li>
-                    <li id="styleLogScale">Log scale</li>
+                    <li id="styleDisplayLegend">Display legend<span class="ks">g</span></li>
+                    <li id="styleLogScale">Log scale<span class="ks">s</span></li>
                     <li id="styleAntiAlias">Anti-alias</li>
                 </ul>
             </li>
 
             <li><button>Search</button>
                 <ul id="searchMenu">
-                    <li id="searchNodes">Find nodes</li>
+                    <li id="searchNodes">Find nodes
+                        <span class="ks">/</span>
+                    </li>
                     <li id="searchClear">Clear search results</li>
                 </ul>
             </li>
 
             <li><button>Help</button>
                 <ul id="helpMenu">
-                    <li id="helpTreeNav"><span class="ui-icon ui-icon-help"></span>Tree navigation...</li>
-                    <li id="helpShortcuts"><span class="ui-icon ui-icon-help"></span>Keyboard shortcuts...</li>
+                    <li id="helpTreeNav">Tree navigation...</li>
+                    <li id="helpShortcuts">Keyboard shortcuts...<span class="ks">?</span></li>
                     <li id="helpAbout">About IcyTree...</li>
                 </ul>
             </li>
@@ -287,6 +312,7 @@ ga('send', 'pageview');
                 <tr><td>&lt; &gt;</td> <td>Fast-forward or backward through trees</td></tr>
                 <tr><td>+ -</td> <td>Increase/decrease edge width</td></tr>
                 <tr><td>[ ]</td> <td>Increase/decrease font size</td></tr>
+                <tr><td>/</td> <td>Find nodes</td></tr>
                 <tr><td>?</td> <td>Keyboard shortcut help</td></tr>
             </table>
         </div>

@@ -60,6 +60,11 @@ var Node = Object.create({}, {
         child.parent = this;
     }},
 
+    removeChild: {value: function(child) {
+        var idx = this.children.indexOf(child);
+        this.children.splice(idx, 1);
+    }},
+
     isRoot: {value: function() {
         return (this.parent === undefined);
     }},
@@ -143,6 +148,7 @@ var Tree = Object.create({}, {
     init: {value: function(root) {
         this.root = root;
         this.nodeList = [];
+        this.leafList = [];
         this.hybridEdgeList = undefined;
         
 
@@ -240,34 +246,7 @@ var Tree = Object.create({}, {
         }
         
         sortNodesRecurse(this.root);
-
-        // Keep hybrid leaves as close to their non-leaf pairs
-        // as possible:
-        /*
-        for (var hybridID in this.getHybridEdgeList()) {
-
-            var edge = this.getHybridEdgeList()[hybridID];
-
-            var parent = edge[1].parent;
-            if (edge[0].isLeftOf(edge[1])) {
-                var leftMostChild = parent.children[0];
-                if (leftMostChild != edge[1]) {
-                    var otherIdx = parent.children.indexOf(edge[1]);
-                    parent.children[otherIdx] = leftMostChild;
-                    parent.children[0] = edge[1];
-                }
-            } else {
-                var rightIdx = parent.children.length-1;
-                var rightMostChild = parent.children[rightIdx];
-                if (rightMostChild != edge[1]) {
-                    var otherIdx = parent.children.indexOf(edge[1]);
-                    parent.children[otherIdx] = rightMostChild;
-                    parent.children[rightIdx] = edge[1];
-                }
-            }
-        }
-        */
-        
+   
         // Clear out-of-date leaf list
         this.leafList = [];
     }},
@@ -462,6 +441,9 @@ var TreeFromNewick = Object.create(Tree, {
         // Zero root edge length means undefined
         if (this.root.branchLength === 0.0)
             this.root.branchLength = undefined;
+
+        // Strip zero-length edges
+        this.stripZeroLengthBranches();
 
         return this;
     }},
@@ -719,8 +701,24 @@ var TreeFromNewick = Object.create(Tree, {
 
         for (var i=0; i<this.getNodeList().length; i++)
             this.getNodeList()[i].height -= youngestHeight;
-    }}
+    }},
 
+    // Strip zero length branches
+    stripZeroLengthBranches: {value: function(defaultBranchLength) {
+        var leaves = this.getLeafList().slice();
+
+        for (var i=0; i<leaves.length; i++) {
+            if (leaves[i].height == leaves[i].parent.height) {
+                leaves[i].parent.label = leaves[i].label;
+
+                leaves[i].parent.removeChild(leaves[i]);
+            }
+        }
+
+        // Invalidate cached leaf and node lists
+        this.leafList = [];
+        this.nodeList = [];
+    }}
 });
 
 // Function to read one or more trees from

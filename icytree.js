@@ -1180,7 +1180,7 @@ function keyPressHandler(event) {
         case "r":
             // Reload:
             loadFile();
-            break;
+            return;
     }
 
     if (trees.length === 0)

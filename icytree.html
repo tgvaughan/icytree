@@ -352,7 +352,7 @@ ga('send', 'pageview');
         </div>
 
         <!-- Browser warning -->
-        <div id="warning" title="Warning">
+        <div class="warning" id="warning" title="Warning">
             <img src="alert.png"/>
             <p>This browser does not support all of the features IcyTree
             requires.  While we are working to improve cross-browser
@@ -364,5 +364,17 @@ ga('send', 'pageview');
             Firefox. (Safari 6 <i>should</i> be okay as well.)</p>
         </div>
 
+        <!-- Firefox warning -->
+        <div class="warning" id="FFwarning" title="Warning">
+            <img src="alert.png"/>
+            <p>The latest version of Firefox introduces a change in the
+            JavaScript API that breaks IcyTree's ability to reload tree
+            files. There is a
+            <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1260606">bug report</a>
+            for this, so hopefully this will be remedied in a future version.</p>
+
+            <p>In the meantime, however, you might want to consider using
+            IcyTree via an alternative browser (e.g. Chrome).</p>
+        </div>
     </body>
 </html>

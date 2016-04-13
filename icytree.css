@@ -200,12 +200,12 @@ body {
     margin: 10px;
 }
 
-#warning {
+.warning {
     font: 14px sans-serif;
     text-align: justify;
 }
 
-#warning img {
+.warning img {
     float: right;
     margin-left: 15px;
 }

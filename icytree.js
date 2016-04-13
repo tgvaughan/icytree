@@ -382,11 +382,26 @@ $(document).ready(function() {
             }}
     });
 
+    $("#FFwarning").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 450,
+        buttons: {
+            "Continue anyway": function() {
+                $(this).dialog("close");
+            }}
+    });
+
     update();
 
     // Display warning if required functions unavailable.
     if (!browserValid()) {
         $("#warning").dialog("open");
+    }
+
+    // Display warning when using FF until bug is fixed.
+    if (browserIsFF()) {
+        $("#FFwarning").dialog("open");
     }
 });
 
@@ -399,6 +414,11 @@ function browserValid() {
     }
 
     return true;
+}
+
+// Test for use of FF
+function browserIsFF() {
+    return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
 }
 
 // Ensure menu items are appropriately blurred/unblurred.

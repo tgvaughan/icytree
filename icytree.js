@@ -400,8 +400,12 @@ $(document).ready(function() {
     }
 
     // Display warning when using FF until bug is fixed.
+    // (Uses cookie to ensure warning only displayed once.)
     if (browserIsFF()) {
-        $("#FFwarning").dialog("open");
+        if (document.cookie.indexOf("ffWarning") == -1) {
+            $("#FFwarning").dialog("open");
+            document.cookie = "ffWarning=seen";
+        }
     }
 });
 

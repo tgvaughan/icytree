@@ -108,6 +108,7 @@ $(document).ready(function() {
                 break;
 
             case "fileReload":
+                reloadWarning();
                 loadFile();
                 break;
 
@@ -399,6 +400,14 @@ $(document).ready(function() {
         $("#warning").dialog("open");
     }
 
+});
+
+// Test for use of FF
+function browserIsFF() {
+    return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+}
+
+function reloadWarning() {
     // Display warning when using FF until bug is fixed.
     // (Uses cookie to ensure warning only displayed once.)
     if (browserIsFF()) {
@@ -407,7 +416,7 @@ $(document).ready(function() {
             document.cookie = "ffWarning=seen";
         }
     }
-});
+}
 
 // Tests for the presence of required browser functionality
 function browserValid() {
@@ -418,11 +427,6 @@ function browserValid() {
     }
 
     return true;
-}
-
-// Test for use of FF
-function browserIsFF() {
-    return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
 }
 
 // Ensure menu items are appropriately blurred/unblurred.
@@ -1203,6 +1207,7 @@ function keyPressHandler(event) {
 
         case "r":
             // Reload:
+            reloadWarning();
             loadFile();
             return;
     }

@@ -708,7 +708,7 @@ var TreeFromNewick = Object.create(Tree, {
         var leaves = this.getLeafList().slice();
 
         for (var i=0; i<leaves.length; i++) {
-            if (leaves[i].height == leaves[i].parent.height) {
+            if (leaves[i].parent !== undefined && leaves[i].height == leaves[i].parent.height) {
                 leaves[i].parent.label = leaves[i].label;
 
                 leaves[i].parent.removeChild(leaves[i]);

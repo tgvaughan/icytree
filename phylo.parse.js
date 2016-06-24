@@ -73,6 +73,10 @@ var Node = Object.create({}, {
         return (this.children.length === 0);
     }},
 
+    isSingleton: {value: function() {
+        return (this.children.length === 1);
+    }},
+
     isHybrid: {value: function() {
         return (this.hybridID !== undefined);
     }},

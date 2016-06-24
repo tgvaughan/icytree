@@ -168,6 +168,7 @@ $(document).ready(function() {
                     case "styleNodeBarTrait":
                     case "styleEdgeOpacityTrait":
                     case "styleRecombOpacityTrait":
+                    case "styleLabelPrec":
                     case "styleAxis":
                         selectListItem(ui.item);
                         break;
@@ -1092,6 +1093,9 @@ function update() {
             break;
     }
 
+    // Determine numeric label precision
+    var labelPrec = $("#styleLabelPrec span").parent().data("prec");
+
     // Determine which kind of axis (if any) should be displayed
     var axisOn, axisForwards;
     switch ($("#styleAxis span").parent().text()) {
@@ -1139,6 +1143,7 @@ function update() {
     layout.legend = itemToggledOn($("#styleDisplayLegend"));
     layout.lineWidth = lineWidth;
     layout.fontSize = fontSize;
+    layout.labelPrec = labelPrec;
 
     // Use existing zoom control instance:
     layout.zoomControl = zoomControl;

@@ -23,6 +23,21 @@
  * for the JavaScript code in this page.
  */
 
+// Pretty print numbers
+function pretty(val, prec) {
+    prec = typeof prec !== 'undefined' ? prec : 5;
+
+    var nVal = Number(val);
+    if (Number.isNaN(nVal))
+        return val;
+
+    val = nVal.toPrecision(prec);
+    if (val.indexOf('.')<0)
+        return val;
+
+    return val.replace(/\.?0*$/,"");
+}
+
 // Tree layout object
 var Layout = Object.create({}, {
     tree: {value: undefined, writable: true},
@@ -38,6 +53,8 @@ var Layout = Object.create({}, {
     tipTextTrait: {value: "label", writable: true},
     nodeTextTrait: {value: undefined, writable: true},
     recombTextTrait: {value: undefined, writable: true},
+    labelPrec: {value: 0, writable: true},
+
     edgeOpacityTrait: {value: undefined, writable: true},
     recombOpacityTrait: {value: undefined, writable: true},
 
@@ -613,7 +630,13 @@ var Layout = Object.create({}, {
             text.setAttribute("x", pos[0]);
             text.setAttribute("y", pos[1]);
             // text.setAttribute("vector-effect", "non-scaling-text"); // I wish
-            text.textContent = string;
+
+            // Limit precision of numeric labels
+            if (savedThis.labelPrec>0 && !node.isLeaf()) {
+                text.textContent = pretty(string, savedThis.labelPrec);
+            } else {
+                text.textContent = string;
+            }
 
             return(text);
         }
@@ -844,19 +867,6 @@ var EdgeStatsControl = Object.create({}, {
         }
 
         var node = this.tree.getNode(nodeId);
-
-        // Pretty print numbers
-        function pretty(val) {
-            var nVal = Number(val);
-            if (Number.isNaN(nVal))
-                return val;
-
-            val = nVal.toPrecision(5);
-            if (val.indexOf('.')<0)
-                return val;
-
-            return val.replace(/\.?0*$/,"");
-        }
 
         var bl = "NA";
         if (node.branchLength !== undefined)

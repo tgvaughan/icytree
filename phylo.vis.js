@@ -47,8 +47,8 @@ var Layout = Object.create({}, {
     height: {value: 480, writable: true},
 
     colourTrait: {value: undefined, writable: true},
-    colourPallet: {value: ["blue", "red", "green", "purple", "orange", "#ff00ff"], writable: true},
     seenColourTraits: {value: [], writable: true},
+    colourPallet: {value: [], writable: true},
 
     tipTextTrait: {value: "label", writable: true},
     nodeTextTrait: {value: undefined, writable: true},
@@ -133,6 +133,48 @@ var Layout = Object.create({}, {
                 (Math.log(treeHeight + lso) - Math.log(lso));
         } else {
             return height/treeHeight;
+        }
+    }},
+
+    // Generate a colour pallet for N distinct trait values
+    genColourPallet: {value: function(N) {
+
+        // Taken from https://gist.github.com/mjackson/5311256
+        function hslToRgb(h, s, l) {
+            var r, g, b;
+
+            if (s == 0) {
+                r = g = b = l; // achromatic
+            } else {
+                function hue2rgb(p, q, t) {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                }
+
+                var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                var p = 2 * l - q;
+
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+
+            function paddedHex(x) {
+                s = Math.floor(x*255).toString(16);
+                return s.length == 2 ? s : "0" + s;
+            }
+
+            return "#" + paddedHex(r) + paddedHex(g) + paddedHex(b);
+        }
+
+        this.colourPallet = [];
+        var delta = Math.min(0.3, 1/N);
+        for (var idx=0; idx<N; idx++) {
+            this.colourPallet[idx] = hslToRgb(1 - idx*delta, 1, 0.45);
         }
     }},
 
@@ -394,7 +436,7 @@ var Layout = Object.create({}, {
                 dot.setAttribute("y", coord.y - this.getSVGHeight(svg, 5));
                 dot.setAttribute("width", this.getSVGWidth(svg, 10));
                 dot.setAttribute("height", this.getSVGHeight(svg, 10));
-                dot.setAttribute("fill", this.colourPallet[i%this.colourPallet.length]);
+                dot.setAttribute("fill", this.colourPallet[i]);
                 dot.setAttribute("class", "axisComponent");
                 svg.appendChild(dot);
 
@@ -402,7 +444,7 @@ var Layout = Object.create({}, {
                 label.setAttribute("class", "axisComponent");
                 label.setAttribute("x", coord.x + this.getSVGWidth(svg, 15));
                 label.setAttribute("y", coord.y + this.getSVGHeight(svg, 5));
-                label.setAttribute("fill", this.colourPallet[i%this.colourPallet.length]);
+                label.setAttribute("fill", this.colourPallet[i]);
                 label.textContent = this.seenColourTraitValues[i];
                 svg.appendChild(label);
             }
@@ -598,6 +640,8 @@ var Layout = Object.create({}, {
 
         // Assign colours to trait classes:
 
+        this.genColourPallet(this.seenColourTraitValues.length);
+
         var traitsAreNumeric = true;
         for (var traitVal of this.seenColourTraitValues) {
             if (isNaN(traitVal-0)) {
@@ -614,7 +658,7 @@ var Layout = Object.create({}, {
             var thisVal = this.seenColourTraitValues[t];
             var lines = svg.getElementsByClassName("trait_" + window.btoa(thisVal));
             for (var l=0; l<lines.length; l++) {
-                lines[l].setAttribute("stroke", this.colourPallet[t%this.colourPallet.length]);
+                lines[l].setAttribute("stroke", this.colourPallet[t]);
             }
         }
 

@@ -492,7 +492,7 @@ var TreeFromNewick = Object.create(Tree, {
                         var value = match[0];
                         if (this.tokens[k][0] === "STRING")
                             value = value.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
-                        tokenList.push([this.tokens[k][0], value]);
+                        tokenList.push([this.tokens[k][0], value, idx]);
                         //console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
                     } else {
                         tokenList.push([this.tokens[k][0]]);
@@ -543,7 +543,8 @@ var TreeFromNewick = Object.create(Tree, {
                 return true;
             } else {
                 if (mandatory)
-                    throw "Error: Expected token " + token + " but found " + tokenList[idx][0] + ".";
+                    throw "Error: Expected token " + token + " but found " + tokenList[idx][0] +
+                    " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".";
                 else
                     return false;
             }

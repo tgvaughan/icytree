@@ -1091,6 +1091,7 @@ var ZoomControl = Object.create({}, {
         var tlate = this.svg.createSVGMatrix();
         tlate.e = textPosX*(this.zoomFactorX - 1.0);
         tlate.f = textPosY*(this.zoomFactorY - 1.0);
+        var tlateXform = this.svg.createSVGTransformFromMatrix(tlate);
 
         var scaleMat = this.svg.createSVGMatrix();
         scaleMat.a = 1.0/this.zoomFactorX;
@@ -1099,7 +1100,7 @@ var ZoomControl = Object.create({}, {
 
         textEl.transform.baseVal.clear();
         textEl.transform.baseVal.appendItem(scaleXform);
-        textEl.transform.baseVal.appendItem(this.svg.createSVGTransformFromMatrix(tlate));
+        textEl.transform.baseVal.appendItem(tlateXform);
     }},
 
     updateInternalNodeMarkScaling: {value: function() {

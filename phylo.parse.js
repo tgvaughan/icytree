@@ -506,8 +506,8 @@ var TreeFromNewick = Object.create(TreeBuilder, {
         ["CLOSEV", /^}/, false],
         ["EQ", /^=/, false],
         ["HASH", /#/, false],
-        ["STRING", /^"[^"]+"/, true],
-        ["STRING",/^'[^']+'/, true],
+        ["STRING", /^"(?:[^"]|"")+"/, true],
+        ["STRING",/^'(?:[^']|'')+'/, true],
         ["STRING", /^[\w|*%/!.\-\+]+/, true]]},
 
     // Lexical analysis
@@ -531,8 +531,10 @@ var TreeFromNewick = Object.create(TreeBuilder, {
 
                     if (this.tokens[k][2]) {
                         var value = match[0];
-                        if (this.tokens[k][0] === "STRING")
+                        if (this.tokens[k][0] === "STRING") {
                             value = value.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
+                            value = value.replace("''","'").replace('""','"');
+                        }
                         tokenList.push([this.tokens[k][0], value, idx]);
                         //console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
                     } else {
@@ -888,12 +890,11 @@ function getTreesFromNexus(string, defaultBranchLength) {
 
         // Parse tree line:
         var matches = fullLine.toLowerCase().match(/tree (\w|\.)+ *(\[&[^\]]*] *)* *= *(\[&[^\]]*] *)* */);
-        if (matches === null)
-            throw "Error parsing NEXUS";
-
-        var eqIdx = matches[0].length;
-        trees.push(Object.create(TreeFromNewick).init(fullLine.slice(eqIdx), defaultBranchLength));
-        trees[trees.length-1].translate(tmap);
+        if (matches !== null) {
+            var eqIdx = matches[0].length;
+            trees.push(Object.create(TreeFromNewick).init(fullLine.slice(eqIdx), defaultBranchLength));
+            trees[trees.length-1].translate(tmap);
+        }
 
         fullLine = "";
     }

@@ -467,6 +467,15 @@ var TreeBuilder = Object.create(Tree, {
     }}
 });
 
+// Exceptions thrown during parsing
+
+function ParseException(message) {
+    this.message = message;
+}
+
+function SkipTreeException(message) {
+    this.message = message;
+}
 
 // Prototype for trees constructed from Newick strings
 var TreeFromNewick = Object.create(TreeBuilder, {
@@ -547,7 +556,7 @@ var TreeFromNewick = Object.create(TreeBuilder, {
             }
             
             if (!matchFound) {
-                throw "Error reading character " + newick[idx] + " at position " + idx;
+                throw new ParseException("Error reading character " + newick[idx] + " at position " + idx);
             }
             
         }
@@ -584,8 +593,8 @@ var TreeFromNewick = Object.create(TreeBuilder, {
                 return true;
             } else {
                 if (mandatory)
-                    throw "Error: Expected token " + token + " but found " + tokenList[idx][0] +
-                    " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".";
+                    throw new ParseException("Error: Expected token " + token + " but found " + tokenList[idx][0] +
+                                             " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".");
                 else
                     return false;
             }
@@ -690,7 +699,8 @@ var TreeFromNewick = Object.create(TreeBuilder, {
                 value = [ruleQ()].concat(ruleW());
                 acceptToken("CLOSEV", true);
             } else
-                throw "Expected number, string or vector in annotation. Found " + tokenList[idx][0] + " instead.";
+                throw new ParseException("Expected number, string or vector in annotation. Found " +
+                                         tokenList[idx][0] + " instead.");
 
             return value;
         }
@@ -721,7 +731,8 @@ var TreeFromNewick = Object.create(TreeBuilder, {
                 if (String(length) !== "NaN")
                     node.branchLength = length;
                 else
-                    throw "Expected numerical branch length. Found " + tokenList[idx-1][1] + " instead."; 
+                    throw new ParseException("Expected numerical branch length. Found " +
+                                             tokenList[idx-1][1] + " instead.");
 
                 //indentLog(":"+tokenList[idx-1][1]);
             }
@@ -830,15 +841,21 @@ var TreeFromNeXML = Object.create(TreeBuilder, {
             var node = Object.create(Node).init(thisNodeID++);
             node.label = nodeEl.getAttribute("label");
             nodesByID[nodeEl.getAttribute("id")] = node;
+
+            if (nodeEl.getAttribute("root") === "true")
+                this.root = node;
         }
 
-        for (var eidx=0; eidx <- edgeElements.length; eidx++) {
+        if (this.root === undefined)
+            throw new SkipTreeException("Skipping unrooted NexML tree.");
+
+        for (var eidx=0; eidx < edgeElements.length; eidx++) {
             var edgeEl = edgeElements[eidx];
             var parent = nodesByID[edgeEl.getAttribute("source")];
             var child = nodesByID[edgeEl.getAttribute("target")];
 
             parent.addChild(child);
-            child.branchLength = edgeEL.getAttribute("length");
+            child.branchLength = edgeEl.getAttribute("length");
         }
 
         // Branch lengths to node heights
@@ -858,11 +875,11 @@ var TreeFromNeXML = Object.create(TreeBuilder, {
 function getTreesFromNexML(dom, defaultBranchLength) {
     var trees = [];
 
-    var treesBlock = dom.getElementsByTagName("trees");
-    if (treesBlock.length == 0)
+    var treesBlocks = dom.getElementsByTagName("trees");
+    if (treesBlocks.length == 0)
         return [];
 
-    var treeElements = treesBlock.getElementsByTagName("tree");
+    var treeElements = treesBlocks[0].getElementsByTagName("tree");
 
     for (var i=0; i<treeElements.length; i++) {
         var treeEl = treeElements[i];
@@ -872,7 +889,14 @@ function getTreesFromNexML(dom, defaultBranchLength) {
             continue;
         }
 
-        trees.push(Object.create(TreeFromNeXML).init(treeElements[i], defaultBranchLength));
+        try {
+            trees.push(Object.create(TreeFromNeXML).init(treeElements[i], defaultBranchLength));
+        } catch (e) {
+            if (e instanceof SkipTreeException)
+                console.log(e.message);
+            else
+                throw e;
+        }
     }
 
     return trees;
@@ -902,7 +926,14 @@ function getTreesFromNewick(string, defaultBranchLength) {
         if (thisLine.length === 0)
             continue;
 
-        trees.push(Object.create(TreeFromNewick).init(thisLine, defaultBranchLength));
+        try {
+            trees.push(Object.create(TreeFromNewick).init(thisLine, defaultBranchLength));
+        } catch (e) {
+            if (e instanceof SkipTreeException)
+                console.log(e.message);
+            else
+                throw e;
+        }
     }
    
     return trees;
@@ -953,7 +984,7 @@ function getTreesFromNexus(string, defaultBranchLength) {
         // Parse tree line:
         var matches = fullLine.toLowerCase().match(/tree (\w|\.)+ *(\[&[^\]]*] *)* *= *(\[&[^\]]*] *)* */);
         if (matches === null)
-            throw "Error parsing NEXUS";
+            throw new ParseException("Error parsing NEXUS");
 
         var eqIdx = matches[0].length;
         trees.push(Object.create(TreeFromNewick).init(fullLine.slice(eqIdx), defaultBranchLength));
@@ -990,7 +1021,7 @@ function getTreesFromString(string, defaultBranchLength) {
                 break;
 
             default:
-                throw "Unrecognized XML format.";
+                throw new ParseException("Unrecognized XML format.");
             }
 
         } else {
@@ -999,7 +1030,7 @@ function getTreesFromString(string, defaultBranchLength) {
     }
 
     if (trees.length==0)
-        throw "No trees found in file";
+        throw new ParseException("No trees found in file");
 
     return trees;
 };

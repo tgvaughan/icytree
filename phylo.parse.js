@@ -812,12 +812,76 @@ var TreeFromPhyloXML = Object.create(TreeBuilder, {
     }}
 });
 
-function getTreesFromPhyloXML(string, defaultBranchLength) {
+
+// Prototype for trees constructed from PhyloXML
+var TreeFromNeXML = Object.create(TreeBuilder, {
+
+    // Initialiser
+    init: { value: function(treeElement, defaultBranchLength) {
+
+        var thisNodeID = 0;
+
+        var nodeElements = treeElement.getElementsByTagName("node");
+        var edgeElements = treeElement.getElementsByTagName("edge");
+
+        var nodesByID = {};
+        for (var nidx=0; nidx < nodeElements.length; nidx++) {
+            var nodeEl = nodeElements[nidx];
+            var node = Object.create(Node).init(thisNodeID++);
+            node.label = nodeEl.getAttribute("label");
+            nodesByID[nodeEl.getAttribute("id")] = node;
+        }
+
+        for (var eidx=0; eidx <- edgeElements.length; eidx++) {
+            var edgeEl = edgeElements[eidx];
+            var parent = nodesByID[edgeEl.getAttribute("source")];
+            var child = nodesByID[edgeEl.getAttribute("target")];
+
+            parent.addChild(child);
+            child.branchLength = edgeEL.getAttribute("length");
+        }
+
+        // Branch lengths to node heights
+        this.branchLengthsToNodeHeights(defaultBranchLength);
+
+        // Zero root edge length means undefined
+        if (this.root.branchLength === 0.0)
+            this.root.branchLength = undefined;
+
+        // Strip zero-length edges
+        this.stripZeroLengthBranches();
+
+        return this;
+    }}
+});
+
+function getTreesFromNexML(dom, defaultBranchLength) {
+    var trees = [];
+
+    var treesBlock = dom.getElementsByTagName("trees");
+    if (treesBlock.length == 0)
+        return [];
+
+    var treeElements = treesBlock.getElementsByTagName("tree");
+
+    for (var i=0; i<treeElements.length; i++) {
+        var treeEl = treeElements[i];
+
+        if (treeEl.hasAttribute("xsi:type") && treeEl.getAttribute("xsi:type").indexOf("Network")>=0) {
+            console.log("Skipping NexML network.");
+            continue;
+        }
+
+        trees.push(Object.create(TreeFromNeXML).init(treeElements[i], defaultBranchLength));
+    }
+
+    return trees;
+}
+
+
+function getTreesFromPhyloXML(dom, defaultBranchLength) {
     var trees = [];
     
-    var parser = new DOMParser();
-    var dom = parser.parseFromString(string, "text/xml");
-
     var phyloElements = dom.getElementsByTagName("phylogeny");
     for (var i=0; i<phyloElements.length; i++) {
         trees.push(Object.create(TreeFromPhyloXML).init(phyloElements[i], defaultBranchLength));
@@ -909,10 +973,30 @@ function getTreesFromString(string, defaultBranchLength) {
 
     if (string.substring(0, 6).toLowerCase() === "#nexus")
         trees =  getTreesFromNexus(string, defaultBranchLength);
-    else if (string.startsWith("<"))
-        trees = getTreesFromPhyloXML(string, defaultBranchLength);
-    else
-        trees =  getTreesFromNewick(string, defaultBranchLength);
+    else {
+        var parser = new DOMParser();
+        var dom = parser.parseFromString(string, "text/xml");
+
+        var docTag = dom.documentElement.tagName;
+
+        if (docTag !== "parsererror") {
+            switch(docTag) {
+            case "phyloxml":
+                trees = getTreesFromPhyloXML(dom, defaultBranchLength);
+                break;
+
+            case "nex:nexml":
+                trees = getTreesFromNexML(dom, defaultBranchLength);
+                break;
+
+            default:
+                throw "Unrecognized XML format.";
+            }
+
+        } else {
+            trees =  getTreesFromNewick(string, defaultBranchLength);
+        }
+    }
 
     if (trees.length==0)
         throw "No trees found in file";

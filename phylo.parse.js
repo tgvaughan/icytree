@@ -427,8 +427,49 @@ var Tree = Object.create({}, {
     }}
 });
 
+var TreeBuilder = Object.create(Tree, {
+
+    // Convert branch lengths to node heights
+    branchLengthsToNodeHeights: {value: function(defaultBranchLength) {
+        var heights = this.root.applyPreOrder(function(node) {
+            if (node.parent === undefined)
+                node.height = 0.0;
+            else {
+                if (node.branchLength !== undefined)
+                    node.height = node.parent.height - node.branchLength;
+                else
+                    node.height = node.parent.height - defaultBranchLength;
+            }
+
+            return node.height;
+        });
+        var youngestHeight = Math.min.apply(null, heights);
+
+        for (var i=0; i<this.getNodeList().length; i++)
+            this.getNodeList()[i].height -= youngestHeight;
+    }},
+
+    // Strip zero length branches
+    stripZeroLengthBranches: {value: function(defaultBranchLength) {
+        var leaves = this.getLeafList().slice();
+
+        for (var i=0; i<leaves.length; i++) {
+            if (leaves[i].parent !== undefined && leaves[i].height == leaves[i].parent.height) {
+                leaves[i].parent.label = leaves[i].label;
+
+                leaves[i].parent.removeChild(leaves[i]);
+            }
+        }
+
+        // Invalidate cached leaf and node lists
+        this.leafList = [];
+        this.nodeList = [];
+    }}
+});
+
+
 // Prototype for trees constructed from Newick strings
-var TreeFromNewick = Object.create(Tree, {
+var TreeFromNewick = Object.create(TreeBuilder, {
 
     // Initialiser
     init: { value: function(newick, defaultBranchLength) {
@@ -685,118 +726,193 @@ var TreeFromNewick = Object.create(Tree, {
                 //indentLog(":"+tokenList[idx-1][1]);
             }
         }
-    }},
+    }}
+
+});
 
 
-    // Convert branch lengths to node heights
-    branchLengthsToNodeHeights: {value: function(defaultBranchLength) {
-        var heights = this.root.applyPreOrder(function(node) {
-            if (node.parent === undefined)
-                node.height = 0.0;
-            else {
-                if (node.branchLength !== undefined)
-                    node.height = node.parent.height - node.branchLength;
-                else
-                    node.height = node.parent.height - defaultBranchLength;
-            }
+// Prototype for trees constructed from PhyloXML
+var TreeFromPhyloXML = Object.create(TreeBuilder, {
 
-            return node.height;
-        });
-        var youngestHeight = Math.min.apply(null, heights);
+    // Initialiser
+    init: { value: function(phylogenyElement, defaultBranchLength) {
 
-        for (var i=0; i<this.getNodeList().length; i++)
-            this.getNodeList()[i].height -= youngestHeight;
-    }},
+        var thisNodeID = 0;
 
-    // Strip zero length branches
-    stripZeroLengthBranches: {value: function(defaultBranchLength) {
-        var leaves = this.getLeafList().slice();
-
-        for (var i=0; i<leaves.length; i++) {
-            if (leaves[i].parent !== undefined && leaves[i].height == leaves[i].parent.height) {
-                leaves[i].parent.label = leaves[i].label;
-
-                leaves[i].parent.removeChild(leaves[i]);
+        function annotateNode(node, prefix, elements) {
+            for (var j=0; j<elements.length; j++) {
+                var tname = elements[j].tagName;
+                var tval = elements[j].textContent;
+                node.annotation[prefix + "_" + tname] = tval;
             }
         }
 
-        // Invalidate cached leaf and node lists
-        this.leafList = [];
-        this.nodeList = [];
+        function walkDom(parent, cladeElement) {
+            var node = Object.create(Node).init(thisNodeID++);
+            if (parent !== undefined)
+                parent.addChild(node);
+
+
+            for (var i=0; i<cladeElement.children.length; i++) {
+                var childEl = cladeElement.children[i]
+                var tagName = childEl.tagName;
+
+                switch(tagName) {
+                case "clade":
+                    walkDom(node, childEl);
+                    break;
+
+                case "name":
+                    node.label = childEl.textContent
+                    break;
+
+                case "taxonomy":
+                    annotateNode(node, "taxonomy", childEl.children);
+                    break;
+
+                case "sequence":
+                    annotateNode(node, "sequence", childEl.children);
+                    break;
+
+                case "confidence":
+                    node.annotation["confidence_" + childEl.getAttribute("type")] = childEl.textContent;
+                    break;
+                   
+                default:
+                    break;
+                }
+            }
+
+            node.branchLength = cladeElement.getAttribute("branch_length");
+            if (node.branchLength === null)
+                node.branchLength = undefined;
+
+            return node;
+        }
+
+        for (var i=0; i<phylogenyElement.children.length; i++) {
+            var el = phylogenyElement.children[i];
+            if (el.tagName === "clade") {
+                this.root = walkDom(undefined, el);
+                break;
+            }
+        }
+
+        // Branch lengths to node heights
+        this.branchLengthsToNodeHeights(defaultBranchLength);
+
+        // Zero root edge length means undefined
+        if (this.root.branchLength === 0.0)
+            this.root.branchLength = undefined;
+
+        // Strip zero-length edges
+        this.stripZeroLengthBranches();
+
+        return this;
     }}
 });
 
-// Function to read one or more trees from
-// a NEXUS or (as fall-back) a Newick formatted string
-var getTreesFromString = function(string, defaultBranchLength) {
+function getTreesFromPhyloXML(string, defaultBranchLength) {
+    var trees = [];
     
+    var parser = new DOMParser();
+    var dom = parser.parseFromString(string, "text/xml");
+
+    var phyloElements = dom.getElementsByTagName("phylogeny");
+    for (var i=0; i<phyloElements.length; i++) {
+        trees.push(Object.create(TreeFromPhyloXML).init(phyloElements[i], defaultBranchLength));
+        if (phyloElements[i].getAttribute("rooted").toLowerCase() === "false")
+            console.log("Warning: File includes unrooted trees.");
+    }
+
+    return trees;
+}
+
+function getTreesFromNewick(string, defaultBranchLength) {
+    var trees = [];
+
+    var lines = string.split('\n');
+
+    for (var i=0; i<lines.length; i++) {
+        var thisLine = lines[i].trim();
+        if (thisLine.length === 0)
+            continue;
+
+        trees.push(Object.create(TreeFromNewick).init(thisLine, defaultBranchLength));
+    }
+   
+    return trees;
+}
+
+function getTreesFromNexus(string, defaultBranchLength) {
     var trees = [];
     
     var lines = string.split('\n');
-    
-    if (lines[0].trim().toLowerCase() === "#nexus") {
+
+    var inTrees = false;
+    var fullLine = "";
+    var tmap = {};
+    for (var i=1; i<lines.length; i++) {
+
+        fullLine += lines[i].trim();
+        if (fullLine[fullLine.length-1] !== ";") {
+            continue;
+        }
+
+        // Remove comments:
+        fullLine = fullLine.replace(/\[[^&][^\]]*\]/g,"").trim();
         
-        // Parse as NEXUS file
-        var inTrees = false;
-        var fullLine = "";
-        var tmap = {};
-        for (var i=1; i<lines.length; i++) {
-
-            fullLine += lines[i].trim();
-            if (fullLine[fullLine.length-1] !== ";") {
-                continue;
-            }
-
-            // Remove comments:
-            fullLine = fullLine.replace(/\[[^&][^\]]*\]/g,"").trim();
-            
-            if (!inTrees) {
-                if (fullLine.toLowerCase() === "begin trees;")
-                    inTrees = true;
-                fullLine = "";
-                continue;
-            }
-
-            if (fullLine.toLowerCase() === "end;")
-                break;
-
-            // Parse translate line:
-            if (fullLine.toLowerCase().match("^translate")) {
-                var tStringArray = fullLine.slice(9,fullLine.length-1).split(",");
-                for (var j=0; j<tStringArray.length; j++) {
-                    var tvec = tStringArray[j].trim().split(" ");
-                    var tkey = tvec[0];
-                    var tval = tvec.slice(1).join(" ");
-                    tval = tval.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
-                    tmap[tvec[0]] = tval;
-                }
-                fullLine = "";
-                continue;
-            }
-
-            // Parse tree line:
-            var matches = fullLine.toLowerCase().match(/tree (\w|\.)+ *(\[&[^\]]*] *)* *= *(\[&[^\]]*] *)* */);
-            if (matches === null)
-                throw "Error parsing NEXUS";
-
-            var eqIdx = matches[0].length;
-            trees.push(Object.create(TreeFromNewick).init(fullLine.slice(eqIdx), defaultBranchLength));
-            trees[trees.length-1].translate(tmap);
-
+        if (!inTrees) {
+            if (fullLine.toLowerCase() === "begin trees;")
+                inTrees = true;
             fullLine = "";
+            continue;
         }
 
-    } else {
+        if (fullLine.toLowerCase() === "end;")
+            break;
 
-        // Parse as newline-delimited Newick strings
-        for (var i=0; i<lines.length; i++) {
-            var thisLine = lines[i].trim();
-            if (thisLine.length === 0)
-                continue;
-
-            trees.push(Object.create(TreeFromNewick).init(thisLine, defaultBranchLength));
+        // Parse translate line:
+        if (fullLine.toLowerCase().match("^translate")) {
+            var tStringArray = fullLine.slice(9,fullLine.length-1).split(",");
+            for (var j=0; j<tStringArray.length; j++) {
+                var tvec = tStringArray[j].trim().split(" ");
+                var tkey = tvec[0];
+                var tval = tvec.slice(1).join(" ");
+                tval = tval.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
+                tmap[tvec[0]] = tval;
+            }
+            fullLine = "";
+            continue;
         }
-    }   
+
+        // Parse tree line:
+        var matches = fullLine.toLowerCase().match(/tree (\w|\.)+ *(\[&[^\]]*] *)* *= *(\[&[^\]]*] *)* */);
+        if (matches === null)
+            throw "Error parsing NEXUS";
+
+        var eqIdx = matches[0].length;
+        trees.push(Object.create(TreeFromNewick).init(fullLine.slice(eqIdx), defaultBranchLength));
+        trees[trees.length-1].translate(tmap);
+
+        fullLine = "";
+    }
+
+    return trees;
+}
+
+// Function to read one or more trees from
+// a NEXUS or (as fall-back) a Newick formatted string
+function getTreesFromString(string, defaultBranchLength) {
+    
+    var trees;
+
+    if (string.substring(0, 6).toLowerCase() === "#nexus")
+        trees =  getTreesFromNexus(string, defaultBranchLength);
+    else if (string.startsWith("<"))
+        trees = getTreesFromPhyloXML(string, defaultBranchLength);
+    else
+        trees =  getTreesFromNewick(string, defaultBranchLength);
 
     if (trees.length==0)
         throw "No trees found in file";

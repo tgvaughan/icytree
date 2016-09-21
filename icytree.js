@@ -503,7 +503,7 @@ function pollingReload() {
         try {
             trees = getTreesFromString(treeData, defaultBranchLength);
         } catch (e) {
-            displayError(e);
+            displayError(e.message);
             console.log(e);
             return;
         }
@@ -874,7 +874,7 @@ function reloadTreeData() {
             try {
                 trees = getTreesFromString(treeData, defaultBranchLength);
             } catch (e) {
-                displayError(e);
+                displayError(e.message);
                 console.log(e);
                 return;
             }
@@ -889,7 +889,7 @@ function reloadTreeData() {
         try {
             trees = getTreesFromString(treeData, defaultBranchLength);
         } catch (e) {
-            displayError(e);
+            displayError(e.message);
             console.log(e);
             return;
         }

@@ -821,7 +821,7 @@ var EdgeStatsControl = Object.create({}, {
             this.phyloStat.setAttribute("id", "phyloStat");
             this.phyloStat.style.display="none";
             this.phyloStat.style.position="absolute";
-            this.phyloStat.style.width="200px";
+            this.phyloStat.style.maxWidth="45%";
             this.phyloStat.style.border="1px solid black";
             this.phyloStat.style.background="white";
             this.phyloStat.style.color="black";
@@ -831,16 +831,14 @@ var EdgeStatsControl = Object.create({}, {
             var table = document.createElement("table");
             table.innerHTML = "<tr><td>Branch length</td><td class='psBL'></td></tr><tr><td>Parent age</td><td class='psPA'></td></tr><tr><td>Child age</td><td class='psCA'></td></tr><tr><td>Child label</td><td class='psCL'></td><tr><td>Child attribs</td><td class='psCAT'></td>"
 
-                table.style.width = "100%";
             table.style.tableLayout = "fixed";
             var colEls = table.getElementsByTagName("td");
             for (var i=0; i<colEls.length; i++) {
-                if (colEls[i].className === "")
-                    colEls[i].style.width = "40%";
-                else {
-                    colEls[i].style.width = "auto";
-                    //colEls[i].style.whiteSpace = "nowrap";
-                }
+                //if (colEls[i].className === "")
+                //    colEls[i].style.width = "40%";
+                //else {
+                //    colEls[i].style.width = "auto";
+               // }
                 colEls[i].style.textAlign = "left";
                 colEls[i].style.overflow = "hidden";
                 colEls[i].style.border = "1px solid black";

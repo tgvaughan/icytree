@@ -821,16 +821,14 @@ var EdgeStatsControl = Object.create({}, {
         if (this.phyloStat === null) {
             this.phyloStat = document.createElement("div");
             this.phyloStat.setAttribute("id", "phyloStat");
-            this.phyloStat.style.display="none";
-            this.phyloStat.style.position="absolute";
 
             var table = document.createElement("table");
             table.innerHTML = "\
-                <tr><td>Branch length</td> <td class='entry' id='psBL'></td></tr> \
-                <tr><td>Parent age</td><td class='entry' id='psPA'></td></tr> \
-                <tr><td>Child age</td><td class='entry' id='psCA'></td></tr> \
-                <tr><td>Child label</td><td class='entry' id='psCL'></td> \
-                <tr><td>Child attribs</td><td class='entry' id='psCAT'></td>";
+                <tr><td class='key'>Branch length</td> <td class='value' id='psBL'></td></tr> \
+                <tr><td class='key'>Parent age</td><td class='value' id='psPA'></td></tr> \
+                <tr><td class='key'>Child age</td><td class='value' id='psCA'></td></tr> \
+                <tr><td class='key'>Child label</td><td class='value' id='psCL'></td> \
+                <tr><td class='key'>Child attribs</td><td class='value' id='psCAT'></td>";
             this.phyloStat.appendChild(table);
 
             document.getElementsByTagName("body")[0].appendChild(this.phyloStat);

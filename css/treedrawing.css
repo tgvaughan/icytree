@@ -1,5 +1,39 @@
 /* Edge stats */
 
-#phyloStat > table {
-    border: solid 1px;
+#phyloStat {
+    display: none;
+    position: absolute;
+    max-width: 45%;
+
+    color: white;
+    background-color: rgba(1,1,1,0.8);
+    font-family: sans-serif;
+    font-size: 0.8em;
+}
+
+#phyloStat table {
+    border-collapse: collapse;
+}
+
+#phyloStat tr {
+    vertical-align: center;
+}
+#phyloStat td {
+    width: auto;
+    padding: 5px;
+    border: solid white 1px;
+}
+
+#phyloStat .key {
+    text-align: right;
+}
+
+#phyloStat .value {
+    font-weight: bold;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+#phyloStat ul {
+    list-style-type: none;
 }

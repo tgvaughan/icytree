@@ -803,6 +803,8 @@ var Layout = Object.create({}, {
 
 
 // EdgeStatsControl object
+// Dynamically creates a table and a containing div with id phyloStat.
+// These should be style externally via CSS.
 var EdgeStatsControl = Object.create({}, {
 
     svg: {value: undefined, writable: true},
@@ -821,29 +823,14 @@ var EdgeStatsControl = Object.create({}, {
             this.phyloStat.setAttribute("id", "phyloStat");
             this.phyloStat.style.display="none";
             this.phyloStat.style.position="absolute";
-            this.phyloStat.style.maxWidth="45%";
-            this.phyloStat.style.border="1px solid black";
-            this.phyloStat.style.background="white";
-            this.phyloStat.style.color="black";
-            this.phyloStat.style.font="10px sans-serif";
-            this.phyloStat.style.fontWeight="normal";
 
             var table = document.createElement("table");
-            table.innerHTML = "<tr><td>Branch length</td><td class='psBL'></td></tr><tr><td>Parent age</td><td class='psPA'></td></tr><tr><td>Child age</td><td class='psCA'></td></tr><tr><td>Child label</td><td class='psCL'></td><tr><td>Child attribs</td><td class='psCAT'></td>"
-
-            table.style.tableLayout = "fixed";
-            var colEls = table.getElementsByTagName("td");
-            for (var i=0; i<colEls.length; i++) {
-                //if (colEls[i].className === "")
-                //    colEls[i].style.width = "40%";
-                //else {
-                //    colEls[i].style.width = "auto";
-               // }
-                colEls[i].style.textAlign = "left";
-                colEls[i].style.overflow = "hidden";
-                colEls[i].style.border = "1px solid black";
-                colEls[i].style.fontWeight = "normal";
-            }
+            table.innerHTML = "\
+                <tr><td>Branch length</td> <td class='entry' id='psBL'></td></tr> \
+                <tr><td>Parent age</td><td class='entry' id='psPA'></td></tr> \
+                <tr><td>Child age</td><td class='entry' id='psCA'></td></tr> \
+                <tr><td>Child label</td><td class='entry' id='psCL'></td> \
+                <tr><td>Child attribs</td><td class='entry' id='psCAT'></td>";
             this.phyloStat.appendChild(table);
 
             document.getElementsByTagName("body")[0].appendChild(this.phyloStat);
@@ -890,8 +877,6 @@ var EdgeStatsControl = Object.create({}, {
 
         var prec = 6;
 
-        this.phyloStat.style.position="absolute";
-
         if (x>window.innerWidth/2) {
             this.phyloStat.style.left = "";
             this.phyloStat.style.right = (window.innerWidth-x) + "px";
@@ -921,12 +906,12 @@ var EdgeStatsControl = Object.create({}, {
         var ca = pretty(node.height);
         var cl = node.label;
 
-        this.phyloStat.getElementsByClassName("psBL")[0].innerHTML = bl;
-        this.phyloStat.getElementsByClassName("psPA")[0].innerHTML = pa;
-        this.phyloStat.getElementsByClassName("psCA")[0].innerHTML = ca;
-        this.phyloStat.getElementsByClassName("psCL")[0].innerHTML = cl;
+        document.getElementById("psBL").innerHTML = bl;
+        document.getElementById("psPA").innerHTML = pa;
+        document.getElementById("psCA").innerHTML = ca;
+        document.getElementById("psCL").innerHTML = cl;
 
-        var psCAT = this.phyloStat.getElementsByClassName("psCAT")[0];
+        var psCAT = document.getElementById("psCAT");
         if (Object.keys(node.annotation).length>0) {
             var ul =  document.createElement("ul");
             ul.style.margin = "0px";

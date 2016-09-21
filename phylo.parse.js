@@ -858,12 +858,12 @@ var TreeFromNeXML = Object.create(TreeBuilder, {
             child.branchLength = edgeEl.getAttribute("length");
         }
 
+        var rootEdgeElements = treeElement.getElementsByTagName("rootedge");
+        if (rootEdgeElements.length>0)
+            this.root.branchLength = rootEdgeElements[0].getAttribute("length")*1.0;
+
         // Branch lengths to node heights
         this.branchLengthsToNodeHeights(defaultBranchLength);
-
-        // Zero root edge length means undefined
-        if (this.root.branchLength === 0.0)
-            this.root.branchLength = undefined;
 
         // Strip zero-length edges
         this.stripZeroLengthBranches();
@@ -883,11 +883,6 @@ function getTreesFromNexML(dom, defaultBranchLength) {
 
     for (var i=0; i<treeElements.length; i++) {
         var treeEl = treeElements[i];
-
-        if (treeEl.hasAttribute("xsi:type") && treeEl.getAttribute("xsi:type").indexOf("Network")>=0) {
-            console.log("Skipping NexML network.");
-            continue;
-        }
 
         try {
             trees.push(Object.create(TreeFromNeXML).init(treeElements[i], defaultBranchLength));
@@ -996,15 +991,15 @@ function getTreesFromNexus(string, defaultBranchLength) {
     return trees;
 }
 
-// Function to read one or more trees from
-// a NEXUS or (as fall-back) a Newick formatted string
+// Function to read one or more trees from a formatted string.
 function getTreesFromString(string, defaultBranchLength) {
     
     var trees;
 
-    if (string.substring(0, 6).toLowerCase() === "#nexus")
+    if (string.substring(0, 6).toLowerCase() === "#nexus") {
+        console.log("Parsing file as NEXUS.");
         trees =  getTreesFromNexus(string, defaultBranchLength);
-    else {
+    } else {
         var parser = new DOMParser();
         var dom = parser.parseFromString(string, "text/xml");
 
@@ -1013,10 +1008,12 @@ function getTreesFromString(string, defaultBranchLength) {
         if (docTag !== "parsererror") {
             switch(docTag) {
             case "phyloxml":
+                console.log("Parsing file as PhyloXML.");
                 trees = getTreesFromPhyloXML(dom, defaultBranchLength);
                 break;
 
             case "nex:nexml":
+                console.log("Parsing file as NeXML.");
                 trees = getTreesFromNexML(dom, defaultBranchLength);
                 break;
 

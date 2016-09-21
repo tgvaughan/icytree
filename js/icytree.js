@@ -553,7 +553,7 @@ function displayStartOutput() {
     var imgWidth = 368;
     output.append(
             $("<img/>")
-            .attr("src", "icytree_start.svg")
+            .attr("src", "images/icytree_start.svg")
             .attr("height", imgHeight)
             );
 

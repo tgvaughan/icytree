@@ -46,6 +46,11 @@ var Layout = Object.create({}, {
     width: {value: 640, writable: true},
     height: {value: 480, writable: true},
 
+    marginTop: {value: 40, writable: true},
+    marginBottom: {value: 10, writable: true},
+    marginLeft: {value: 10, writable: true},
+    marginRight: {value: 40, writable: true},
+
     colourTrait: {value: undefined, writable: true},
     seenColourTraits: {value: [], writable: true},
     colourPallet: {value: [], writable: true},
@@ -295,23 +300,23 @@ var Layout = Object.create({}, {
     // Transform from tree to SVG coordinates
     posXform: {value: function (treePos) {
         // Margins are 5% of total dimension.
-        var xmargin = 0.05*this.width;
-        var ymargin = 0.05*this.height;
+        //var xmargin = 0.05*this.width;
+        //var ymargin = 0.05*this.height;
 
-        var xpos = (1-treePos[1])*(this.width - 2*xmargin) + xmargin;
-        var ypos = (1-treePos[0])*(this.height - 2*ymargin) + ymargin;
+        var xpos = (1-treePos[1])*(this.width - this.marginLeft - this.marginRight) + this.marginLeft;
+        var ypos = (1-treePos[0])*(this.height - this.marginTop - this.marginBottom) + this.marginTop;
         return [xpos, ypos];
     }},
 
 
-    // Transform from tree to SVG coordinates
+    // Transform from SVG to tree coordinates
     invXform: {value: function (svgPos) {
         // Margins are 5% of total dimension.
         var xmargin = 0.05*this.width;
         var ymargin = 0.05*this.height;
 
-        var treePosY = 1 - (svgPos[0] - xmargin)/(this.width - 2*xmargin);
-        var treePosX = 1 - (svgPos[1] - ymargin)/(this.height - 2*ymargin);
+        var treePosY = 1 - (svgPos[0] - this.marginLeft)/(this.width - this.marginLeft - this.marginRight);
+        var treePosX = 1 - (svgPos[1] - this.marginTop)/(this.height - this.marginTop - this.marginBottom);
 
         return [treePosX, treePosY];
     }},

@@ -1128,6 +1128,10 @@ function update() {
     // Assign chosen style properties:
     layout.width = Math.max(window.innerWidth-5, 200);
     layout.height = Math.max(window.innerHeight-5, 200);
+    layout.marginTop = 40;
+    layout.marginBottom = Math.min(0.05*layout.height, 30);
+    layout.marginLeft = 10;
+    layout.marginRight = Math.min(0.05*layout.width, 30);
     layout.colourTrait = colourTrait;
     layout.tipTextTrait = tipTextTrait;
     layout.nodeTextTrait = nodeTextTrait;

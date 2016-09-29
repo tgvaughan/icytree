@@ -549,11 +549,11 @@ function displayStartOutput() {
     output.addClass("start");
     output.html("");
 
-    var imgHeight = 150;
-    var imgWidth = 368;
+    var imgHeight = 220;
+    var imgWidth = 414;
     output.append(
             $("<img/>")
-            .attr("src", "images/icytree_start.svg")
+            .attr("src", "images/icytree_start_flattened.svg")
             .attr("height", imgHeight)
             );
 

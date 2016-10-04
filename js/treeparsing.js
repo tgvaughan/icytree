@@ -600,9 +600,11 @@ function getTreesFromString(string, defaultBranchLength) {
         var parser = new DOMParser();
         var dom = parser.parseFromString(string, "text/xml");
 
-        var docTag = dom.documentElement.tagName;
+        var parserError = dom.getElementsByTagName("parsererror").length > 0;
 
-        if (docTag !== "parsererror") {
+        if (!parserError) {
+            var docTag = dom.documentElement.tagName;
+
             switch(docTag) {
             case "phyloxml":
                 console.log("Parsing file as PhyloXML.");

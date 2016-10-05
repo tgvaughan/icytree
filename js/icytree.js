@@ -614,6 +614,26 @@ function displayError(string) {
     }, 4000);
 }
 
+// Display style change notification message
+function displayNotification(str) {
+    $("#notify").stop(true, true);
+    $("#notify div").text(str);
+    $("#notify").show();
+    $("#notify").fadeOut(1000);
+}
+
+// Retrieve element text content
+function getItemDescription(el) {
+    return el.contents().filter(function() {
+        return this.nodeType == 3;
+    })[0].nodeValue.trim();
+}
+
+// Retrieve text label for list item
+function getListItemDescription(listElement) {
+    return getItemDescription(listElement.parent().parent());
+}
+
 // Clear all output element styles.
 function prepareOutputForTree() {
     var output = $("#output");
@@ -635,6 +655,7 @@ function selectListItemNoUpdate(el) {
 
     // Check this element:
     $("<span/>").addClass("ui-icon ui-icon-check").prependTo(el);
+    displayNotification(getListItemDescription(el) + ": " + el.text());
 }
 
 // Update checked item in list.
@@ -651,10 +672,13 @@ function cycleListItem(el) {
 
     // el is <ul>
     var currentItem = el.find("span.ui-icon-check").closest("li");
+    var nextItem;
     if (currentItem.is(el.find("li").last()) || currentItem.length === 0)
-        selectListItem(el.find("li").first());
+        nextItem = el.find("li").first();
     else
-        selectListItem(currentItem.next());
+        nextItem = currentItem.next();
+
+    selectListItem(nextItem);
 }
 
 // Cycle checked item in list in reverse order:
@@ -662,17 +686,22 @@ function reverseCycleListItem(el) {
 
     // el is <ul>
     var currentItem = el.find("span.ui-icon-check").closest("li");
+    var nextItem;
     if (currentItem.is(el.find("li").first()) || currentItem.length === 0)
-        selectListItem(el.find("li").last());
+        nextItem = el.find("li").last();
     else
-        selectListItem(currentItem.prev());
+        nextItem = currentItem.prev();
+
+    selectListItem(nextItem);
 }
 
 function toggleItem (el) {
     if (el.find("span.ui-icon-check").length === 0) {
         el.prepend($("<span/>").addClass("ui-icon ui-icon-check"));
+        displayNotification(getItemDescription(el) + ": ON");
     } else {
         el.find("span.ui-icon-check").remove();
+        displayNotification(getItemDescription(el) + ": OFF");
     }
 
     update();
@@ -769,12 +798,14 @@ function updateTraitSelectors(tree) {
 // Alter line width used in visualisation.
 function edgeWidthChange(inc) {
     lineWidth = Math.max(1, lineWidth + inc);
+    displayNotification("Edge width: " + lineWidth);
     update();
 }
 
 // Alter font size used in visualisation.
 function fontSizeChange(inc) {
     fontSize = Math.max(6, fontSize + inc);
+    displayNotification("Font size: " + fontSize);
     update();
 }
 
@@ -1391,6 +1422,7 @@ function keyPressHandler(event) {
             return;
 
         case "-":
+        case "_":
             // Decrease line width
             edgeWidthChange(-1);
             event.preventDefault();

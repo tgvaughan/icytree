@@ -1336,7 +1336,7 @@ function keyPressHandler(event) {
             event.preventDefault();
             return;
 
-        case "p":
+        case "P":
             // Reverse cycle recomb opacity:
             reverseCycleListItem($("#styleRecombOpacityTrait"));
             event.preventDefault();

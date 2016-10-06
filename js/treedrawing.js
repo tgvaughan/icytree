@@ -181,7 +181,6 @@ var Layout = Object.create({}, {
         for (var idx=0; idx<N; idx++) {
             var hue = 1 - idx*delta;
             var lightness = (hue>0.1 && hue<0.5) ? 0.30 : 0.45;
-            console.log(hue + " " + lightness);
             this.colourPallet[idx] = hslToRgb(hue, 1, lightness);
         }
     }},

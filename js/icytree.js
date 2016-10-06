@@ -132,7 +132,7 @@ $(document).ready(function() {
             default:
                 switch(ui.item.parent().parent().attr("id")) {
                     case "filePolling":
-                        selectListItemNoUpdate(ui.item);
+                        selectListItem(ui.item, false, false);
                         setupPolling(ui.item.data("interval"));
                         break;
                 }
@@ -205,9 +205,7 @@ $(document).ready(function() {
                 });
 
                 var noneElement = $($("#styleColourTrait a")[0]);
-                selectListItem(noneElement);
-
-                update();
+                selectListItem(noneElement, true, false);
                 break;
         }
     });
@@ -643,10 +641,12 @@ function prepareOutputForTree() {
 
 // Update checked item in list.
 // el is li
-function selectListItemNoUpdate(el) {
-
+function selectListItem(el, doUpdate, notify) {
     if (itemToggledOn(el))
         return;
+
+    doUpdate = (doUpdate !== undefined) ? doUpdate : true;
+    notify = (notify !== undefined) ? notify : true;
 
     var ul = el.parent();
 
@@ -655,16 +655,12 @@ function selectListItemNoUpdate(el) {
 
     // Check this element:
     $("<span/>").addClass("ui-icon ui-icon-check").prependTo(el);
-    displayNotification(getListItemDescription(el) + ": " + el.text());
-}
 
-// Update checked item in list.
-// el is li
-function selectListItem(el) {
-    selectListItemNoUpdate(el);
+    if (notify)
+        displayNotification(getListItemDescription(el) + ": " + el.text());
 
-    // Update
-    update();
+    if (doUpdate)
+        update();
 }
 
 // Cycle checked item in list:

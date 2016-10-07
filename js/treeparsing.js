@@ -113,7 +113,7 @@ var TreeFromNewick = Object.create(TreeBuilder, {
         ["HASH", /#/, false],
         ["STRING", /^"(?:[^"]|"")+"/, true],
         ["STRING",/^'(?:[^']|'')+'/, true],
-        ["STRING", /^[\w|*%/!.\-\+]+/, true]]},
+        ["STRING", /^[\w|*%/!.\-\+]+(?:\([^)]*\))?/, true]]},
 
     // Lexical analysis
     doLex: { value: function(newick) {
@@ -172,8 +172,7 @@ var TreeFromNewick = Object.create(TreeBuilder, {
         return ruleT();
 
 
-        /*
-        function indentLog(string) {
+        /*function indentLog(string) {
 
             // String doesn't have a repeat method.  (Seriously!?)
             var spaces = "";
@@ -181,8 +180,7 @@ var TreeFromNewick = Object.create(TreeBuilder, {
                 spaces += " ";
 
             console.log(spaces + string);
-        }
-        */
+        }*/
 
 
         function acceptToken(token, mandatory) {
@@ -320,7 +318,7 @@ var TreeFromNewick = Object.create(TreeBuilder, {
             }
         }
 
-        // B -> :num|eps
+        // B -> :num A | eps
         function ruleB(node) {
             if (acceptToken("COLON", false)) {
                 acceptToken("STRING", true);
@@ -333,6 +331,8 @@ var TreeFromNewick = Object.create(TreeBuilder, {
                                              tokenList[idx-1][1] + " instead.");
 
                 //indentLog(":"+tokenList[idx-1][1]);
+
+                ruleA(node);
             }
         }
     }}
@@ -564,7 +564,7 @@ function getTreesFromNexus(string, defaultBranchLength) {
         if (fullLine.toLowerCase().match("^translate")) {
             var tStringArray = fullLine.slice(9,fullLine.length-1).split(",");
             for (var j=0; j<tStringArray.length; j++) {
-                var tvec = tStringArray[j].trim().split(" ");
+                var tvec = tStringArray[j].trim().split(/\s+/);
                 var tkey = tvec[0];
                 var tval = tvec.slice(1).join(" ");
                 tval = tval.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");

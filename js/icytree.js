@@ -174,14 +174,15 @@ $(document).ready(function() {
                         break;
 
                     case "styleFontSize":
-                        if (ui.item.text() === "Increase")
+                        if (ui.item.text().indexOf("Increase")>=0)
                             fontSizeChange(2);
                         else
                             fontSizeChange(-2);
                         break;
 
                     case "styleEdgeWidth":
-                        if (ui.item.text() === "Increase")
+                        console.log(ui.item.text())
+                        if (ui.item.text().indexOf("Increase")>=0)
                             edgeWidthChange(1);
                         else
                             edgeWidthChange(-1);

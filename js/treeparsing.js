@@ -1,5 +1,5 @@
 /**
- * @licstart  The following is the entire license notice for the 
+ * @licstart  The following is the entire license notice for the
  *  JavaScript code in this page.
  *
  * Copyright (C) 2014  Tim Vaughan
@@ -23,45 +23,53 @@
  * for the JavaScript code in this page.
  */
 
-var TreeBuilder = Object.create(Tree, {
+// TreeBuilder constructor
 
-    // Convert branch lengths to node heights
-    branchLengthsToNodeHeights: {value: function(defaultBranchLength) {
-        var heights = this.root.applyPreOrder(function(node) {
-            if (node.parent === undefined)
-                node.height = 0.0;
-            else {
-                if (node.branchLength !== undefined)
-                    node.height = node.parent.height - node.branchLength;
-                else
-                    node.height = node.parent.height - defaultBranchLength;
-            }
+function TreeBuilder(root) {
+    Tree.call(this, root);
+}
 
-            return node.height;
-        });
-        var youngestHeight = Math.min.apply(null, heights);
+TreeBuilder.prototype = Object.create(Tree.prototype);
+TreeBuilder.prototype.constructor = TreeBuilder;
 
-        for (var i=0; i<this.getNodeList().length; i++)
-            this.getNodeList()[i].height -= youngestHeight;
-    }},
+// TreeBuilder methods
 
-    // Strip zero length branches
-    stripZeroLengthBranches: {value: function(defaultBranchLength) {
-        var leaves = this.getLeafList().slice();
-
-        for (var i=0; i<leaves.length; i++) {
-            if (leaves[i].parent !== undefined && leaves[i].height == leaves[i].parent.height) {
-                leaves[i].parent.label = leaves[i].label;
-
-                leaves[i].parent.removeChild(leaves[i]);
-            }
+// Convert branch lengths to node heights
+TreeBuilder.prototype.branchLengthsToNodeHeights = function(defaultBranchLength) {
+    var heights = this.root.applyPreOrder(function(node) {
+        if (node.parent === undefined)
+            node.height = 0.0;
+        else {
+            if (node.branchLength !== undefined)
+                node.height = node.parent.height - node.branchLength;
+            else
+                node.height = node.parent.height - defaultBranchLength;
         }
 
-        // Invalidate cached leaf and node lists
-        this.leafList = [];
-        this.nodeList = [];
-    }}
-});
+        return node.height;
+    });
+    var youngestHeight = Math.min.apply(null, heights);
+
+    for (var i=0; i<this.getNodeList().length; i++)
+        this.getNodeList()[i].height -= youngestHeight;
+};
+
+// Strip zero length branches
+TreeBuilder.prototype.stripZeroLengthBranches = function(defaultBranchLength) {
+    var leaves = this.getLeafList().slice();
+
+    for (var i=0; i<leaves.length; i++) {
+        if (leaves[i].parent !== undefined && leaves[i].height == leaves[i].parent.height) {
+            leaves[i].parent.label = leaves[i].label;
+
+            leaves[i].parent.removeChild(leaves[i]);
+        }
+    }
+
+    // Invalidate cached leaf and node lists
+    this.leafList = [];
+    this.nodeList = [];
+};
 
 // Exceptions thrown during parsing
 
@@ -73,33 +81,35 @@ function SkipTreeException(message) {
     this.message = message;
 }
 
-// Prototype for trees constructed from Newick strings
-var TreeFromNewick = Object.create(TreeBuilder, {
 
-    // Initialiser
-    init: { value: function(newick, defaultBranchLength) {
+// TreeFromNewick constructor
 
-        // Lex
-        var tokenList = this.doLex(newick);
+function TreeFromNewick(newick, defaultBranchLength) {
 
-        // Parse
-        this.root = this.doParse(tokenList);
+    // Lex
+    var tokenList = this.doLex(newick);
 
-        // Branch lengths to node heights
-        this.branchLengthsToNodeHeights(defaultBranchLength);
+    // Parse
+    TreeBuilder.call(this, this.doParse(tokenList));
 
-        // Zero root edge length means undefined
-        if (this.root.branchLength === 0.0)
-            this.root.branchLength = undefined;
+    // Branch lengths to node heights
+    this.branchLengthsToNodeHeights(defaultBranchLength);
 
-        // Strip zero-length edges
-        this.stripZeroLengthBranches();
+    // Zero root edge length means undefined
+    if (this.root.branchLength === 0.0)
+        this.root.branchLength = undefined;
 
-        return this;
-    }},
+    // Strip zero-length edges
+    this.stripZeroLengthBranches();
+}
+
+TreeFromNewick.prototype = Object.create(TreeBuilder.prototype);
+TreeFromNewick.prototype.constructor = TreeFromNewick;
 
 
-    tokens: {value: [
+// TreeFromNewick properties/methods
+
+TreeFromNewick.prototype.tokens = [
         ["OPENP", /^\(/, false],
         ["CLOSEP", /^\)/, false],
         ["COLON", /^:/, false],
@@ -113,68 +123,68 @@ var TreeFromNewick = Object.create(TreeBuilder, {
         ["HASH", /#/, false],
         ["STRING", /^"(?:[^"]|"")+"/, true],
         ["STRING",/^'(?:[^']|'')+'/, true],
-        ["STRING", /^[\w|*%/!.\-\+]+(?:\([^)]*\))?/, true]]},
+        ["STRING", /^[\w|*%/!.\-\+]+(?:\([^)]*\))?/, true]];
 
-    // Lexical analysis
-    doLex: { value: function(newick) {
-        var tokenList = [];
-        var idx = 0;
-    
-        while (idx<newick.length) {
+// Lexical analysis
+TreeFromNewick.prototype.doLex = function(newick) {
+    var tokenList = [];
+    var idx = 0;
 
-            // Skip over whitespace:
-            var wsMatch = newick.slice(idx).match(/^\s/);
-            if (wsMatch !== null && wsMatch.index === 0) {
-                idx += wsMatch[0].length;
-                continue;
-            }
+    while (idx<newick.length) {
 
-            var matchFound = false;
-            for (var k = 0; k<this.tokens.length; k++) {
-                var match = newick.slice(idx).match(this.tokens[k][1]);
-                if (match !== null && match.index === 0) {
-
-                    if (this.tokens[k][2]) {
-                        var value = match[0];
-                        if (this.tokens[k][0] === "STRING") {
-                            value = value.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
-                            value = value.replace("''","'").replace('""','"');
-                        }
-                        tokenList.push([this.tokens[k][0], value, idx]);
-                        //console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
-                    } else {
-                        tokenList.push([this.tokens[k][0]]);
-                        //console.log(idx + " " + this.tokens[k][0]);
-                    }
-                    
-                    matchFound = true;
-                    idx += match[0].length;
-                    break;
-                }
-            }
-            
-            if (!matchFound) {
-                throw new ParseException("Error reading character " + newick[idx] + " at position " + idx);
-            }
-            
+        // Skip over whitespace:
+        var wsMatch = newick.slice(idx).match(/^\s/);
+        if (wsMatch !== null && wsMatch.index === 0) {
+            idx += wsMatch[0].length;
+            continue;
         }
 
-        return tokenList;
-    }},
+        var matchFound = false;
+        for (var k = 0; k<this.tokens.length; k++) {
+            var match = newick.slice(idx).match(this.tokens[k][1]);
+            if (match !== null && match.index === 0) {
 
-    // Assemble tree from token list
-    doParse: {value: function(tokenList) {
+                if (this.tokens[k][2]) {
+                    var value = match[0];
+                    if (this.tokens[k][0] === "STRING") {
+                        value = value.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
+                        value = value.replace("''","'").replace('""','"');
+                    }
+                    tokenList.push([this.tokens[k][0], value, idx]);
+                    //console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
+                } else {
+                    tokenList.push([this.tokens[k][0]]);
+                    //console.log(idx + " " + this.tokens[k][0]);
+                }
 
-        var thisNodeID = 0;
+                matchFound = true;
+                idx += match[0].length;
+                break;
+            }
+        }
 
-        var idx = 0;
-        //var indent = 0;
-        return ruleT();
+        if (!matchFound) {
+            throw new ParseException("Error reading character " + newick[idx] + " at position " + idx);
+        }
+
+    }
+
+    return tokenList;
+};
+
+// Assemble tree from token list
+TreeFromNewick.prototype.doParse = function(tokenList) {
+
+    var thisNodeID = 0;
+
+    var idx = 0;
+    //var indent = 0;
+    return ruleT();
 
 
-        /*function indentLog(string) {
+    /*function indentLog(string) {
 
-            // String doesn't have a repeat method.  (Seriously!?)
+    // String doesn't have a repeat method.  (Seriously!?)
             var spaces = "";
             for (var i=0; i<indent; i++)
                 spaces += " ";
@@ -183,196 +193,190 @@ var TreeFromNewick = Object.create(TreeBuilder, {
         }*/
 
 
-        function acceptToken(token, mandatory) {
-            if (idx<tokenList.length && tokenList[idx][0] === token) {
-                idx += 1;
-                return true;
-            } else {
-                if (mandatory)
-                    throw new ParseException("Error: Expected token " + token + " but found " + tokenList[idx][0] +
-                                             " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".");
-                else
-                    return false;
-            }
-        }
-
-        // T -> N;
-        function ruleT() {
-            var node = ruleN(undefined);
-            acceptToken("SEMI", false);
-
-            return node;
-        }
-
-        // N -> CLHAB
-        function ruleN(parent) {
-            var node = Object.create(Node).init(thisNodeID++);
-            if (parent !== undefined)
-                parent.addChild(node);
-
-            ruleC(node);
-            ruleL(node);
-            ruleH(node);
-            ruleA(node);
-            ruleB(node);
-
-            return node;
-        }
-
-        // C -> (NM)|eps
-        function ruleC(node) {
-            if (acceptToken("OPENP", false)) {
-
-                //indentLog("(");
-                //indent += 1;
-
-                ruleN(node);
-                ruleM(node);
-                acceptToken("CLOSEP", true);
-
-                //indent -= 1;
-                //indentLog(")");
-            }
-        }
-
-        // M -> ,NM|eps
-        function ruleM(node) {
-            if (acceptToken("COMMA", false)) {
-                
-                //indentLog(",");
-                
-                ruleN(node);
-                ruleM(node);
-            }
-        }
-
-        // L -> lab|num
-        function ruleL(node) {
-            if (acceptToken("STRING", false)) {
-                node.label = tokenList[idx-1][1];
-
-                //indentLog(node.label);
-            }
-        }
-
-        // H -> #hybridID|eps
-        function ruleH(node) {
-            if (acceptToken("HASH", false)) {
-                acceptToken("STRING", true);
-                node.hybridID = tokenList[idx-1][1];
-            }
-        }
-
-        // A -> [&DE]|eps
-        function ruleA(node) {
-            if (acceptToken("OPENA", false)) {
-                ruleD(node);
-                ruleE(node);
-                acceptToken("CLOSEA", true);
-            }
-        }
-
-        // D -> lab=Q|eps
-        function ruleD(node) {
-            acceptToken("STRING", true);
-            var key = tokenList[idx-1][1];
-            acceptToken("EQ", true);
-            var value = ruleQ();
-
-            node.annotation[key] = value;
-
-            //indentLog(key + "=" + value);
-        }
-
-        // Q -> num|string|[&QW]
-        function ruleQ() {
-            var value = undefined;
-
-            if (acceptToken("STRING", false))
-                value = tokenList[idx-1][1];
-            
-            else if (acceptToken("OPENV", false)) {
-                value = [ruleQ()].concat(ruleW());
-                acceptToken("CLOSEV", true);
-            } else
-                throw new ParseException("Expected number, string or vector in annotation. Found " +
-                                         tokenList[idx][0] + " instead.");
-
-            return value;
-        }
-
-        // W -> ,QW|eps
-        function ruleW() {
-            if (acceptToken("COMMA", false)) {
-                return [ruleQ()].concat(ruleW());
-            }
+    function acceptToken(token, mandatory) {
+        if (idx<tokenList.length && tokenList[idx][0] === token) {
+            idx += 1;
+            return true;
+        } else {
+            if (mandatory)
+                throw new ParseException("Error: Expected token " + token + " but found " + tokenList[idx][0] +
+                    " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".");
             else
-                return [];
+                return false;
         }
-        
-        // E -> ,DE|eps
-        function ruleE(node) {
-            if (acceptToken("COMMA", false)) {
-                ruleD(node);
-                ruleE(node);
-            }
+    }
+
+    // T -> N;
+    function ruleT() {
+        var node = ruleN(undefined);
+        acceptToken("SEMI", false);
+
+        return node;
+    }
+
+    // N -> CLHAB
+    function ruleN(parent) {
+        var node = new Node(thisNodeID++);
+        if (parent !== undefined)
+            parent.addChild(node);
+
+        ruleC(node);
+        ruleL(node);
+        ruleH(node);
+        ruleA(node);
+        ruleB(node);
+
+        return node;
+    }
+
+    // C -> (NM)|eps
+    function ruleC(node) {
+        if (acceptToken("OPENP", false)) {
+
+            //indentLog("(");
+            //indent += 1;
+
+            ruleN(node);
+            ruleM(node);
+            acceptToken("CLOSEP", true);
+
+            //indent -= 1;
+            //indentLog(")");
         }
+    }
 
-        // B -> :num A | eps
-        function ruleB(node) {
-            if (acceptToken("COLON", false)) {
-                acceptToken("STRING", true);
+    // M -> ,NM|eps
+    function ruleM(node) {
+        if (acceptToken("COMMA", false)) {
 
-                var length = Number(tokenList[idx-1][1]);
-                if (String(length) !== "NaN")
-                    node.branchLength = length;
-                else
-                    throw new ParseException("Expected numerical branch length. Found " +
-                                             tokenList[idx-1][1] + " instead.");
+            //indentLog(",");
 
-                //indentLog(":"+tokenList[idx-1][1]);
-
-                ruleA(node);
-            }
+            ruleN(node);
+            ruleM(node);
         }
-    }}
+    }
 
-});
+    // L -> lab|num
+    function ruleL(node) {
+        if (acceptToken("STRING", false)) {
+            node.label = tokenList[idx-1][1];
 
-
-// Prototype for trees constructed from PhyloXML
-var TreeFromPhyloXML = Object.create(TreeBuilder, {
-
-    // Initialiser
-    init: { value: function(phylogenyElement, defaultBranchLength) {
-
-        var thisNodeID = 0;
-
-        function annotateNode(node, prefix, elements) {
-            for (var j=0; j<elements.length; j++) {
-                var tname = elements[j].tagName;
-                var tval = elements[j].textContent;
-                node.annotation[prefix + "_" + tname] = tval;
-            }
+            //indentLog(node.label);
         }
+    }
 
-        function walkDom(parent, cladeElement) {
-            var node = Object.create(Node).init(thisNodeID++);
-            if (parent !== undefined)
-                parent.addChild(node);
+    // H -> #hybridID|eps
+    function ruleH(node) {
+        if (acceptToken("HASH", false)) {
+            acceptToken("STRING", true);
+            node.hybridID = tokenList[idx-1][1];
+        }
+    }
+
+    // A -> [&DE]|eps
+    function ruleA(node) {
+        if (acceptToken("OPENA", false)) {
+            ruleD(node);
+            ruleE(node);
+            acceptToken("CLOSEA", true);
+        }
+    }
+
+    // D -> lab=Q|eps
+    function ruleD(node) {
+        acceptToken("STRING", true);
+        var key = tokenList[idx-1][1];
+        acceptToken("EQ", true);
+        var value = ruleQ();
+
+        node.annotation[key] = value;
+
+        //indentLog(key + "=" + value);
+    }
+
+    // Q -> num|string|[&QW]
+    function ruleQ() {
+        if (acceptToken("STRING", false))
+            value = tokenList[idx-1][1];
+
+        else if (acceptToken("OPENV", false)) {
+            value = [ruleQ()].concat(ruleW());
+            acceptToken("CLOSEV", true);
+        } else
+            throw new ParseException("Expected number, string or vector in annotation. Found " +
+                tokenList[idx][0] + " instead.");
+
+        return value;
+    }
+
+    // W -> ,QW|eps
+    function ruleW() {
+        if (acceptToken("COMMA", false)) {
+            return [ruleQ()].concat(ruleW());
+        }
+        else
+            return [];
+    }
+
+    // E -> ,DE|eps
+    function ruleE(node) {
+        if (acceptToken("COMMA", false)) {
+            ruleD(node);
+            ruleE(node);
+        }
+    }
+
+    // B -> :num A | eps
+    function ruleB(node) {
+        if (acceptToken("COLON", false)) {
+            acceptToken("STRING", true);
+
+            var length = Number(tokenList[idx-1][1]);
+            if (String(length) !== "NaN")
+                node.branchLength = length;
+            else
+                throw new ParseException("Expected numerical branch length. Found " +
+                    tokenList[idx-1][1] + " instead.");
+
+            //indentLog(":"+tokenList[idx-1][1]);
+
+            ruleA(node);
+        }
+    }
+};
 
 
-            for (var i=0; i<cladeElement.children.length; i++) {
-                var childEl = cladeElement.children[i]
-                var tagName = childEl.tagName;
+// TreeFromPhyloXML constructor
 
-                switch(tagName) {
+function TreeFromPhyloXML (phylogenyElement, defaultBranchLength) {
+
+    var thisNodeID = 0;
+
+    function annotateNode(node, prefix, elements) {
+        for (var j=0; j<elements.length; j++) {
+            var tname = elements[j].tagName;
+            var tval = elements[j].textContent;
+            node.annotation[prefix + "_" + tname] = tval;
+        }
+    }
+
+    function walkDom(parent, cladeElement) {
+        var node = new Node(thisNodeID++);
+        if (parent !== undefined)
+            parent.addChild(node);
+
+
+        for (var i=0; i<cladeElement.children.length; i++) {
+            var childEl = cladeElement.children[i];
+            var tagName = childEl.tagName;
+
+            switch(tagName) {
                 case "clade":
                     walkDom(node, childEl);
                     break;
 
                 case "name":
-                    node.label = childEl.textContent
+                    node.label = childEl.textContent;
                     break;
 
                 case "taxonomy":
@@ -386,95 +390,102 @@ var TreeFromPhyloXML = Object.create(TreeBuilder, {
                 case "confidence":
                     node.annotation["confidence_" + childEl.getAttribute("type")] = childEl.textContent;
                     break;
-                   
+
                 default:
                     break;
-                }
-            }
-
-            node.branchLength = cladeElement.getAttribute("branch_length");
-            if (node.branchLength === null)
-                node.branchLength = undefined;
-
-            return node;
-        }
-
-        for (var i=0; i<phylogenyElement.children.length; i++) {
-            var el = phylogenyElement.children[i];
-            if (el.tagName === "clade") {
-                this.root = walkDom(undefined, el);
-                break;
             }
         }
 
-        // Branch lengths to node heights
-        this.branchLengthsToNodeHeights(defaultBranchLength);
+        node.branchLength = cladeElement.getAttribute("branch_length");
+        if (node.branchLength === null)
+            node.branchLength = undefined;
 
-        // Zero root edge length means undefined
-        if (this.root.branchLength === 0.0)
-            this.root.branchLength = undefined;
+        return node;
+    }
 
-        // Strip zero-length edges
-        this.stripZeroLengthBranches();
-
-        return this;
-    }}
-});
-
-
-// Prototype for trees constructed from PhyloXML
-var TreeFromNeXML = Object.create(TreeBuilder, {
-
-    // Initialiser
-    init: { value: function(treeElement, defaultBranchLength) {
-
-        var thisNodeID = 0;
-
-        var nodeElements = treeElement.getElementsByTagName("node");
-        var edgeElements = treeElement.getElementsByTagName("edge");
-
-        var nodesByID = {};
-        for (var nidx=0; nidx < nodeElements.length; nidx++) {
-            var nodeEl = nodeElements[nidx];
-            var node = Object.create(Node).init(thisNodeID++);
-            node.label = nodeEl.getAttribute("label");
-            nodesByID[nodeEl.getAttribute("id")] = node;
-
-            if (nodeEl.getAttribute("root") === "true")
-                this.root = node;
+    for (var i=0; i<phylogenyElement.children.length; i++) {
+        var el = phylogenyElement.children[i];
+        if (el.tagName === "clade") {
+            TreeBuilder.call(this, walkDom(undefined, el));
+            break;
         }
+    }
 
-        if (this.root === undefined)
-            throw new SkipTreeException("Skipping unrooted NexML tree.");
+    // Branch lengths to node heights
+    this.branchLengthsToNodeHeights(defaultBranchLength);
 
-        for (var eidx=0; eidx < edgeElements.length; eidx++) {
-            var edgeEl = edgeElements[eidx];
-            var parent = nodesByID[edgeEl.getAttribute("source")];
-            var child = nodesByID[edgeEl.getAttribute("target")];
+    // Zero root edge length means undefined
+    if (this.root.branchLength === 0.0)
+        this.root.branchLength = undefined;
 
-            parent.addChild(child);
-            child.branchLength = edgeEl.getAttribute("length");
-        }
+    // Strip zero-length edges
+    this.stripZeroLengthBranches();
+}
 
-        var rootEdgeElements = treeElement.getElementsByTagName("rootedge");
-        if (rootEdgeElements.length>0)
-            this.root.branchLength = rootEdgeElements[0].getAttribute("length")*1.0;
+TreeFromPhyloXML.prototype = Object.create(TreeBuilder.prototype);
+TreeFromPhyloXML.prototype.constructor = TreeFromPhyloXML;
 
-        // Branch lengths to node heights
-        this.branchLengthsToNodeHeights(defaultBranchLength);
 
-        // Strip zero-length edges
-        this.stripZeroLengthBranches();
+// TreeFromNeXML constructor
 
-        return this;
-    }}
-});
+function TreeFromNeXML(treeElement, defaultBranchLength) {
+
+    var thisNodeID = 0;
+
+    var nodeElements = treeElement.getElementsByTagName("node");
+    var edgeElements = treeElement.getElementsByTagName("edge");
+
+    var root;
+
+    var nodesByID = {};
+    for (var nidx=0; nidx < nodeElements.length; nidx++) {
+        var nodeEl = nodeElements[nidx];
+        var node = new Node(thisNodeID++);
+        node.label = nodeEl.getAttribute("label");
+        nodesByID[nodeEl.getAttribute("id")] = node;
+
+        if (nodeEl.getAttribute("root") === "true")
+            root = node;
+    }
+
+    if (root === undefined)
+        throw new SkipTreeException("Skipping unrooted NexML tree.");
+
+    TreeBuilder.call(this, root);
+
+    for (var eidx=0; eidx < edgeElements.length; eidx++) {
+        var edgeEl = edgeElements[eidx];
+        var parent = nodesByID[edgeEl.getAttribute("source")];
+        var child = nodesByID[edgeEl.getAttribute("target")];
+
+        parent.addChild(child);
+        child.branchLength = edgeEl.getAttribute("length");
+    }
+
+    var rootEdgeElements = treeElement.getElementsByTagName("rootedge");
+    if (rootEdgeElements.length>0)
+        this.root.branchLength = rootEdgeElements[0].getAttribute("length")*1.0;
+
+    // Branch lengths to node heights
+    this.branchLengthsToNodeHeights(defaultBranchLength);
+
+    // Strip zero-length edges
+    this.stripZeroLengthBranches();
+
+    return this;
+}
+
+TreeFromNeXML.prototype = Object.create(TreeBuilder.prototype);
+TreeFromNeXML.prototype.constructor = TreeFromNeXML;
+
+
+// Interface functions
 
 function getTreesFromNexML(dom, defaultBranchLength) {
     var trees = [];
 
     var treesBlocks = dom.getElementsByTagName("trees");
-    if (treesBlocks.length == 0)
+    if (treesBlocks.length === 0)
         return [];
 
     var treeElements = treesBlocks[0].getElementsByTagName("tree");
@@ -483,7 +494,7 @@ function getTreesFromNexML(dom, defaultBranchLength) {
         var treeEl = treeElements[i];
 
         try {
-            trees.push(Object.create(TreeFromNeXML).init(treeElements[i], defaultBranchLength));
+            trees.push(new TreeFromNeXML(treeElements[i], defaultBranchLength));
         } catch (e) {
             if (e instanceof SkipTreeException)
                 console.log(e.message);
@@ -498,10 +509,10 @@ function getTreesFromNexML(dom, defaultBranchLength) {
 
 function getTreesFromPhyloXML(dom, defaultBranchLength) {
     var trees = [];
-    
+
     var phyloElements = dom.getElementsByTagName("phylogeny");
     for (var i=0; i<phyloElements.length; i++) {
-        trees.push(Object.create(TreeFromPhyloXML).init(phyloElements[i], defaultBranchLength));
+        trees.push(new TreeFromPhyloXML(phyloElements[i], defaultBranchLength));
         if (phyloElements[i].getAttribute("rooted").toLowerCase() === "false")
             console.log("Warning: File includes unrooted trees.");
     }
@@ -520,7 +531,7 @@ function getTreesFromNewick(string, defaultBranchLength) {
             continue;
 
         try {
-            trees.push(Object.create(TreeFromNewick).init(thisLine, defaultBranchLength));
+            trees.push(new TreeFromNewick(thisLine, defaultBranchLength));
         } catch (e) {
             if (e instanceof SkipTreeException)
                 console.log(e.message);
@@ -528,13 +539,13 @@ function getTreesFromNewick(string, defaultBranchLength) {
                 throw e;
         }
     }
-   
+
     return trees;
 }
 
 function getTreesFromNexus(string, defaultBranchLength) {
     var trees = [];
-    
+
     var lines = string.split('\n');
 
     var inTrees = false;
@@ -549,7 +560,7 @@ function getTreesFromNexus(string, defaultBranchLength) {
 
         // Remove comments:
         fullLine = fullLine.replace(/\[[^&][^\]]*\]/g,"").trim();
-        
+
         if (!inTrees) {
             if (fullLine.toLowerCase() === "begin trees;")
                 inTrees = true;
@@ -578,7 +589,7 @@ function getTreesFromNexus(string, defaultBranchLength) {
         var matches = fullLine.toLowerCase().match(/tree (\w|\.)+ *(\[&[^\]]*] *)* *= *(\[&[^\]]*] *)* */);
         if (matches !== null) {
             var eqIdx = matches[0].length;
-            trees.push(Object.create(TreeFromNewick).init(fullLine.slice(eqIdx), defaultBranchLength));
+            trees.push(new TreeFromNewick(fullLine.slice(eqIdx), defaultBranchLength));
             trees[trees.length-1].translate(tmap);
         }
 
@@ -590,7 +601,7 @@ function getTreesFromNexus(string, defaultBranchLength) {
 
 // Function to read one or more trees from a formatted string.
 function getTreesFromString(string, defaultBranchLength) {
-    
+
     var trees;
 
     if (string.substring(0, 6).toLowerCase() === "#nexus") {
@@ -625,8 +636,8 @@ function getTreesFromString(string, defaultBranchLength) {
         }
     }
 
-    if (trees.length==0)
+    if (trees.length === 0)
         throw new ParseException("No trees found in file");
 
     return trees;
-};
+}

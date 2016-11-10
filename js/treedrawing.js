@@ -83,8 +83,6 @@ var Layout = Object.create({}, {
     lineWidth: {value: 2, writable: true},
     fontSize: {value: 11, writable: true},
 
-    zoomControl: {value: undefined, writable: true},
-
     init: {value: function(tree) {
         this.tree = tree;
         return this;
@@ -795,14 +793,10 @@ var Layout = Object.create({}, {
 
 
         // Attach event handlers for pan and zoom:
-
-        if (this.zoomControl === undefined)
-            this.zoomControl = Object.create(ZoomControl);
-
-        this.zoomControl.init(svg, this);
+        ZoomControl.init(svg, this);
 
         // Attach event handler for edge stats popup:
-        Object.create(EdgeStatsControl).init(svg, this.tree);
+        EdgeStatsControl.init(svg, this.tree);
 
         return svg;
     }}
@@ -811,15 +805,9 @@ var Layout = Object.create({}, {
 
 // EdgeStatsControl object
 // Dynamically creates a table and a containing div with id phyloStat.
-// These should be style externally via CSS.
-var EdgeStatsControl = Object.create({}, {
+var EdgeStatsControl = {
 
-    svg: {value: undefined, writable: true},
-    tree: {value: undefined, writable: true},
-    highlightedEdge: {value: undefined, writable: true},
-    phyloStat: {value: undefined, writable: true},
-
-    init: {value: function(svg, tree) {
+    init: function(svg, tree) {
         this.svg = svg;
         this.tree = tree;
 
@@ -850,9 +838,9 @@ var EdgeStatsControl = Object.create({}, {
         this.phyloStat.addEventListener("DOMMouseScroll",
                 function(event) {event.preventDefault();});
 
-    }},
+    },
 
-    mouseMoveEventHandler: {value: function(event) {
+    mouseMoveEventHandler: function(event) {
         var classAttr = event.target.getAttribute("class");
         if (classAttr === null || classAttr.split(" ").indexOf("treeEdge")<0) {
             if (this.highlightedEdge !== undefined) {
@@ -876,9 +864,9 @@ var EdgeStatsControl = Object.create({}, {
         } else {
             return false;
         }
-    }},
+    },
 
-    displayStatsBox: {value: function(nodeId, x, y) {
+    displayStatsBox: function(nodeId, x, y) {
 
         var prec = 6;
 
@@ -944,36 +932,20 @@ var EdgeStatsControl = Object.create({}, {
         }
 
         this.phyloStat.style.display = "block";
-    }},
+    },
 
-    hideStatsBox: {value: function() {
+    hideStatsBox: function() {
         this.phyloStat.style.display = "none";
-    }}
-
-});
+    }
+}
 
 
 // ZoomControl object
 // (Just a tidy way to package up these event handlers.)
-var ZoomControl = Object.create({}, {
+var ZoomControl = {
+    initialised: false,
 
-    initialised: {value: false, writable: true},
-
-    svg: {value: undefined, writable: true},
-    layout: {value: undefined, writable: true},
-
-    zoomFactorX: {value: 1, writable: true},
-    zoomFactorY: {value: 1, writable: true},
-    centre: {value: [0,0], writable: true},
-
-    dragOrigin: {value: [0,0], writable: true},
-    oldCentre: {value: [0,0], writable: true},
-
-    width: {value: undefined, writable: true},
-    height: {value: undefined, writable: true},
-
-
-    init: {value: function(svg, layout) {
+    init: function(svg, layout) {
         this.svg = svg;
         this.layout = layout;
 
@@ -1022,10 +994,10 @@ var ZoomControl = Object.create({}, {
 
         svg.addEventListener("mouseup",
                 function(event) {event.preventDefault();});
-    }},
+    },
 
 
-    updateView: {value: function() {
+    updateView: function() {
 
         // Sanitize zoom factor
         this.zoomFactorX = Math.max(this.zoomFactorX,1);
@@ -1051,9 +1023,9 @@ var ZoomControl = Object.create({}, {
         this.layout.updateAxis(this.svg);
         this.updateAxisTextScaling();
 
-    }},
+    },
 
-    updateAxisTextScaling: {value: function() {
+    updateAxisTextScaling: function() {
         var axisElements = this.svg.getElementsByClassName("axisComponent");
         for (var i=0; i<axisElements.length; i++) {
             if (axisElements[i].tagName != "text")
@@ -1061,9 +1033,9 @@ var ZoomControl = Object.create({}, {
 
             this.updateTextElementScaling(axisElements[i]);
         }
-    }},
+    },
 
-    updateNonAxisTextScaling: {value: function() {
+    updateNonAxisTextScaling: function() {
         var textElements = this.svg.getElementsByTagName("text");
         for (var i=0; i<textElements.length; i++) {
             if (textElements[i].className == "axisComponent")
@@ -1071,9 +1043,9 @@ var ZoomControl = Object.create({}, {
 
             this.updateTextElementScaling(textElements[i]);
         }
-    }},
+    },
 
-    updateTextElementScaling: {value: function(textEl) {
+    updateTextElementScaling: function(textEl) {
         var textPosX = textEl.getAttribute("x")*1.0;
         var textPosY = textEl.getAttribute("y")*1.0;
         var tlate = this.svg.createSVGMatrix();
@@ -1089,9 +1061,9 @@ var ZoomControl = Object.create({}, {
         textEl.transform.baseVal.clear();
         textEl.transform.baseVal.appendItem(scaleXform);
         textEl.transform.baseVal.appendItem(tlateXform);
-    }},
+    },
 
-    updateInternalNodeMarkScaling: {value: function() {
+    updateInternalNodeMarkScaling: function() {
         var nodeMarkElements = this.svg.getElementsByClassName("internalNodeMark");
         for (var i=0; i<nodeMarkElements.length; i++) {
             var dash = nodeMarkElements[i];
@@ -1102,9 +1074,9 @@ var ZoomControl = Object.create({}, {
             dash.setAttribute("rx", w);
             dash.setAttribute("ry", h);
         }
-    }},
+    },
 
-    zoomEventHandler: {value: function(event) {
+    zoomEventHandler: function(event) {
         event.preventDefault();
 
         if (event.altKey)
@@ -1167,14 +1139,14 @@ var ZoomControl = Object.create({}, {
         this.updateInternalNodeMarkScaling();
 
         this.zeroPanOrigin(event.layerX, event.layerY);
-    }},
+    },
 
-    zeroPanOrigin: {value: function(x, y) {
+    zeroPanOrigin: function(x, y) {
         this.dragOrigin = [x,y];
         this.oldCentre = [this.centre[0], this.centre[1]];
-    }},
+    },
 
-    panEventHandler: {value: function(event) {
+    panEventHandler: function(event) {
 
         var b;
         if (event.buttons !== undefined)
@@ -1196,14 +1168,14 @@ var ZoomControl = Object.create({}, {
             (event.layerY - this.dragOrigin[1])/this.zoomFactorY;
 
         this.updateView();
-    }},
+    },
 
-        // Method to revert to original (unzoomed) state
-    reset: {value: function() {
+    // Method to revert to original (unzoomed) state
+    reset: function() {
         this.zoomFactorX = 1.0;
         this.zoomFactorY = 1.0;
         this.updateView();
         this.updateNonAxisTextScaling();
         this.updateInternalNodeMarkScaling();
-    }}
-});
+    }
+};

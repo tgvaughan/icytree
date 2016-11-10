@@ -29,7 +29,6 @@ var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
 var controlsHidden = false;
-var zoomControl;
 var lineWidth = 2;
 var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
@@ -59,10 +58,6 @@ $(document).ready(function() {
 
     // Set up keyboard handler:
     $(window).on("keypress", keyPressHandler);
-
-    // Create new zoomControl object (don't initialise):
-    zoomControl = Object.create(ZoomControl, {});
-
 
     // Set up menus:
     $("#menu > li > button").button().click(function() {
@@ -956,15 +951,15 @@ function exportSVGMulti(pages) {
     var vbheight = svgEl.viewBox.baseVal.height;
 
     // Record current zoom:
-    var zoomFactorX = zoomControl.zoomFactorX;
-    var zoomFactorY = zoomControl.zoomFactorY;
+    var zoomFactorX = ZoomControl.zoomFactorX;
+    var zoomFactorY = ZoomControl.zoomFactorY;
 
     // Initialise viewbox and zoom for images
     var newvbx = 0;
     var newvbwidth = width;
     var newvbheight = imageHeight;
-    zoomControl.zoomFactorX = 1;
-    zoomControl.zoomFactorY = pages;
+    ZoomControl.zoomFactorX = 1;
+    ZoomControl.zoomFactorY = pages;
 
     for (var i=0; i<pages; i++) {
 
@@ -976,7 +971,7 @@ function exportSVGMulti(pages) {
                            newvbwidth + " " + newvbheight);
 
         // Hack to ensure text looks okay
-        zoomControl.updateTextScaling();
+        ZoomControl.updateTextScaling();
 
         // Save image
         var blob = new Blob([$("#output").html()], {type: "image/svg+xml"});
@@ -986,9 +981,9 @@ function exportSVGMulti(pages) {
     // Revert to original viewbox and zoom
     svgEl.setAttribute("viewBox", vbx + " " + vby + " " +
                        vbwidth + " " + vbheight);
-    zoomControl.zoomFactorX = zoomFactorX;
-    zoomControl.zoomFactorY = zoomFactorY;
-    zoomControl.updateTextScaling();
+    ZoomControl.zoomFactorX = zoomFactorX;
+    ZoomControl.zoomFactorY = zoomFactorY;
+    ZoomControl.updateTextScaling();
 }
 
 // Export trees to file in Newick format
@@ -1178,7 +1173,7 @@ function update() {
     layout.labelPrec = labelPrec;
 
     // Use existing zoom control instance:
-    layout.zoomControl = zoomControl;
+    layout.zoomControl = ZoomControl;
 
     // Display!
     $("#output").html("");
@@ -1383,7 +1378,7 @@ function keyPressHandler(event) {
 
         case "z":
             // Reset zoom.
-            zoomControl.reset();
+            ZoomControl.reset();
             event.preventDefault();
             return;
 

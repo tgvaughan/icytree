@@ -148,8 +148,6 @@ TreeLayout.prototype.getSVGHeight = function(svg, screenHeight) {
 function StandardTreeLayout(tree) {
     TreeLayout.call(this, tree);
     
-    var savedThis = this;
-
     this.nodePositions = {};
 
     var treeHeight = this.getTotalTreeHeight();
@@ -180,15 +178,18 @@ function StandardTreeLayout(tree) {
     return this;
 }
 
-StandardLayout.prototype.positionInternals = function(node, nodePositions) {
+StandardTreeLayout.prototype = Object.create(TreeLayout.prototype);
+StandardTreeLayout.prototype.constructor = StandardTreeLayout;
+
+StandardTreeLayout.prototype.positionInternals = function(node) {
     if (node.isLeaf())
-        return nodePositions[node][0];
+        return this.nodePositions[node][0];
 
     var xpos = 0;
     var nonHybridCount = 0;
 
     for (var i=0; i<node.children.length; i++) {
-        if (savedThis.inlineRecomb && node.children[i].isHybrid() && node.children[i].isLeaf()) {
+        if (TreeStyle.inlineRecomb && node.children[i].isHybrid() && node.children[i].isLeaf()) {
             this.positionInternals(node.children[i]);
         } else {
             xpos += this.positionInternals(node.children[i]);
@@ -219,15 +220,15 @@ TransmissionTreeLayout.prototype = Object.create(StandardTreeLayout.prototype);
 TransmissionTreeLayout.prototype.constructor = TransmissionTreeLayout;
 
 // Position internal transmission tree nodes
-TransmissionTreeLayout.prototype.positionInternals = function (node, nodePositions) {
+TransmissionTreeLayout.prototype.positionInternals = function (node) {
     if (node.isLeaf())
-        return nodePositions[node][0];
+        return this.nodePositions[node][0];
 
-    var xpos = this.positionInternals(node.children[0], nodePositions);
+    var xpos = this.positionInternals(node.children[0]);
     for (var i=1; i<node.children.length; i++)
-        this.positionInternals(node.children[i], nodePositions);
+        this.positionInternals(node.children[i]);
 
-    nodePositions[node] = [
+    this.nodePositions[node] = [
         xpos,
         this.getScaledHeight(node.height)
     ];
@@ -556,8 +557,8 @@ var Display = (function() {
         var bullet = document.createElementNS(NS, "ellipse");
         bullet.setAttribute("cx", pos[0]);
         bullet.setAttribute("cy", pos[1]);
-        bullet.setAttribute("rx", 2*savedThis.lineWidth);
-        bullet.setAttribute("ry", 2*savedThis.lineWidth);
+        bullet.setAttribute("rx", 2*TreeStyle.lineWidth);
+        bullet.setAttribute("ry", 2*TreeStyle.lineWidth);
         bullet.setAttribute("fill", "black");
         bullet.setAttribute("shape-rendering", "auto");
         bullet.setAttribute("class","internalNodeMark");
@@ -570,19 +571,19 @@ var Display = (function() {
         var svg = document.createElementNS(NS, "svg");
         svg.setAttribute("xmlns", NS);
         svg.setAttribute("version","1.1");
-        svg.setAttribute('width', this.width);
-        svg.setAttribute('height', this.height);
+        svg.setAttribute('width', TreeStyle.width);
+        svg.setAttribute('height', TreeStyle.height);
         svg.setAttribute('preserveAspectRatio', 'none');
-        svg.style.strokeWidth = this.lineWidth + "px";
-        svg.style.fontSize = this.fontSize + "px";
+        svg.style.strokeWidth = TreeStyle.lineWidth + "px";
+        svg.style.fontSize = TreeStyle.fontSize + "px";
         svg.style.fontFamily = "sans-serif";
 
         // Add white background rectangle:
         var rect = document.createElementNS(NS, "rect");
         rect.setAttribute("x", 0);
         rect.setAttribute("y", 0);
-        rect.setAttribute("width", this.width);
-        rect.setAttribute("height", this.height);
+        rect.setAttribute("width", TreeStyle.width);
+        rect.setAttribute("height", TreeStyle.height);
         rect.setAttribute("fill", "white");
         svg.appendChild(rect);
 
@@ -784,7 +785,7 @@ var Display = (function() {
         ZoomControl.init(svg, this);
 
         // Attach event handler for edge stats popup:
-        EdgeStatsControl.init(svg, this.tree);
+        EdgeStatsControl.init(svg, layout);
 
         return svg;
     }
@@ -804,9 +805,9 @@ var Display = (function() {
 // {{{
 var EdgeStatsControl = {
 
-    init: function(svg, tree) {
+    init: function(svg, layout) {
         this.svg = svg;
-        this.tree = tree;
+        this.tree = layout.tree;
 
         // Create stat box element:
         this.phyloStat = document.getElementById("phyloStat");

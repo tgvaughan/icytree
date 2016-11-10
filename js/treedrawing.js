@@ -88,17 +88,10 @@ var TreeStyle = {
 
 function TreeLayout(tree) {
     this.tree = tree;
+    this.nodePositions = {};
 }
 
-function TimeTreeLayout(tree, useLogScale) {
-    TreeLayout.call(this, tree);
-    this.useLogScale = uselogScale;
-}
-
-TimeTreeLayout.prototype = Object.create(TreeLayout.prototype);
-TimeTreeLayout.prototype.constructor = TimeTreeLayout;
-
-TimeTreeLayout.prototype.getTotalTreeHeight = function() {
+TreeLayout.prototype.getTotalTreeHeight = function() {
     var treeHeight = this.tree.root.height;
     if (this.tree.root.branchLength !== undefined)
         treeHeight += this.tree.root.branchLength;
@@ -108,10 +101,10 @@ TimeTreeLayout.prototype.getTotalTreeHeight = function() {
     return treeHeight;
 };
 
-TimeTreeLayout.prototype.getScaledHeight = function(height, useLogScale) {
+TreeLayout.prototype.getScaledHeight = function(height) {
     var treeHeight = this.getTotalTreeHeight();
-    var lso = this.logScaleRelOffset*treeHeight;
-    if (useLogScale) {
+    var lso = TreeStyle.logScaleRelOffset*treeHeight;
+    if (TreeStyle.logScale) {
         return (Math.log(height + lso) - Math.log(lso))/
             (Math.log(treeHeight + lso) - Math.log(lso));
     } else {
@@ -120,38 +113,133 @@ TimeTreeLayout.prototype.getScaledHeight = function(height, useLogScale) {
 };
 
 
-    // Helper methods
+TreeLayout.prototype.transformToSVG = function(svg, coord) {
+    if (svg.viewBox.baseVal !== null ||
+        (svg.viewBox.baseVal.width === 0 && svg.viewBox.baseVal.height === 0)) {
+        coord.x = svg.viewBox.baseVal.x +  coord.x*svg.viewBox.baseVal.width/TreeStyle.width;
+        coord.y = svg.viewBox.baseVal.y +  coord.y*svg.viewBox.baseVal.height/TreeStyle.height;
+    }
 
-    transformToSVG: {value: function(svg, coord) {
-        if (svg.viewBox.baseVal !== null ||
-                (svg.viewBox.baseVal.width === 0 && svg.viewBox.baseVal.height === 0)) {
-            coord.x = svg.viewBox.baseVal.x +  coord.x*svg.viewBox.baseVal.width/this.width;
-            coord.y = svg.viewBox.baseVal.y +  coord.y*svg.viewBox.baseVal.height/this.height;
+    return coord;
+};
+
+TreeLayout.prototype.getSVGWidth = function(svg, screenWidth) {
+    if (svg.viewBox.baseVal === null ||
+        svg.viewBox.baseVal.width === 0 ||
+        svg.viewBox.baseVal.height === 0)
+        return screenWidth;
+    else
+        return screenWidth*svg.viewBox.baseVal.width/TreeStyle.width;
+};
+
+TreeLayout.prototype.getSVGHeight = function(svg, screenHeight) {
+    if (svg.viewBox.baseVal === null ||
+        svg.viewBox.baseVal.width === 0 ||
+        svg.viewBox.baseVal.height === 0)
+        return screenHeight;
+    else
+        return screenHeight*svg.viewBox.baseVal.height/TreeStyle.height;
+};
+
+// Standard tree layout
+
+function StandardTreeLayout(tree) {
+    TreeLayout.call(this, tree);
+    
+    var savedThis = this;
+
+    this.nodePositions = {};
+
+    var treeHeight = this.getTotalTreeHeight();
+    var treeWidth;
+
+    // Position leaves
+    var leaves = this.tree.getLeafList();
+    if (leaves.length === 1) {
+        // Special case for single-leaf trees
+        this.nodePositions[leaves[0]] = [
+            0.5,
+            this.getScaledHeight(leaves[0].height)
+        ];
+        treeWidth = 1.0;
+    } else {
+        for (var i=0; i<leaves.length; i++) {
+            this.nodePositions[leaves[i]] = [
+                i/(leaves.length-1),
+                this.getScaledHeight(leaves[i].height)
+            ];
         }
+        treeWidth = leaves.length-1;
+    }
 
-        return coord;
-    }},
+    // Position internal nodes
+    this.positionInternals(this.tree.root);
 
-    getSVGWidth: {value: function(svg, screenWidth) {
-        if (svg.viewBox.baseVal === null ||
-                svg.viewBox.baseVal.width === 0 ||
-                    svg.viewBox.baseVal.height === 0)
-            return screenWidth;
-        else
-            return screenWidth*svg.viewBox.baseVal.width/this.width;
-    }},
+    return this;
+}
 
-    getSVGHeight: {value: function(svg, screenHeight) {
-        if (svg.viewBox.baseVal === null ||
-                svg.viewBox.baseVal.width === 0 ||
-                    svg.viewBox.baseVal.height === 0)
-            return screenHeight;
-        else
-            return screenHeight*svg.viewBox.baseVal.height/this.height;
-    }},
+StandardLayout.prototype.positionInternals = function(node, nodePositions) {
+    if (node.isLeaf())
+        return nodePositions[node][0];
 
+    var xpos = 0;
+    var nonHybridCount = 0;
+
+    for (var i=0; i<node.children.length; i++) {
+        if (savedThis.inlineRecomb && node.children[i].isHybrid() && node.children[i].isLeaf()) {
+            this.positionInternals(node.children[i]);
+        } else {
+            xpos += this.positionInternals(node.children[i]);
+            nonHybridCount += 1;
+        }
+    }
+
+    if (nonHybridCount > 0)
+        xpos /= nonHybridCount;
+    else
+        xpos = this.nodePositions[node.children[0]][0];
+
+    this.nodePositions[node] = [
+        xpos,
+        this.getScaledHeight(node.height)
+    ];
+
+    return xpos;
+}
+
+
+// Produce a rectangular layout suitable for transmission trees:
+function TransmissionTreeLayout (tree) {
+    StandardTreeLayout.call(this, tree);
+}
+
+TransmissionTreeLayout.prototype = Object.create(StandardTreeLayout.prototype);
+TransmissionTreeLayout.prototype.constructor = TransmissionTreeLayout;
+
+// Position internal transmission tree nodes
+TransmissionTreeLayout.prototype.positionInternals = function (node, nodePositions) {
+    if (node.isLeaf())
+        return nodePositions[node][0];
+
+    var xpos = this.positionInternals(node.children[0], nodePositions);
+    for (var i=1; i<node.children.length; i++)
+        this.positionInternals(node.children[i], nodePositions);
+
+    nodePositions[node] = [
+        xpos,
+        this.getScaledHeight(node.height)
+    ];
+
+    return xpos;
+}
+
+// Visualize tree on SVG object
+var display = (function() {
+
+    /***** Private Methods *****/
+ 
     // Generate a colour pallet for N distinct trait values
-    genColourPallet: {value: function(N) {
+    function genColourPallet (N) {
 
         // Taken from https://gist.github.com/mjackson/5311256
         function hslToRgb(h, s, l) {
@@ -192,140 +280,25 @@ TimeTreeLayout.prototype.getScaledHeight = function(height, useLogScale) {
             var lightness = (hue>0.1 && hue<0.5) ? 0.30 : 0.45;
             this.colourPallet[idx] = hslToRgb(hue, 1, lightness);
         }
-    }},
-
-
-    // Produce a standard rectangular layout:
-    standardLayout: {value: function() {
-
-        var savedThis = this;
-
-        this.nodePositions = {};
-
-        var treeHeight = this.getTotalTreeHeight();
-        var treeWidth;
-
-        // Position leaves
-        var leaves = this.tree.getLeafList();
-        if (leaves.length === 1) {
-            // Special case for single-leaf trees
-            this.nodePositions[leaves[0]] = [
-                0.5,
-                this.getScaledHeight(leaves[0].height, this.logScale)
-            ];
-            treeWidth = 1.0;
-        } else {
-            for (var i=0; i<leaves.length; i++) {
-                this.nodePositions[leaves[i]] = [
-                    i/(leaves.length-1),
-                    this.getScaledHeight(leaves[i].height, this.logScale)
-                ];
-            }
-            treeWidth = leaves.length-1;
-        }
-
-        // Position internal nodes
-        function positionInternals(node, nodePositions, logScale) {
-            if (node.isLeaf())
-                return nodePositions[node][0];
-
-            var xpos = 0;
-            var nonHybridCount = 0;
-
-            for (var i=0; i<node.children.length; i++) {
-                if (savedThis.inlineRecomb && node.children[i].isHybrid() && node.children[i].isLeaf()) {
-                    positionInternals(node.children[i], nodePositions, logScale);
-                } else {
-                    xpos += positionInternals(node.children[i], nodePositions, logScale);
-                    nonHybridCount += 1;
-                }
-            }
-
-            if (nonHybridCount > 0)
-                xpos /= nonHybridCount;
-            else
-                xpos = nodePositions[node.children[0]][0]
-
-            nodePositions[node] = [
-                xpos,
-                savedThis.getScaledHeight(node.height, logScale)
-            ];
-
-            return xpos;
-        }
-        positionInternals(this.tree.root, this.nodePositions, this.logScale);
-
-        return this;
-    }},
-
-    // Produce a rectangular layout suitable for transmission trees:
-    transmissionLayout: {value: function() {
-
-        var savedThis = this;
-
-        this.nodePositions = {};
-
-        var treeHeight = this.getTotalTreeHeight();
-        var treeWidth;
-
-        // Position leaves
-        var leaves = this.tree.getLeafList();
-        if (leaves.length === 1) {
-            // Special case for single-leaf trees
-            this.nodePositions[leaves[0]] = [
-                0.5,
-                this.getScaledHeight(leaves[0].height, this.logScale)
-            ];
-            treeWidth = 1.0;
-        } else {
-            for (var i=0; i<leaves.length; i++) {
-                this.nodePositions[leaves[i]] = [
-                    i/(leaves.length-1),
-                    this.getScaledHeight(leaves[i].height, this.logScale)
-                ];
-            }
-            treeWidth = leaves.length-1;
-        }
-
-        // Position internal nodes
-        function positionInternals(node, nodePositions, logScale) {
-            if (node.isLeaf())
-                return nodePositions[node][0];
-
-            var xpos = positionInternals(node.children[0], nodePositions, logScale);
-            for (var i=1; i<node.children.length; i++)
-                positionInternals(node.children[i], nodePositions, logScale);
-
-            nodePositions[node] = [
-                xpos,
-                savedThis.getScaledHeight(node.height, logScale)
-            ];
-
-            return xpos;
-        }
-        positionInternals(this.tree.root, this.nodePositions, this.logScale);
-
-        return this;
-    }},
+    }
 
     // Transform from tree to SVG coordinates
-    posXform: {value: function (treePos) {
+    function posXform (treePos) {
         var xpos = (1-treePos[1])*(this.width - this.marginLeft - this.marginRight) + this.marginLeft;
         var ypos = (1-treePos[0])*(this.height - this.marginTop - this.marginBottom) + this.marginTop;
         return [xpos, ypos];
-    }},
-
+    }
 
     // Transform from SVG to tree coordinates
-    invXform: {value: function (svgPos) {
+    function invXform (svgPos) {
         var treePosY = 1 - (svgPos[0] - this.marginLeft)/(this.width - this.marginLeft - this.marginRight);
         var treePosX = 1 - (svgPos[1] - this.marginTop)/(this.height - this.marginTop - this.marginBottom);
 
         return [treePosX, treePosY];
-    }},
+    }
 
     // Add/update axis to tree visualization.
-    updateAxis: {value: function(svg) {
+    function updateAxis(svg) {
 
         var savedThis = this;
         var NS="http://www.w3.org/2000/svg";
@@ -458,13 +431,9 @@ TimeTreeLayout.prototype.getScaledHeight = function(height, useLogScale) {
             }
 
         }
-    }},
+    }
 
-    // Visualize tree on SVG object
-    // Currently assumes landscape, rectangular style.
-    // Need to generalise.
-    display: {value: function() {
-
+    function display(layout) {
         // Save this for inline functions:
         var savedThis = this;
 
@@ -802,8 +771,10 @@ TimeTreeLayout.prototype.getScaledHeight = function(height, useLogScale) {
         EdgeStatsControl.init(svg, this.tree);
 
         return svg;
-    }}
-});
+    }
+
+    return display;
+}) ();
 
 
 // EdgeStatsControl object

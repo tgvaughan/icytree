@@ -1144,9 +1144,9 @@ function update() {
     TreeStyle.width = Math.max(window.innerWidth-5, 200);
     TreeStyle.height = Math.max(window.innerHeight-5, 200);
     TreeStyle.marginTop = 40;
-    TreeStyle.marginBottom = Math.min(0.05*layout.height, 30);
+    TreeStyle.marginBottom = Math.min(0.05*TreeStyle.height, 30);
     TreeStyle.marginLeft = 10;
-    TreeStyle.marginRight = Math.min(0.05*layout.width, 30);
+    TreeStyle.marginRight = Math.min(0.05*TreeStyle.width, 30);
     TreeStyle.colourTrait = colourTrait;
     TreeStyle.tipTextTrait = tipTextTrait;
     TreeStyle.nodeTextTrait = nodeTextTrait;
@@ -1165,14 +1165,15 @@ function update() {
     TreeStyle.labelPrec = labelPrec;
 
     // Position internal nodes
+    var layout;
     if ($("#styleSort span").parent().text() == "Transmission tree")
-        layout.transmissionLayout();
+        layout = new TransmissionTreeLayout(tree);
     else
-        layout.standardLayout();
+        layout = new StandardTreeLayout(tree);
 
     // Display!
     $("#output").html("");
-    var svg = layout.display();
+    var svg = Display.createSVG(layout);
     svg.setAttribute("id", "SVG");
     if ($("#styleAntiAlias > span").length === 0)
         svg.style.shapeRendering = "crispEdges";

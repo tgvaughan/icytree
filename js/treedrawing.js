@@ -38,7 +38,8 @@ function pretty(val, prec) {
     return val.replace(/\.?0*$/,"");
 }
 
-// Tree style:
+// ---- Tree style ----
+// {{{
 
 var TreeStyle = {
     nodePositions: {},
@@ -52,8 +53,6 @@ var TreeStyle = {
     marginRight: 40,
 
     colourTrait: undefined,
-    seenColourTraits: [],
-    colourPallet: [],
 
     tipTextTrait: "label",
     nodeTextTrait: undefined,
@@ -84,7 +83,10 @@ var TreeStyle = {
     fontSize: 11
 };
 
-// Tree layout
+// }}}
+
+// ---- Tree layouts ----
+// {{{
 
 function TreeLayout(tree) {
     this.tree = tree;
@@ -233,11 +235,35 @@ TransmissionTreeLayout.prototype.positionInternals = function (node, nodePositio
     return xpos;
 }
 
-// Visualize tree on SVG object
-var display = (function() {
+// }}}
 
-    /***** Private Methods *****/
+// ---- Display Module ----
+var Display = (function() {
+
+    var NS="http://www.w3.org/2000/svg";
+
+    /***** General Private Methods *****/
  
+    // {{{
+
+    // Transform from tree to SVG coordinates
+    function posXform (treePos) {
+        var xpos = (1-treePos[1])*(TreeStyle.width - TreeStyle.marginLeft - TreeStyle.marginRight) + TreeStyle.marginLeft;
+        var ypos = (1-treePos[0])*(TreeStyle.height - TreeStyle.marginTop - TreeStyle.marginBottom) + TreeStyle.marginTop;
+        return [xpos, ypos];
+    }
+
+    // Transform from SVG to tree coordinates
+    function invXform (svgPos) {
+        var treePosY = 1 - (svgPos[0] - TreeStyle.marginLeft)/(TreeStyle.width - TreeStyle.marginLeft - TreeStyle.marginRight);
+        var treePosX = 1 - (svgPos[1] - TreeStyle.marginTop)/(TreeStyle.height - TreeStyle.marginTop - TreeStyle.marginBottom);
+
+        return [treePosX, treePosY];
+    }
+
+    var seenColourTraitValues = [];
+    var colourPallet = [];
+
     // Generate a colour pallet for N distinct trait values
     function genColourPallet (N) {
 
@@ -282,37 +308,50 @@ var display = (function() {
         }
     }
 
-    // Transform from tree to SVG coordinates
-    function posXform (treePos) {
-        var xpos = (1-treePos[1])*(this.width - this.marginLeft - this.marginRight) + this.marginLeft;
-        var ypos = (1-treePos[0])*(this.height - this.marginTop - this.marginBottom) + this.marginTop;
-        return [xpos, ypos];
-    }
+   // }}}
 
-    // Transform from SVG to tree coordinates
-    function invXform (svgPos) {
-        var treePosY = 1 - (svgPos[0] - this.marginLeft)/(this.width - this.marginLeft - this.marginRight);
-        var treePosX = 1 - (svgPos[1] - this.marginTop)/(this.height - this.marginTop - this.marginBottom);
+    /***** Axis Drawing *****/
 
-        return [treePosX, treePosY];
+    // {{{
+
+    // Function for drawing one tick:
+    function axisLine(svg, thisH, thisLabel, lower, upper) {
+        var bot = posXform([lower, thisH]);
+        var top = posXform([upper, thisH]);
+
+        var axLine = document.createElementNS(NS, "line");
+        axLine.setAttribute("x1", bot[0]);
+        axLine.setAttribute("y1", bot[1]);
+        axLine.setAttribute("x2", top[0]);
+        axLine.setAttribute("y2", top[1]);
+        axLine.setAttribute("stroke", "gray");
+        axLine.setAttribute("stroke-width", "1px");
+        axLine.setAttribute("vector-effect", "non-scaling-stroke");
+        axLine.setAttribute("class", "axisComponent");
+        svg.appendChild(axLine);
+
+        var axLabel = document.createElementNS(NS, "text");
+        axLabel.setAttribute("x", bot[0]);
+        axLabel.setAttribute("y", bot[1]);
+        axLabel.setAttribute("fill", "gray");
+        axLabel.setAttribute("class", "axisComponent");
+        axLabel.textContent = thisLabel;
+
+        svg.appendChild(axLabel);
     }
 
     // Add/update axis to tree visualization.
-    function updateAxis(svg) {
-
-        var savedThis = this;
-        var NS="http://www.w3.org/2000/svg";
-
+    function updateAxis(svg, layout) {
         // Delete any existing axis components
         while (svg.getElementsByClassName("axisComponent").length>0) {
             svg.removeChild(svg.getElementsByClassName("axisComponent")[0]);
         }
 
-        if (this.axis) {
+        if (TreeStyle.axis) {
 
             // Select tick number and spacing
-            var treeHeight = this.getTotalTreeHeight();
-            var lso = this.logScaleRelOffset*treeHeight;
+            var treeHeight = layout.getTotalTreeHeight();
+            var lso = TreeStyle.logScaleRelOffset*treeHeight;
 
             // Acquire coordinates of viewBox
             var topLeft, bottomRight;
@@ -326,73 +365,47 @@ var display = (function() {
             }
 
             var axisStart, axisEnd, delta;
-            if (!this.logScale) {
+            if (!TreeStyle.logScale) {
                 axisStart = treeHeight*Math.max(0.0, bottomRight[1]);
                 axisEnd = treeHeight*Math.min(1.0, topLeft[1]);
-                var minDelta = (axisEnd-axisStart)/(this.maxAxisTicks-1);
+                var minDelta = (axisEnd-axisStart)/(TreeStyle.maxAxisTicks-1);
                 delta = Math.pow(10,Math.ceil(Math.log(minDelta)/Math.log(10)));
                 axisStart = delta*Math.ceil(axisStart/delta);
             } else {
                 axisStart = Math.max(0.0, bottomRight[1]);
                 axisEnd = topLeft[1];
-                delta = 2*(axisEnd-axisStart)/(this.maxAxisTicks-1);
+                delta = 2*(axisEnd-axisStart)/(TreeStyle.maxAxisTicks-1);
             }
 
-
-            // Function for drawing one tick:
-            function axisLine(thisH, thisLabel, lower, upper) {
-                var bot = savedThis.posXform([lower, thisH]);
-                var top = savedThis.posXform([upper, thisH]);
-
-                var axLine = document.createElementNS(NS, "line");
-                axLine.setAttribute("x1", bot[0]);
-                axLine.setAttribute("y1", bot[1]);
-                axLine.setAttribute("x2", top[0]);
-                axLine.setAttribute("y2", top[1]);
-                axLine.setAttribute("stroke", "gray");
-                axLine.setAttribute("stroke-width", "1px");
-                axLine.setAttribute("vector-effect", "non-scaling-stroke");
-                axLine.setAttribute("class", "axisComponent");
-                svg.appendChild(axLine);
-
-                var axLabel = document.createElementNS(NS, "text");
-                axLabel.setAttribute("x", bot[0]);
-                axLabel.setAttribute("y", bot[1]);
-                axLabel.setAttribute("fill", "gray");
-                axLabel.setAttribute("class", "axisComponent");
-                axLabel.textContent = thisLabel;
-
-                svg.appendChild(axLabel);
-            }
 
             // Draw ticks:
             var h = axisStart;
             while (h <= axisEnd) {
                 var label = "";
-                if (!this.logScale) {
-                    if (this.axisForwards)
+                if (!TreeStyle.logScale) {
+                    if (TreeStyle.axisForwards)
                         label = parseFloat((axisOffset - h).toPrecision(5));
                     else
                         label = parseFloat((h + axisOffset).toPrecision(5));
-                    axisLine(h/treeHeight, label, bottomRight[0], topLeft[0]);
+                    axisLine(svg, h/treeHeight, label, bottomRight[0], topLeft[0]);
                 } else {
                     var trueHeight = lso*Math.pow(treeHeight/lso + 1, h) - lso;
-                    if (this.axisForwards)
+                    if (TreeStyle.axisForwards)
                         label = Number((axisOffset - trueHeight).toPrecision(5)).toExponential();
                     else
                         label =  Number((trueHeight + axisOffset).toPrecision(5)).toExponential();
-                    axisLine(h, label, bottomRight[0], topLeft[0]);
+                    axisLine(svg, h, label, bottomRight[0], topLeft[0]);
                 }
                 h += delta;
             }
         }
 
-        if (this.legend && this.seenColourTraitValues !== null) {
+        if (TreeStyle.legend && seenColourTraitValues !== null) {
 
-            if (this.seenColourTraitValues.length>0) {
+            if (seenColourTraitValues.length>0) {
                 var coord = svg.createSVGPoint();
                 coord.x = 10;
-                coord.y = this.height - this.seenColourTraitValues.length*20 - 30 - 15;
+                coord.y = TreeStyle.height - seenColourTraitValues.length*20 - 30 - 15;
                 this.transformToSVG(svg, coord);
 
                 var title = document.createElementNS(NS, "text");
@@ -400,16 +413,16 @@ var display = (function() {
                 title.setAttribute("x",  coord.x);
                 title.setAttribute("y",  coord.y);
                 //title.textContent = "Legend:";
-                var trait = this.colourTrait;
+                var trait = TreeStyle.colourTrait;
                 title.textContent = trait[0].toUpperCase() + trait.substr(1).toLowerCase();
                 svg.appendChild(title);
             }
 
-            for (var i=0; i<this.seenColourTraitValues.length; i++) {
+            for (var i=0; i<seenColourTraitValues.length; i++) {
 
                 var coord = svg.createSVGPoint();
                 coord.x = 20;
-                coord.y = this.height - this.seenColourTraitValues.length*20 - 30 + i*20;
+                coord.y = TreeStyle.height - seenColourTraitValues.length*20 - 30 + i*20;
                 this.transformToSVG(svg, coord);
 
                 var dot = document.createElementNS(NS, "rect");
@@ -426,19 +439,134 @@ var display = (function() {
                 label.setAttribute("x", coord.x + this.getSVGWidth(svg, 15));
                 label.setAttribute("y", coord.y + this.getSVGHeight(svg, 5));
                 label.setAttribute("fill", this.colourPallet[i]);
-                label.textContent = this.seenColourTraitValues[i];
+                label.textContent = seenColourTraitValues[i];
                 svg.appendChild(label);
             }
 
         }
     }
 
-    function display(layout) {
-        // Save this for inline functions:
-        var savedThis = this;
+    // }}} 
 
+
+    /**** Main SVG Creation Functions ****/
+
+    // {{{ 
+
+    // Returns value of colour trait for given node:
+    function selectColourTrait(node) {
+        if (TreeStyle.colourTrait === undefined)
+            return undefined;
+
+        var traitValue = node.annotation[TreeStyle.colourTrait];
+
+        if (traitValue !== undefined && seenColourTraitValues.indexOf(traitValue)<0) {
+            seenColourTraitValues = seenColourTraitValues.concat(traitValue);
+        }
+
+        return traitValue;
+    }
+
+    // Draw node height error bars:
+    function newNodeBar(minPos, maxPos) {
+
+        var bar = document.createElementNS(NS, "line");
+        bar.setAttribute("x1", minPos[0]);
+        bar.setAttribute("y1", minPos[1]);
+        bar.setAttribute("x2", maxPos[0]);
+        bar.setAttribute("y2", maxPos[1]);
+        bar.setAttribute("vector-effect", "non-scaling-stroke");
+        bar.setAttribute("stroke", "black");
+        bar.setAttribute("stroke-opacity", "0.4");
+        bar.setAttribute("stroke-width", TreeStyle.lineWidth*3);
+        bar.setAttribute("class", "errorBar");
+        return(bar);
+    }
+
+    // Draw tree edge
+    function newBranch(childPos, parentPos, colourTrait, edgeOpacityFactor) {
+        var pathStr = "M " + childPos[0] + " " + childPos[1];
+        pathStr += " H " + parentPos[0];
+        pathStr += " V " + parentPos[1];
+        var path = document.createElementNS(NS, "path");
+        path.setAttribute("d", pathStr);
+        path.setAttribute("fill", "none");
+
+        var classes = "treeEdge";
+
+        if (colourTrait !== undefined)
+            classes += " trait_" + window.btoa(colourTrait);
+        else
+            path.setAttribute("stroke", "black");
+
+        path.setAttribute("stroke-opacity", edgeOpacityFactor);
+
+        path.setAttribute("class", classes);
+
+        path.setAttribute("vector-effect", "non-scaling-stroke");
+
+        return(path);
+    }
+
+    // Draw recombination edge
+    function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor) {
+        var pathStr = "M " + childPos[0] + " " + childPos[1];
+        pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
+        pathStr += " H " + parentPos[0];
+        pathStr += " V " + parentPos[1];
+        var path = document.createElementNS(NS, "path");
+        path.setAttribute("d", pathStr);
+        path.setAttribute("fill", "none");
+
+        var classes = "treeEdge";
+        if (colourTrait !== undefined)
+            classes += " trait_" + window.btoa(colourTrait);
+        else
+            path.setAttribute("stroke", "black");
+
+        path.setAttribute("stroke-opacity", recombOpacityFactor);
+
+        path.setAttribute("class", classes);
+
+        path.setAttribute("vector-effect", "non-scaling-stroke");
+        path.setAttribute("stroke-dasharray", "5, 2");
+
+        return(path);
+    }
+
+    // Draw node text
+    function newNodeText(pos, string) {
+        var text = document.createElementNS(NS, "text");
+        text.setAttribute("x", pos[0]);
+        text.setAttribute("y", pos[1]);
+        // text.setAttribute("vector-effect", "non-scaling-text"); // I wish
+
+        // Limit precision of numeric labels
+        if (TreeStyle.labelPrec>0) {
+            text.textContent = pretty(string, TreeStyle.labelPrec);
+        } else {
+            text.textContent = string;
+        }
+
+        return(text);
+    }
+
+    // Draw internal node marker
+    function newNodeMark(pos) {
+        var bullet = document.createElementNS(NS, "ellipse");
+        bullet.setAttribute("cx", pos[0]);
+        bullet.setAttribute("cy", pos[1]);
+        bullet.setAttribute("rx", 2*savedThis.lineWidth);
+        bullet.setAttribute("ry", 2*savedThis.lineWidth);
+        bullet.setAttribute("fill", "black");
+        bullet.setAttribute("shape-rendering", "auto");
+        bullet.setAttribute("class","internalNodeMark");
+        svg.appendChild(bullet);
+    }
+
+
+    function createSVG(layout) {
         // Create SVG element:
-        var NS="http://www.w3.org/2000/svg";
         var svg = document.createElementNS(NS, "svg");
         svg.setAttribute("xmlns", NS);
         svg.setAttribute("version","1.1");
@@ -463,51 +591,15 @@ var display = (function() {
 
         // Draw tree:
 
-        this.seenColourTraitValues = [];
+        if (TreeStyle.nodeBarTrait !== undefined) {
+            for (var i=0; i<layout.tree.getNodeList().length; i++) {
+                var thisNode = layout.tree.getNodeList()[i];
 
-        function selectColourTrait(node) {
-            if (savedThis.colourTrait === undefined)
-                return undefined;
-
-            var traitValue = node.annotation[savedThis.colourTrait];
-
-            if (traitValue !== undefined && savedThis.seenColourTraitValues.indexOf(traitValue)<0) {
-                savedThis.seenColourTraitValues = savedThis.seenColourTraitValues.concat(traitValue);
-            }
-
-            return traitValue;
-        }
-
-        // Draw node height error bars:
-
-        function newNodeBar(minPos, maxPos) {
-
-            var bar = document.createElementNS(NS, "line");
-            bar.setAttribute("x1", minPos[0]);
-            bar.setAttribute("y1", minPos[1]);
-            bar.setAttribute("x2", maxPos[0]);
-            bar.setAttribute("y2", maxPos[1]);
-            bar.setAttribute("vector-effect", "non-scaling-stroke");
-            bar.setAttribute("stroke", "black");
-            bar.setAttribute("stroke-opacity", "0.4");
-            bar.setAttribute("stroke-width", savedThis.lineWidth*3);
-            bar.setAttribute("class", "errorBar");
-            return(bar);
-        }
-
-        if (this.nodeBarTrait !== undefined) {
-            for (var i=0; i<this.tree.getNodeList().length; i++) {
-                var thisNode = this.tree.getNodeList()[i];
-
-                var traitValue = thisNode.annotation[this.nodeBarTrait];
+                var traitValue = thisNode.annotation[TreeStyle.nodeBarTrait];
                 if (traitValue !== undefined && traitValue.length === 2) {
-                    var nodePos = this.nodePositions[thisNode];
-                    var minPos = this.posXform([nodePos[0],
-                                               this.getScaledHeight(Number(traitValue[0]),
-                                                                    this.logScale)]);
-                    var maxPos = this.posXform([nodePos[0],
-                                               this.getScaledHeight(Number(traitValue[1]),
-                                                                    this.logScale)]);
+                    var nodePos = layout.nodePositions[thisNode];
+                    var minPos = posXform([nodePos[0], layout.getScaledHeight(Number(traitValue[0]))]);
+                    var maxPos = posXform([nodePos[0], layout.getScaledHeight(Number(traitValue[1]))]);
 
                     svg.appendChild(newNodeBar(minPos, maxPos));
                 }
@@ -516,48 +608,24 @@ var display = (function() {
 
         // Draw tree edges:
 
-        function newBranch(childPos, parentPos, colourTrait, edgeOpacityFactor) {
-            var pathStr = "M " + childPos[0] + " " + childPos[1];
-            pathStr += " H " + parentPos[0];
-            pathStr += " V " + parentPos[1];
-            var path = document.createElementNS(NS, "path");
-            path.setAttribute("d", pathStr);
-            path.setAttribute("fill", "none");
-
-            var classes = "treeEdge";
-
-            if (colourTrait !== undefined)
-                classes += " trait_" + window.btoa(colourTrait);
-            else
-                path.setAttribute("stroke", "black");
-
-            path.setAttribute("stroke-opacity", edgeOpacityFactor);
-
-            path.setAttribute("class", classes);
-
-            path.setAttribute("vector-effect", "non-scaling-stroke");
-
-            return(path);
-        }
-
-        for (var i=0; i<this.tree.getNodeList().length; i++) {
-            var thisNode = this.tree.getNodeList()[i];
+        for (var i=0; i<layout.tree.getNodeList().length; i++) {
+            var thisNode = layout.tree.getNodeList()[i];
 
             // Skip leaf hybrid nodes.
             if (thisNode.isHybrid() && thisNode.isLeaf())
                 continue;
 
-            var thisPos = this.posXform(this.nodePositions[thisNode]);
+            var thisPos = posXform(layout.nodePositions[thisNode]);
 
             var parentPos;
             if (!thisNode.isRoot())
-                parentPos = this.posXform(this.nodePositions[thisNode.parent]);
+                parentPos = posXform(layout.nodePositions[thisNode.parent]);
             else
-                parentPos = this.posXform([this.nodePositions[thisNode][0], 1.0]);
+                parentPos = posXform([layout.nodePositions[thisNode][0], 1.0]);
 
             var edgeOpacityFactor;
-            if (this.edgeOpacityTrait !== undefined && thisNode.annotation[this.edgeOpacityTrait] !== undefined)
-                edgeOpacityFactor = thisNode.annotation[this.edgeOpacityTrait];
+            if (TreeStyle.edgeOpacityTrait !== undefined && thisNode.annotation[TreeStyle.edgeOpacityTrait] !== undefined)
+                edgeOpacityFactor = thisNode.annotation[TreeStyle.edgeOpacityTrait];
             else
                 edgeOpacityFactor = 1.0;
 
@@ -568,43 +636,17 @@ var display = (function() {
 
         // Draw recombinant edges
 
-        function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor) {
-            var pathStr = "M " + childPos[0] + " " + childPos[1];
-            pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
-            pathStr += " H " + parentPos[0];
-            pathStr += " V " + parentPos[1];
-            var path = document.createElementNS(NS, "path");
-            path.setAttribute("d", pathStr);
-            path.setAttribute("fill", "none");
+        if (TreeStyle.displayRecomb) {
+            for (var hybridID in layout.tree.getHybridEdgeList()) {
+                var edge = layout.tree.getHybridEdgeList()[hybridID];
 
-            var classes = "treeEdge";
-            if (colourTrait !== undefined)
-                classes += " trait_" + window.btoa(colourTrait);
-            else
-                path.setAttribute("stroke", "black");
-
-            path.setAttribute("stroke-opacity", recombOpacityFactor);
-
-            path.setAttribute("class", classes);
-
-            path.setAttribute("vector-effect", "non-scaling-stroke");
-            path.setAttribute("stroke-dasharray", "5, 2");
-
-            return(path);
-        }
-
-
-        if (this.displayRecomb) {
-            for (var hybridID in this.tree.getHybridEdgeList()) {
-                var edge = this.tree.getHybridEdgeList()[hybridID];
-
-                var childPos = this.posXform(this.nodePositions[edge[0]]);
-                var childPrimePos = this.posXform(this.nodePositions[edge[1]]);
-                var parentPos = this.posXform(this.nodePositions[edge[1].parent]);
+                var childPos = posXform(layout.nodePositions[edge[0]]);
+                var childPrimePos = posXform(layout.nodePositions[edge[1]]);
+                var parentPos = posXform(layout.nodePositions[edge[1].parent]);
 
                 var recombOpacityFactor;
-                if (this.recombOpacityTrait !== undefined && thisNode.annotation[this.recombOpacityTrait] !== undefined)
-                    recombOpacityFactor = edge[1].annotation[this.recombOpacityTrait];
+                if (TreeStyle.recombOpacityTrait !== undefined && thisNode.annotation[TreeStyle.recombOpacityTrait] !== undefined)
+                    recombOpacityFactor = edge[1].annotation[TreeStyle.recombOpacityTrait];
                 else
                     recombOpacityFactor = 1.0;
 
@@ -617,59 +659,38 @@ var display = (function() {
 
         // Assign colours to trait classes:
 
-        this.genColourPallet(this.seenColourTraitValues.length);
+        genColourPallet(seenColourTraitValues.length);
 
         var traitsAreNumeric = true;
-        for (var traitVal of this.seenColourTraitValues) {
+        for (var traitVal of seenColourTraitValues) {
             if (isNaN(traitVal-0)) {
                 traitsAreNumeric = false;
                 break;
             }
         }
         if (traitsAreNumeric) {
-            this.seenColourTraitValues.sort(function(a, b) {return a-b;});
+            seenColourTraitValues.sort(function(a, b) {return a-b;});
         } else {
-            this.seenColourTraitValues.sort();
+            seenColourTraitValues.sort();
         }
-        for (var t=0; t<this.seenColourTraitValues.length; t++ ) {
-            var thisVal = this.seenColourTraitValues[t];
+        for (var t=0; t<seenColourTraitValues.length; t++ ) {
+            var thisVal = seenColourTraitValues[t];
             var lines = svg.getElementsByClassName("trait_" + window.btoa(thisVal));
             for (var l=0; l<lines.length; l++) {
-                lines[l].setAttribute("stroke", this.colourPallet[t]);
+                lines[l].setAttribute("stroke", colourPallet[t]);
             }
         }
 
         // Draw tip and recombinant edge labels:
 
-        function newNodeText(node, string) {
-            var pos = savedThis.posXform(savedThis.nodePositions[node]);
-
-            if (node.children.length === 1)
-                pos[1] -= 2;
-
-            var text = document.createElementNS(NS, "text");
-            text.setAttribute("x", pos[0]);
-            text.setAttribute("y", pos[1]);
-            // text.setAttribute("vector-effect", "non-scaling-text"); // I wish
-
-            // Limit precision of numeric labels
-            if (savedThis.labelPrec>0 && !node.isLeaf()) {
-                text.textContent = pretty(string, savedThis.labelPrec);
-            } else {
-                text.textContent = string;
-            }
-
-            return(text);
-        }
-
-        if (this.tipTextTrait !== undefined) {
-            for (var i=0; i<this.tree.getLeafList().length; i++) {
-                var thisNode = this.tree.getLeafList()[i];
+        if (TreeStyle.tipTextTrait !== undefined) {
+            for (var i=0; i<layout.tree.getLeafList().length; i++) {
+                var thisNode = layout.tree.getLeafList()[i];
 
                 if (thisNode.isHybrid())
                     continue;
 
-                var trait = this.tipTextTrait;
+                var trait = TreeStyle.tipTextTrait;
 
                 var traitValue;
                 if (trait === "label")
@@ -681,18 +702,19 @@ var display = (function() {
                         traitValue = "";
                 }
 
-                svg.appendChild(newNodeText(thisNode, traitValue));
+                var pos = posXform(layout.nodePositions[thisNode]);
+                svg.appendChild(newNodeText(pos, traitValue));
             }
         }
 
-        if (this.displayRecomb && this.recombTextTrait !== undefined) {
-            for (var i=0; i<this.tree.getLeafList().length; i++) {
-                var thisNode = this.tree.getLeafList()[i];
+        if (TreeStyle.displayRecomb && TreeStyle.recombTextTrait !== undefined) {
+            for (var i=0; i<layout.tree.getLeafList().length; i++) {
+                var thisNode = layout.tree.getLeafList()[i];
 
                 if (!thisNode.isHybrid())
                     continue;
 
-                var trait = this.recombTextTrait;
+                var trait = TreeStyle.recombTextTrait;
 
                 var traitValue;
                 if (trait === "label")
@@ -703,6 +725,10 @@ var display = (function() {
                     else
                         traitValue = "";
                 }
+
+                var pos = posXform(layout.nodePositions[thisNode]);
+                if (node.children.length === 1)
+                    pos[1] -= 2;
 
                 svg.appendChild(newNodeText(thisNode, traitValue));
             }
@@ -711,58 +737,48 @@ var display = (function() {
 
         // Draw internal node labels:
 
-        if (this.nodeTextTrait !== undefined) {
-            for (var i=0; i<this.tree.getNodeList().length; i++) {
-                var thisNode = this.tree.getNodeList()[i];
+        if (TreeStyle.nodeTextTrait !== undefined) {
+            for (var i=0; i<layout.tree.getNodeList().length; i++) {
+                var thisNode = layout.tree.getNodeList()[i];
                 if (thisNode.isLeaf())
                     continue;
 
                 var traitValue;
-                if (this.nodeTextTrait === "label")
+                if (TreeStyle.nodeTextTrait === "label")
                     traitValue = thisNode.label;
                 else {
-                    if (thisNode.annotation[this.nodeTextTrait] !== undefined)
-                        traitValue = thisNode.annotation[this.nodeTextTrait];
+                    if (thisNode.annotation[TreeStyle.nodeTextTrait] !== undefined)
+                        traitValue = thisNode.annotation[TreeStyle.nodeTextTrait];
                     else
                         traitValue = "";
                 }
 
-                if (traitValue !== "")
-                    svg.appendChild(newNodeText(thisNode, traitValue));
+                if (traitValue !== "") {
+                    var pos = posXform(layout.nodePositions[thisNode]);
+                    if (node.children.length === 1)
+                        pos[1] -= 2;
+
+                    svg.appendChild(newNodeText(pos, traitValue));
+                }
             }
         }
 
         // Mark internal nodes:
 
-        function newNodeMark(node) {
-            var pos = savedThis.posXform(savedThis.nodePositions[node]);
+        for (var i=0; i<layout.tree.getNodeList().length; i++) {
+            var thisNode = layout.tree.getNodeList()[i];
 
-            var bullet = document.createElementNS(NS, "ellipse");
-            bullet.setAttribute("cx", pos[0]);
-            bullet.setAttribute("cy", pos[1]);
-            bullet.setAttribute("rx", 2*savedThis.lineWidth);
-            bullet.setAttribute("ry", 2*savedThis.lineWidth);
-            bullet.setAttribute("fill", "black");
-            bullet.setAttribute("shape-rendering", "auto");
-            bullet.setAttribute("class","internalNodeMark");
-            svg.appendChild(bullet);
-        }
-
-            for (var i=0; i<this.tree.getNodeList().length; i++) {
-                var thisNode = this.tree.getNodeList()[i];
-
-                if (this.markSingletonNodes && thisNode.children.length == 1) {
-                    newNodeMark(thisNode);
-                } else {
-                    if (thisNode.isHybrid()) {
-                        if (thisNode.children.length == 1)
-                            newNodeMark(thisNode);
-                        else if (this.inlineRecomb && thisNode.isLeaf())
-                            newNodeMark(thisNode.parent);
-                    }
+            if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
+                newNodeMark(posXform(layout.nodePositions[thisNode]));
+            } else {
+                if (thisNode.isHybrid()) {
+                    if (thisNode.children.length == 1)
+                        newNodeMark(posXform(layout.nodePositions[thisNode]));
+                    else if (TreeStyle.inlineRecomb && thisNode.isLeaf())
+                        newNodeMark(posXform(layout.nodePositions[thisNode.parent]));
                 }
             }
-
+        }
 
         // Attach event handlers for pan and zoom:
         ZoomControl.init(svg, this);
@@ -773,12 +789,19 @@ var display = (function() {
         return svg;
     }
 
-    return display;
+    // }}}
+
+    return {
+        updateAxis: updateAxis,
+        createSVG: createSVG
+    }
 }) ();
 
 
 // EdgeStatsControl object
 // Dynamically creates a table and a containing div with id phyloStat.
+
+// {{{
 var EdgeStatsControl = {
 
     init: function(svg, tree) {
@@ -913,9 +936,13 @@ var EdgeStatsControl = {
     }
 }
 
+// }}}
 
 // ZoomControl object
 // (Just a tidy way to package up these event handlers.)
+
+// {{{
+
 var ZoomControl = {
     initialised: false,
 
@@ -994,7 +1021,7 @@ var ZoomControl = {
                               widthZoomed + " " + heightZoomed);
 
         // Ensure displayed axis is up to date.
-        this.layout.updateAxis(this.svg);
+        Display.updateAxis(this.svg, this.layout);
         this.updateAxisTextScaling();
 
     },
@@ -1042,8 +1069,8 @@ var ZoomControl = {
         for (var i=0; i<nodeMarkElements.length; i++) {
             var dash = nodeMarkElements[i];
 
-            var w = this.layout.getSVGWidth(this.svg, 2*this.layout.lineWidth);
-            var h = this.layout.getSVGHeight(this.svg, 2*this.layout.lineWidth);
+            var w = this.layout.getSVGWidth(this.svg, 2*TreeStyle.lineWidth);
+            var h = this.layout.getSVGHeight(this.svg, 2*TreeStyle.lineWidth);
 
             dash.setAttribute("rx", w);
             dash.setAttribute("ry", h);
@@ -1153,3 +1180,5 @@ var ZoomControl = {
         this.updateInternalNodeMarkScaling();
     }
 };
+
+// }}}

@@ -1135,45 +1135,40 @@ function update() {
     }
 
 
-    // Create layout object:
-    var layout = Object.create(Layout).init(tree);
+    // Assign chosen style properties to TreeStyle object
 
-    layout.logScale = itemToggledOn($("#styleLogScale"));
-    layout.logScaleRelOffset = logScaleRelOffset;
-    layout.inlineRecomb = itemToggledOn($("#styleInlineRecomb"));
+    TreeStyle.logScale = itemToggledOn($("#styleLogScale"));
+    TreeStyle.logScaleRelOffset = logScaleRelOffset;
+    TreeStyle.inlineRecomb = itemToggledOn($("#styleInlineRecomb"));
+
+    TreeStyle.width = Math.max(window.innerWidth-5, 200);
+    TreeStyle.height = Math.max(window.innerHeight-5, 200);
+    TreeStyle.marginTop = 40;
+    TreeStyle.marginBottom = Math.min(0.05*layout.height, 30);
+    TreeStyle.marginLeft = 10;
+    TreeStyle.marginRight = Math.min(0.05*layout.width, 30);
+    TreeStyle.colourTrait = colourTrait;
+    TreeStyle.tipTextTrait = tipTextTrait;
+    TreeStyle.nodeTextTrait = nodeTextTrait;
+    TreeStyle.nodeBarTrait = nodeBarTrait;
+    TreeStyle.recombTextTrait = recombTextTrait;
+    TreeStyle.edgeOpacityTrait = edgeOpacityTrait;
+    TreeStyle.recombOpacityTrait = recombOpacityTrait;
+    TreeStyle.markSingletonNodes = itemToggledOn($("#styleMarkSingletons"));
+    TreeStyle.displayRecomb = itemToggledOn($("#styleDisplayRecomb"));
+    TreeStyle.axis = axisOn;
+    TreeStyle.axisForwards = axisForwards;
+    TreeStyle.axisOffset = axisOffset;
+    TreeStyle.legend = itemToggledOn($("#styleDisplayLegend"));
+    TreeStyle.lineWidth = lineWidth;
+    TreeStyle.fontSize = fontSize;
+    TreeStyle.labelPrec = labelPrec;
 
     // Position internal nodes
     if ($("#styleSort span").parent().text() == "Transmission tree")
         layout.transmissionLayout();
     else
         layout.standardLayout();
-
-    // Assign chosen style properties:
-    layout.width = Math.max(window.innerWidth-5, 200);
-    layout.height = Math.max(window.innerHeight-5, 200);
-    layout.marginTop = 40;
-    layout.marginBottom = Math.min(0.05*layout.height, 30);
-    layout.marginLeft = 10;
-    layout.marginRight = Math.min(0.05*layout.width, 30);
-    layout.colourTrait = colourTrait;
-    layout.tipTextTrait = tipTextTrait;
-    layout.nodeTextTrait = nodeTextTrait;
-    layout.nodeBarTrait = nodeBarTrait;
-    layout.recombTextTrait = recombTextTrait;
-    layout.edgeOpacityTrait = edgeOpacityTrait;
-    layout.recombOpacityTrait = recombOpacityTrait;
-    layout.markSingletonNodes = itemToggledOn($("#styleMarkSingletons"));
-    layout.displayRecomb = itemToggledOn($("#styleDisplayRecomb"));
-    layout.axis = axisOn;
-    layout.axisForwards = axisForwards;
-    layout.axisOffset = axisOffset;
-    layout.legend = itemToggledOn($("#styleDisplayLegend"));
-    layout.lineWidth = lineWidth;
-    layout.fontSize = fontSize;
-    layout.labelPrec = labelPrec;
-
-    // Use existing zoom control instance:
-    layout.zoomControl = ZoomControl;
 
     // Display!
     $("#output").html("");

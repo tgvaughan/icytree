@@ -38,55 +38,87 @@ function pretty(val, prec) {
     return val.replace(/\.?0*$/,"");
 }
 
-// Tree layout object
-var Layout = Object.create({}, {
-    tree: {value: undefined, writable: true},
-    nodePositions: {value: {}, writable: true},
+// Tree style:
 
-    width: {value: 640, writable: true},
-    height: {value: 480, writable: true},
+var TreeStyle = {
+    nodePositions: {},
 
-    marginTop: {value: 40, writable: true},
-    marginBottom: {value: 10, writable: true},
-    marginLeft: {value: 10, writable: true},
-    marginRight: {value: 40, writable: true},
+    width: 640,
+    height: 480,
 
-    colourTrait: {value: undefined, writable: true},
-    seenColourTraits: {value: [], writable: true},
-    colourPallet: {value: [], writable: true},
+    marginTop: 40,
+    marginBottom: 10,
+    marginLeft: 10,
+    marginRight: 40,
 
-    tipTextTrait: {value: "label", writable: true},
-    nodeTextTrait: {value: undefined, writable: true},
-    recombTextTrait: {value: undefined, writable: true},
-    labelPrec: {value: 0, writable: true},
+    colourTrait: undefined,
+    seenColourTraits: [],
+    colourPallet: [],
 
-    edgeOpacityTrait: {value: undefined, writable: true},
-    recombOpacityTrait: {value: undefined, writable: true},
+    tipTextTrait: "label",
+    nodeTextTrait: undefined,
+    recombTextTrait: undefined,
+    labelPrec: 0,
 
-    nodeBarTrait: {value: undefined, writable: true},
+    edgeOpacityTrait: undefined,
+    recombOpacityTrait: undefined,
 
-    axis: {value: false, writable: true},
-    axisForwards: {value: false, writable: true},
-    axisOffset: {value: 0, writable: true},
-    maxAxisTicks: {value: 20, writable: true},
+    nodeBarTrait: undefined,
 
-    legend: {value: false, writable: true},
+    axis: false,
+    axisForwards: false,
+    axisOffset: 0,
+    maxAxisTicks: 20,
 
-    logScale: {value: false, writable: true},
-    logScaleRelOffset: {value: 0.01, writable: true},
+    legend: false,
 
-    markSingletonNodes: {value: false, writable: true},
+    logScale: false,
+    logScaleRelOffset: 0.01,
 
-    displayRecomb: {value: true, writable: true},
-    inlineRecomb: {value: true, writable: true},
+    markSingletonNodes: false,
 
-    lineWidth: {value: 2, writable: true},
-    fontSize: {value: 11, writable: true},
+    displayRecomb: true,
+    inlineRecomb: true,
 
-    init: {value: function(tree) {
-        this.tree = tree;
-        return this;
-    }},
+    lineWidth: 2,
+    fontSize: 11
+};
+
+// Tree layout
+
+function TreeLayout(tree) {
+    this.tree = tree;
+}
+
+function TimeTreeLayout(tree, useLogScale) {
+    TreeLayout.call(this, tree);
+    this.useLogScale = uselogScale;
+}
+
+TimeTreeLayout.prototype = Object.create(TreeLayout.prototype);
+TimeTreeLayout.prototype.constructor = TimeTreeLayout;
+
+TimeTreeLayout.prototype.getTotalTreeHeight = function() {
+    var treeHeight = this.tree.root.height;
+    if (this.tree.root.branchLength !== undefined)
+        treeHeight += this.tree.root.branchLength;
+    else
+        treeHeight += 0.01*this.tree.root.height; // short faux root edge
+
+    return treeHeight;
+};
+
+TimeTreeLayout.prototype.getScaledHeight = function(height, useLogScale) {
+    var treeHeight = this.getTotalTreeHeight();
+    var lso = this.logScaleRelOffset*treeHeight;
+    if (useLogScale) {
+        return (Math.log(height + lso) - Math.log(lso))/
+            (Math.log(treeHeight + lso) - Math.log(lso));
+    } else {
+        return height/treeHeight;
+    }
+};
+
 
     // Helper methods
 
@@ -118,27 +150,6 @@ var Layout = Object.create({}, {
             return screenHeight*svg.viewBox.baseVal.height/this.height;
     }},
 
-    getTotalTreeHeight: {value: function() {
-        var treeHeight = this.tree.root.height;
-        if (this.tree.root.branchLength !== undefined)
-            treeHeight += this.tree.root.branchLength;
-        else
-            treeHeight += 0.01*this.tree.root.height; // short faux root edge
-
-        return treeHeight;
-    }},
-
-    getScaledHeight: {value: function(height, useLogScale) {
-        var treeHeight = this.getTotalTreeHeight();
-        var lso = this.logScaleRelOffset*treeHeight;
-        if (useLogScale) {
-            return (Math.log(height + lso) - Math.log(lso))/
-                (Math.log(treeHeight + lso) - Math.log(lso));
-        } else {
-            return height/treeHeight;
-        }
-    }},
-
     // Generate a colour pallet for N distinct trait values
     genColourPallet: {value: function(N) {
 
@@ -146,7 +157,7 @@ var Layout = Object.create({}, {
         function hslToRgb(h, s, l) {
             var r, g, b;
 
-            if (s == 0) {
+            if (s === 0) {
                 r = g = b = l; // achromatic
             } else {
                 function hue2rgb(p, q, t) {
@@ -299,10 +310,6 @@ var Layout = Object.create({}, {
 
     // Transform from tree to SVG coordinates
     posXform: {value: function (treePos) {
-        // Margins are 5% of total dimension.
-        //var xmargin = 0.05*this.width;
-        //var ymargin = 0.05*this.height;
-
         var xpos = (1-treePos[1])*(this.width - this.marginLeft - this.marginRight) + this.marginLeft;
         var ypos = (1-treePos[0])*(this.height - this.marginTop - this.marginBottom) + this.marginTop;
         return [xpos, ypos];
@@ -311,10 +318,6 @@ var Layout = Object.create({}, {
 
     // Transform from SVG to tree coordinates
     invXform: {value: function (svgPos) {
-        // Margins are 5% of total dimension.
-        var xmargin = 0.05*this.width;
-        var ymargin = 0.05*this.height;
-
         var treePosY = 1 - (svgPos[0] - this.marginLeft)/(this.width - this.marginLeft - this.marginRight);
         var treePosX = 1 - (svgPos[1] - this.marginTop)/(this.height - this.marginTop - this.marginBottom);
 

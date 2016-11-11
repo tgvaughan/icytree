@@ -29,12 +29,8 @@ var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
 var controlsHidden = false;
-var lineWidth = 2;
-var fontSize = 11;
 var defaultBranchLength = 1; // Branch length used when none specified
-var logScaleRelOffset = 0.001;
 var pollingIntervalID;
-var axisOffset = 0;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -148,7 +144,7 @@ $(document).ready(function() {
             case "styleSetAxisOffset":
                 $("#axisOffsetDialog").dialog("open");
                 var inputBox = $("#axisOffsetInput");
-                inputBox.val(axisOffset);
+                inputBox.val(TreeStyle.axisOffset);
                 inputBox.focus();
                 inputBox.select();
                 break;
@@ -156,6 +152,7 @@ $(document).ready(function() {
             default:
                 switch(ui.item.parent().attr("id")) {
                     case "styleSort":
+                    case "styleLayout":
                     case "styleColourTrait":
                     case "styleTipTextTrait":
                     case "styleNodeTextTrait":
@@ -268,7 +265,7 @@ $(document).ready(function() {
         width: 400,
         buttons: {
             Ok: function() {
-                axisOffset = Number($("#axisOffsetInput").val());
+                TreeStyle.axisOffset = Number($("#axisOffsetInput").val());
                 $(this).dialog("close");
                 update();
             },
@@ -446,6 +443,12 @@ function updateMenuItems() {
             $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
             $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
             $("#fileExport").addClass("ui-state-disabled");
+        }
+
+        if ($("#styleLayout span").parent().text() === "Transmission Tree") {
+            $("#styleSort").closest("li").addClass("ui-state-disabled");
+        } else {
+            $("#styleSort").closest("li").removeClass("ui-state-disabled");
         }
     } else {
         $("#fileExport").addClass("ui-state-disabled");
@@ -703,7 +706,7 @@ function itemToggledOn(el) {
     return el.find("span.ui-icon-check").length>0;
 }
 
-// Update form elements containing trait selectors
+// Update submenus containing trait selectors
 function updateTraitSelectors(tree) {
 
     var elements = [$("#styleColourTrait"),
@@ -789,15 +792,15 @@ function updateTraitSelectors(tree) {
 
 // Alter line width used in visualisation.
 function edgeWidthChange(inc) {
-    lineWidth = Math.max(1, lineWidth + inc);
-    displayNotification("Edge width: " + lineWidth);
+    TreeStyle.lineWidth = Math.max(1, TreeStyle.lineWidth + inc);
+    displayNotification("Edge width: " + TreeStyle.lineWidth);
     update();
 }
 
 // Alter font size used in visualisation.
 function fontSizeChange(inc) {
-    fontSize = Math.max(6, fontSize + inc);
-    displayNotification("Font size: " + fontSize);
+    TreeStyle.fontSize = Math.max(6, TreeStyle.fontSize + inc);
+    displayNotification("Font size: " + TreeStyle.fontSize);
     update();
 }
 
@@ -1022,19 +1025,21 @@ function update() {
         prepareOutputForTree();
     }
 
-    // Generate _copy_ of tree to draw.
-    // (Allows us to revert sorting operation.)
-    var tree = trees[currentTreeIdx].copy();
+    // Tree to draw
+    var tree = trees[currentTreeIdx];
 
     // Sort tree nodes
     switch ($("#styleSort span").parent().text()) {
         case "Sorted (ascending)":
-            tree.sortNodes(false);
+            TreeStyle.sortNodes = true;
+            TreeStyle.sortNodesDescending = false;
             break;
         case "Sorted (descending)":
-            tree.sortNodes(true);
+            TreeStyle.sortNodes = true;
+            TreeStyle.sortNodesDescending = true;
             break;
         default:
+            TreeStyle.sortNodes = false;
             break;
     }
 
@@ -1042,64 +1047,64 @@ function update() {
     updateTraitSelectors(tree);
 
     // Determine whether colouring is required:
-    var colourTrait = $("#styleColourTrait span").parent().text();
-    if (colourTrait === "None")
-        colourTrait = undefined;
+    TreeStyle.colourTrait = $("#styleColourTrait span").parent().text();
+    if (TreeStyle.colourTrait === "None")
+        TreeStyle.colourTrait = undefined;
 
     // Determine whether tip labels are required:
-    var tipTextTrait = $("#styleTipTextTrait span").parent().text();
-    switch (tipTextTrait) {
+    TreeStyle.tipTextTrait = $("#styleTipTextTrait span").parent().text();
+    switch (TreeStyle.tipTextTrait) {
         case "None":
-            tipTextTrait = undefined;
+            TreeStyle.tipTextTrait = undefined;
             break;
         case "Label":
-            tipTextTrait = "label";
+            TreeStyle.tipTextTrait = "label";
             break;
         default:
             break;
     }
 
     // Determine whether internal node labels are required:
-    var nodeTextTrait = $("#styleNodeTextTrait span").parent().text();
-    switch (nodeTextTrait) {
+    TreeStyle.nodeTextTrait = $("#styleNodeTextTrait span").parent().text();
+    switch (TreeStyle.nodeTextTrait) {
         case "None":
-            nodeTextTrait = undefined;
+            TreeStyle.nodeTextTrait = undefined;
             break;
         case "Label":
-            nodeTextTrait = "label";
+            TreeStyle.nodeTextTrait = "label";
             break;
         default:
             break;
     }
 
     // Determine whether node bars are required:
-    var nodeBarTrait = $("#styleNodeBarTrait span").parent().text();
-    switch (nodeBarTrait) {
+    TreeStyle.nodeBarTrait = $("#styleNodeBarTrait span").parent().text();
+    switch (TreeStyle.nodeBarTrait) {
         case "None":
-            nodeBarTrait = undefined;
+            TreeStyle.nodeBarTrait = undefined;
             break;
         default:
             break;
     }
 
     // Determine whether recombinant edge labels are required:
-    var recombTextTrait = $("#styleRecombTextTrait span").parent().text();
-    switch (recombTextTrait) {
+    TreeStyle.recombTextTrait = $("#styleRecombTextTrait span").parent().text();
+    switch (TreeStyle.recombTextTrait) {
         case "None":
-            recombTextTrait = undefined;
+            TreeStyle.recombTextTrait = undefined;
             break;
         case "Label":
-            recombTextTrait = "label";
+            TreeStyle.recombTextTrait = "label";
             break;
         default:
             break;
     }
 
     // Determine whether edge opacities are required
-    var edgeOpacityTrait = $("#styleEdgeOpacityTrait span").parent().text();
-    switch (edgeOpacityTrait) {
+    TreeStyle.edgeOpacityTrait = $("#styleEdgeOpacityTrait span").parent().text();
+    switch (TreeStyle.edgeOpacityTrait) {
         case "None":
-            edgeOpacityTrait = undefined;
+            TreeStyle.edgeOpacityTrait = undefined;
             break;
         default:
             break;
@@ -1107,38 +1112,36 @@ function update() {
 
 
     // Determine whether recomb edge opacities are required
-    var recombOpacityTrait = $("#styleRecombOpacityTrait span").parent().text();
-    switch (recombOpacityTrait) {
+    TreeStyle.recombOpacityTrait = $("#styleRecombOpacityTrait span").parent().text();
+    switch (TreeStyle.recombOpacityTrait) {
         case "None":
-            recombOpacityTrait = undefined;
+            TreeStyle.recombOpacityTrait = undefined;
             break;
         default:
             break;
     }
 
     // Determine numeric label precision
-    var labelPrec = $("#styleLabelPrec span").parent().data("prec");
+    TreeStyle.labelPrec = $("#styleLabelPrec span").parent().data("prec");
 
     // Determine which kind of axis (if any) should be displayed
-    var axisOn, axisForwards;
     switch ($("#styleAxis span").parent().text()) {
         case "Age":
-            axisOn = true;
-            axisForwards = false;
+            TreeStyle.axis = true;
+            TreeStyle.axisForwards = false;
             break;
         case "Forwards time":
-            axisOn = true;
-            axisForwards = true;
+            TreeStyle.axis = true;
+            TreeStyle.axisForwards = true;
             break;
         default:
-            axisOn = false;
+            TreeStyle.axis = false;
     }
 
 
-    // Assign chosen style properties to TreeStyle object
+    // Assign remaining style properties to TreeStyle object
 
     TreeStyle.logScale = itemToggledOn($("#styleLogScale"));
-    TreeStyle.logScaleRelOffset = logScaleRelOffset;
     TreeStyle.inlineRecomb = itemToggledOn($("#styleInlineRecomb"));
 
     TreeStyle.width = Math.max(window.innerWidth-5, 200);
@@ -1147,29 +1150,24 @@ function update() {
     TreeStyle.marginBottom = Math.min(0.05*TreeStyle.height, 30);
     TreeStyle.marginLeft = 10;
     TreeStyle.marginRight = Math.min(0.05*TreeStyle.width, 30);
-    TreeStyle.colourTrait = colourTrait;
-    TreeStyle.tipTextTrait = tipTextTrait;
-    TreeStyle.nodeTextTrait = nodeTextTrait;
-    TreeStyle.nodeBarTrait = nodeBarTrait;
-    TreeStyle.recombTextTrait = recombTextTrait;
-    TreeStyle.edgeOpacityTrait = edgeOpacityTrait;
-    TreeStyle.recombOpacityTrait = recombOpacityTrait;
+
     TreeStyle.markSingletonNodes = itemToggledOn($("#styleMarkSingletons"));
     TreeStyle.displayRecomb = itemToggledOn($("#styleDisplayRecomb"));
-    TreeStyle.axis = axisOn;
-    TreeStyle.axisForwards = axisForwards;
-    TreeStyle.axisOffset = axisOffset;
     TreeStyle.legend = itemToggledOn($("#styleDisplayLegend"));
-    TreeStyle.lineWidth = lineWidth;
-    TreeStyle.fontSize = fontSize;
-    TreeStyle.labelPrec = labelPrec;
 
     // Position internal nodes
     var layout;
-    if ($("#styleSort span").parent().text() == "Transmission tree")
-        layout = new TransmissionTreeLayout(tree);
-    else
-        layout = new StandardTreeLayout(tree);
+    switch ($("#styleLayout span").parent().text()) {
+        case "Standard Time Tree":
+            layout = new StandardTreeLayout(tree);
+            break;
+        case "Transmission Tree":
+            layout = new TransmissionTreeLayout(tree);
+            break;
+        case "Cladogram":
+            layout = new CladogramLayout(tree);
+            break;
+    }
 
     // Display!
     $("#output").html("");
@@ -1188,9 +1186,9 @@ function update() {
 
         var dir = (event.wheelDelta || -event.detail);
         if (dir>0)
-            logScaleRelOffset /= 1.5;
+            TreeStyle.logScaleRelOffset /= 1.5;
         else
-            logScaleRelOffset *= 1.5;
+            TreeStyle.logScaleRelOffset *= 1.5;
         update();
     }
     svg.addEventListener("mousewheel",

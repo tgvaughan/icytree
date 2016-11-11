@@ -41,8 +41,6 @@ function pretty(val, prec) {
 // ---- Tree style ---- {{{
 
 var TreeStyle = {
-    nodePositions: {},
-
     width: 640,
     height: 480,
 
@@ -71,7 +69,7 @@ var TreeStyle = {
     legend: false,
 
     logScale: false,
-    logScaleRelOffset: 0.01,
+    logScaleRelOffset: 0.001,
 
     markSingletonNodes: false,
 
@@ -79,7 +77,10 @@ var TreeStyle = {
     inlineRecomb: true,
 
     lineWidth: 2,
-    fontSize: 11
+    fontSize: 11,
+
+    sortNodes: true,
+    sortNodesDecending: true
 };
 
 // }}}
@@ -87,7 +88,8 @@ var TreeStyle = {
 // ---- Tree layouts ---- {{{
 
 function TreeLayout(tree) {
-    this.tree = tree;
+    this.tree = tree.copy();
+    this.sortTree();
     this.nodePositions = {};
 }
 
@@ -112,6 +114,16 @@ TreeLayout.prototype.getScaledHeight = function(height) {
     }
 };
 
+TreeLayout.prototype.getScaledNodeHeight = function(node) {
+    return this.getScaledHeight(node.height);
+};
+
+TreeLayout.prototype.sortTree = function() {
+    if (TreeStyle.sortNodes) {
+        this.tree.sortNodes(TreeStyle.sortNodesDescending);
+    }
+};
+
 // Standard tree layout
 
 function StandardTreeLayout(tree) {
@@ -119,27 +131,8 @@ function StandardTreeLayout(tree) {
     
     this.nodePositions = {};
 
-    var treeHeight = this.getTotalTreeHeight();
-    var treeWidth;
-
     // Position leaves
-    var leaves = this.tree.getLeafList();
-    if (leaves.length === 1) {
-        // Special case for single-leaf trees
-        this.nodePositions[leaves[0]] = [
-            0.5,
-            this.getScaledHeight(leaves[0].height)
-        ];
-        treeWidth = 1.0;
-    } else {
-        for (var i=0; i<leaves.length; i++) {
-            this.nodePositions[leaves[i]] = [
-                i/(leaves.length-1),
-                this.getScaledHeight(leaves[i].height)
-            ];
-        }
-        treeWidth = leaves.length-1;
-    }
+    this.positionLeaves();
 
     // Position internal nodes
     this.positionInternals(this.tree.root);
@@ -149,6 +142,24 @@ function StandardTreeLayout(tree) {
 
 StandardTreeLayout.prototype = Object.create(TreeLayout.prototype);
 StandardTreeLayout.prototype.constructor = StandardTreeLayout;
+
+StandardTreeLayout.prototype.positionLeaves = function() {
+    var leaves = this.tree.getLeafList();
+    if (leaves.length === 1) {
+        // Special case for single-leaf trees
+        this.nodePositions[leaves[0]] = [
+            0.5,
+            this.getScaledNodeHeight(leaves[0])
+        ];
+    } else {
+        for (var i=0; i<leaves.length; i++) {
+            this.nodePositions[leaves[i]] = [
+                i/(leaves.length-1),
+                this.getScaledNodeHeight(leaves[i])
+            ];
+        }
+    }
+};
 
 StandardTreeLayout.prototype.positionInternals = function(node) {
     if (node.isLeaf())
@@ -173,11 +184,11 @@ StandardTreeLayout.prototype.positionInternals = function(node) {
 
     this.nodePositions[node] = [
         xpos,
-        this.getScaledHeight(node.height)
+        this.getScaledNodeHeight(node)
     ];
 
     return xpos;
-}
+};
 
 
 // Produce a rectangular layout suitable for transmission trees:
@@ -199,11 +210,45 @@ TransmissionTreeLayout.prototype.positionInternals = function (node) {
 
     this.nodePositions[node] = [
         xpos,
-        this.getScaledHeight(node.height)
+        this.getScaledNodeHeight(node)
     ];
 
     return xpos;
+};
+
+// Disable sorting for transmission trees
+TransmissionTreeLayout.prototype.sortTree = function() { };
+
+
+// Produce a rectangular cladogram layout
+function CladogramLayout (tree) {
+    this.nodeRanks = {};
+    this.computeNodeRanks(tree.root);
+
+    StandardTreeLayout.call(this, tree);
 }
+
+CladogramLayout.prototype = Object.create(StandardTreeLayout.prototype);
+CladogramLayout.prototype.constructor = CladogramLayout;
+
+CladogramLayout.prototype.computeNodeRanks = function(node) {
+    if (node.isLeaf()) {
+        this.nodeRanks[node] = 0;
+    } else {
+        var maxChildRank = 0;
+        for (var i=0; i<node.children.length; i++) {
+            maxChildRank = Math.max(this.computeNodeRanks(node.children[i]), maxChildRank);
+        }
+
+        this.nodeRanks[node] = maxChildRank + 1;
+    }
+
+    return this.nodeRanks[node];
+};
+
+CladogramLayout.prototype.getScaledNodeHeight = function(node) {
+    return this.nodeRanks[node]/this.nodeRanks[this.tree.root];
+};
 
 // }}}
 
@@ -382,16 +427,16 @@ var Display = (function() {
                 var label = "";
                 if (!TreeStyle.logScale) {
                     if (TreeStyle.axisForwards)
-                        label = parseFloat((axisOffset - h).toPrecision(5));
+                        label = parseFloat((TreeStyle.axisOffset - h).toPrecision(5));
                     else
-                        label = parseFloat((h + axisOffset).toPrecision(5));
+                        label = parseFloat((h + TreeStyle.axisOffset).toPrecision(5));
                     axisLine(svg, h/treeHeight, label, bottomRight[0], topLeft[0]);
                 } else {
                     var trueHeight = lso*Math.pow(treeHeight/lso + 1, h) - lso;
                     if (TreeStyle.axisForwards)
-                        label = Number((axisOffset - trueHeight).toPrecision(5)).toExponential();
+                        label = Number((TreeStyle.axisOffset - trueHeight).toPrecision(5)).toExponential();
                     else
-                        label =  Number((trueHeight + axisOffset).toPrecision(5)).toExponential();
+                        label =  Number((trueHeight + TreeStyle.axisOffset).toPrecision(5)).toExponential();
                     axisLine(svg, h, label, bottomRight[0], topLeft[0]);
                 }
                 h += delta;

@@ -38,8 +38,7 @@ function pretty(val, prec) {
     return val.replace(/\.?0*$/,"");
 }
 
-// ---- Tree style ----
-// {{{
+// ---- Tree style ---- {{{
 
 var TreeStyle = {
     nodePositions: {},
@@ -85,8 +84,7 @@ var TreeStyle = {
 
 // }}}
 
-// ---- Tree layouts ----
-// {{{
+// ---- Tree layouts ---- {{{
 
 function TreeLayout(tree) {
     this.tree = tree;
@@ -112,35 +110,6 @@ TreeLayout.prototype.getScaledHeight = function(height) {
     } else {
         return height/treeHeight;
     }
-};
-
-
-TreeLayout.prototype.transformToSVG = function(svg, coord) {
-    if (svg.viewBox.baseVal !== null ||
-        (svg.viewBox.baseVal.width === 0 && svg.viewBox.baseVal.height === 0)) {
-        coord.x = svg.viewBox.baseVal.x +  coord.x*svg.viewBox.baseVal.width/TreeStyle.width;
-        coord.y = svg.viewBox.baseVal.y +  coord.y*svg.viewBox.baseVal.height/TreeStyle.height;
-    }
-
-    return coord;
-};
-
-TreeLayout.prototype.getSVGWidth = function(svg, screenWidth) {
-    if (svg.viewBox.baseVal === null ||
-        svg.viewBox.baseVal.width === 0 ||
-        svg.viewBox.baseVal.height === 0)
-        return screenWidth;
-    else
-        return screenWidth*svg.viewBox.baseVal.width/TreeStyle.width;
-};
-
-TreeLayout.prototype.getSVGHeight = function(svg, screenHeight) {
-    if (svg.viewBox.baseVal === null ||
-        svg.viewBox.baseVal.width === 0 ||
-        svg.viewBox.baseVal.height === 0)
-        return screenHeight;
-    else
-        return screenHeight*svg.viewBox.baseVal.height/TreeStyle.height;
 };
 
 // Standard tree layout
@@ -238,7 +207,7 @@ TransmissionTreeLayout.prototype.positionInternals = function (node) {
 
 // }}}
 
-// ---- Display Module ----
+// ---- Display Module ---- {{{
 var Display = (function() {
 
     var NS="http://www.w3.org/2000/svg";
@@ -260,6 +229,34 @@ var Display = (function() {
         var treePosX = 1 - (svgPos[1] - TreeStyle.marginTop)/(TreeStyle.height - TreeStyle.marginTop - TreeStyle.marginBottom);
 
         return [treePosX, treePosY];
+    }
+
+    function transformToSVG (svg, coord) {
+        if (svg.viewBox.baseVal !== null ||
+            (svg.viewBox.baseVal.width === 0 && svg.viewBox.baseVal.height === 0)) {
+            coord.x = svg.viewBox.baseVal.x +  coord.x*svg.viewBox.baseVal.width/TreeStyle.width;
+            coord.y = svg.viewBox.baseVal.y +  coord.y*svg.viewBox.baseVal.height/TreeStyle.height;
+        }
+
+        return coord;
+    }
+
+    function getSVGWidth (svg, screenWidth) {
+        if (svg.viewBox.baseVal === null ||
+            svg.viewBox.baseVal.width === 0 ||
+            svg.viewBox.baseVal.height === 0)
+            return screenWidth;
+        else
+            return screenWidth*svg.viewBox.baseVal.width/TreeStyle.width;
+    }
+
+    function getSVGHeight (svg, screenHeight) {
+        if (svg.viewBox.baseVal === null ||
+            svg.viewBox.baseVal.width === 0 ||
+            svg.viewBox.baseVal.height === 0)
+            return screenHeight;
+        else
+            return screenHeight*svg.viewBox.baseVal.height/TreeStyle.height;
     }
 
     var seenColourTraitValues = [];
@@ -300,12 +297,12 @@ var Display = (function() {
             return "#" + paddedHex(r) + paddedHex(g) + paddedHex(b);
         }
 
-        this.colourPallet = [];
+        colourPallet = [];
         var delta = Math.min(0.33, 1/N);
         for (var idx=0; idx<N; idx++) {
             var hue = 1 - idx*delta;
             var lightness = (hue>0.1 && hue<0.5) ? 0.30 : 0.45;
-            this.colourPallet[idx] = hslToRgb(hue, 1, lightness);
+            colourPallet[idx] = hslToRgb(hue, 1, lightness);
         }
     }
 
@@ -357,11 +354,11 @@ var Display = (function() {
             // Acquire coordinates of viewBox
             var topLeft, bottomRight;
             if (svg.viewBox.baseVal === null) {
-                topLeft = this.invXform([0,0]);
-                bottomRight = this.invXform([this.width, this.height]);
+                topLeft = invXform([0,0]);
+                bottomRight = invXform([TreeStyle.width, TreeStyle.height]);
             } else {
-                topLeft = this.invXform([svg.viewBox.baseVal.x, svg.viewBox.baseVal.y]);
-                bottomRight = this.invXform([svg.viewBox.baseVal.x + svg.viewBox.baseVal.width,
+                topLeft = invXform([svg.viewBox.baseVal.x, svg.viewBox.baseVal.y]);
+                bottomRight = invXform([svg.viewBox.baseVal.x + svg.viewBox.baseVal.width,
                         svg.viewBox.baseVal.y + svg.viewBox.baseVal.height]);
             }
 
@@ -407,7 +404,7 @@ var Display = (function() {
                 var coord = svg.createSVGPoint();
                 coord.x = 10;
                 coord.y = TreeStyle.height - seenColourTraitValues.length*20 - 30 - 15;
-                this.transformToSVG(svg, coord);
+                transformToSVG(svg, coord);
 
                 var title = document.createElementNS(NS, "text");
                 title.setAttribute("class", "axisComponent");
@@ -424,22 +421,22 @@ var Display = (function() {
                 var coord = svg.createSVGPoint();
                 coord.x = 20;
                 coord.y = TreeStyle.height - seenColourTraitValues.length*20 - 30 + i*20;
-                this.transformToSVG(svg, coord);
+                transformToSVG(svg, coord);
 
                 var dot = document.createElementNS(NS, "rect");
-                dot.setAttribute("x", coord.x - this.getSVGWidth(svg, 5));
-                dot.setAttribute("y", coord.y - this.getSVGHeight(svg, 5));
-                dot.setAttribute("width", this.getSVGWidth(svg, 10));
-                dot.setAttribute("height", this.getSVGHeight(svg, 10));
-                dot.setAttribute("fill", this.colourPallet[i]);
+                dot.setAttribute("x", coord.x - getSVGWidth(svg, 5));
+                dot.setAttribute("y", coord.y - getSVGHeight(svg, 5));
+                dot.setAttribute("width", getSVGWidth(svg, 10));
+                dot.setAttribute("height", getSVGHeight(svg, 10));
+                dot.setAttribute("fill", colourPallet[i]);
                 dot.setAttribute("class", "axisComponent");
                 svg.appendChild(dot);
 
                 var label = document.createElementNS(NS, "text");
                 label.setAttribute("class", "axisComponent");
-                label.setAttribute("x", coord.x + this.getSVGWidth(svg, 15));
-                label.setAttribute("y", coord.y + this.getSVGHeight(svg, 5));
-                label.setAttribute("fill", this.colourPallet[i]);
+                label.setAttribute("x", coord.x + getSVGWidth(svg, 15));
+                label.setAttribute("y", coord.y + getSVGHeight(svg, 5));
+                label.setAttribute("fill", colourPallet[i]);
                 label.textContent = seenColourTraitValues[i];
                 svg.appendChild(label);
             }
@@ -590,7 +587,7 @@ var Display = (function() {
         // Draw axis:
         //this.updateAxis(svg); // Drawn by zoom controller.
 
-        // Draw tree:
+        // Draw node bars:
 
         if (TreeStyle.nodeBarTrait !== undefined) {
             for (var i=0; i<layout.tree.getNodeList().length; i++) {
@@ -606,6 +603,9 @@ var Display = (function() {
                 }
             }
         }
+
+        // Discard any previously-collected trait information
+        seenColourTraitValues = [];
 
         // Draw tree edges:
 
@@ -782,7 +782,7 @@ var Display = (function() {
         }
 
         // Attach event handlers for pan and zoom:
-        ZoomControl.init(svg, this);
+        ZoomControl.init(svg, layout);
 
         // Attach event handler for edge stats popup:
         EdgeStatsControl.init(svg, layout);
@@ -795,14 +795,14 @@ var Display = (function() {
     return {
         updateAxis: updateAxis,
         createSVG: createSVG
-    }
+    };
 }) ();
 
+// }}}
 
-// EdgeStatsControl object
+// ---- EdgeStatsControl ---- {{{
 // Dynamically creates a table and a containing div with id phyloStat.
 
-// {{{
 var EdgeStatsControl = {
 
     init: function(svg, layout) {
@@ -939,10 +939,8 @@ var EdgeStatsControl = {
 
 // }}}
 
-// ZoomControl object
-// (Just a tidy way to package up these event handlers.)
-
-// {{{
+// ---- ZoomControl ---- {{{
+// Handles panning and zooming of displayed tree.
 
 var ZoomControl = {
     initialised: false,
@@ -1183,3 +1181,5 @@ var ZoomControl = {
 };
 
 // }}}
+
+// vim:fdm=marker

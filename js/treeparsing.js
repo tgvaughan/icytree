@@ -113,7 +113,7 @@ var TreeFromNewick = Object.create(TreeBuilder, {
         ["HASH", /#/, false],
         ["STRING", /^"(?:[^"]|"")+"/, true],
         ["STRING",/^'(?:[^']|'')+'/, true],
-        ["STRING", /^[\w|*%/!.\-\+]+(?:\([^)]*\))?/, true]]},
+        ["STRING", /^[\w\s|*%/!.\-\+]+(?:\([^)]*\))?/, true]]},
 
     // Lexical analysis
     doLex: { value: function(newick) {

@@ -123,12 +123,16 @@ TreeFromNewick.prototype.tokens = [
         ["HASH", /#/, false],
         ["STRING", /^"(?:[^"]|"")+"/, true],
         ["STRING",/^'(?:[^']|'')+'/, true],
-        ["STRING", /^[\w|*%/!.\-\+]+(?:\([^)]*\))?/, true]];
+        ["STRING", /^[\w\s|*%/!.\-\+]+(?:\([^)]*\))?/, true, 0],
+        ["STRING", /^[\w\s|*%/!.:\-\+]+(?:\([^)]*\))?/, true, 1]];
 
 // Lexical analysis
 TreeFromNewick.prototype.doLex = function(newick) {
     var tokenList = [];
     var idx = 0;
+
+    // Lexer has two modes: 0 (default) and 1 (attribute mode)
+    var lexMode = 0;
 
     while (idx<newick.length) {
 
@@ -141,6 +145,11 @@ TreeFromNewick.prototype.doLex = function(newick) {
 
         var matchFound = false;
         for (var k = 0; k<this.tokens.length; k++) {
+
+            // Skip lexer rules not applying to this mode:
+            if (this.tokens[k].length>3 && this.tokens[k][3] !== lexMode)
+                continue;
+
             var match = newick.slice(idx).match(this.tokens[k][1]);
             if (match !== null && match.index === 0) {
 
@@ -155,6 +164,17 @@ TreeFromNewick.prototype.doLex = function(newick) {
                 } else {
                     tokenList.push([this.tokens[k][0]]);
                     //console.log(idx + " " + this.tokens[k][0]);
+                }
+
+                switch(this.tokens[k][0]) {
+                    case "OPENA":
+                        lexMode = 1;
+                        break;
+                    case "CLOSEA":
+                        lexMode = 0;
+                        break;
+                    default:
+                        break;
                 }
 
                 matchFound = true;

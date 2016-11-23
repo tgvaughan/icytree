@@ -123,8 +123,8 @@ TreeFromNewick.prototype.tokens = [
         ["HASH", /#/, false],
         ["STRING", /^"(?:[^"]|"")+"/, true],
         ["STRING",/^'(?:[^']|'')+'/, true],
-        ["STRING", /^[\w\s|*%/!.\-\+]+(?:\([^)]*\))?/, true, 0],
-        ["STRING", /^[\w\s|*%/!.:\-\+]+(?:\([^)]*\))?/, true, 1]];
+        ["STRING", /^[^,():;[\]#]+(?:\([^)]*\))?/, true, 0],
+        ["STRING", /^[^,[\]{}=]+/, true, 1]];
 
 // Lexical analysis
 TreeFromNewick.prototype.doLex = function(newick) {

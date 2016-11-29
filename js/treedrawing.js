@@ -604,7 +604,7 @@ var Display = (function() {
         bullet.setAttribute("fill", "black");
         bullet.setAttribute("shape-rendering", "auto");
         bullet.setAttribute("class","internalNodeMark");
-        svg.appendChild(bullet);
+        return(bullet);
     }
 
 
@@ -815,13 +815,13 @@ var Display = (function() {
             var thisNode = layout.tree.getNodeList()[i];
 
             if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
-                newNodeMark(posXform(layout.nodePositions[thisNode]));
+                svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
             } else {
                 if (thisNode.isHybrid()) {
                     if (thisNode.children.length == 1)
-                        newNodeMark(posXform(layout.nodePositions[thisNode]));
+                        svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
                     else if (TreeStyle.inlineRecomb && thisNode.isLeaf())
-                        newNodeMark(posXform(layout.nodePositions[thisNode.parent]));
+                        svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode.parent])));
                 }
             }
         }
@@ -1113,8 +1113,8 @@ var ZoomControl = {
         for (var i=0; i<nodeMarkElements.length; i++) {
             var dash = nodeMarkElements[i];
 
-            var w = this.layout.getSVGWidth(this.svg, 2*TreeStyle.lineWidth);
-            var h = this.layout.getSVGHeight(this.svg, 2*TreeStyle.lineWidth);
+            var w = 2*TreeStyle.lineWidth/this.zoomFactorX;
+            var h = 2*TreeStyle.lineWidth/this.zoomFactorY;
 
             dash.setAttribute("rx", w);
             dash.setAttribute("ry", h);

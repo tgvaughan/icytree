@@ -233,6 +233,9 @@ CladogramLayout.prototype.constructor = CladogramLayout;
 
 CladogramLayout.prototype.computeNodeRanks = function(node) {
     if (node.isLeaf()) {
+        if (node.isHybrid()) {
+
+        }
         this.nodeRanks[node] = 0;
     } else {
         var maxChildRank = 0;
@@ -683,22 +686,22 @@ var Display = (function() {
         // Draw recombinant edges
 
         if (TreeStyle.displayRecomb) {
-            for (var hybridID in layout.tree.getHybridEdgeList()) {
-                var edge = layout.tree.getHybridEdgeList()[hybridID];
+            for (var recombSrc in layout.tree.getRecombEdgeMap()) {
+                var recombDest = layout.tree.getRecombEdgeMap()[recombSrc];
 
-                var childPos = posXform(layout.nodePositions[edge[0]]);
-                var childPrimePos = posXform(layout.nodePositions[edge[1]]);
-                var parentPos = posXform(layout.nodePositions[edge[1].parent]);
+                var childPos = posXform(layout.nodePositions[recombSrc]);
+                var childPrimePos = posXform(layout.nodePositions[recombDest]);
+                var parentPos = posXform(layout.nodePositions[recombDest.parent]);
 
                 var recombOpacityFactor;
-                if (TreeStyle.recombOpacityTrait !== undefined && thisNode.annotation[TreeStyle.recombOpacityTrait] !== undefined)
-                    recombOpacityFactor = edge[1].annotation[TreeStyle.recombOpacityTrait];
+                if (TreeStyle.recombOpacityTrait !== undefined && recombDest.annotation[TreeStyle.recombOpacityTrait] !== undefined)
+                    recombOpacityFactor = recombDest.annotation[TreeStyle.recombOpacityTrait];
                 else
                     recombOpacityFactor = 1.0;
 
                 var branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
-                                                  selectColourTrait(edge[1]), recombOpacityFactor);
-                branch.id = edge[1];
+                                                  selectColourTrait(recombDest), recombOpacityFactor);
+                branch.id = recombDest;
                 svg.appendChild(branch);
             }
         }

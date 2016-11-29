@@ -135,7 +135,7 @@ function Tree(root) {
     this.root = root;
     this.nodeList = [];
     this.leafList = [];
-    this.hybridEdgeList = undefined;
+    this.recombEdgeMap = undefined;
 }
 
 // Tree methods
@@ -166,11 +166,11 @@ Tree.prototype.getLeafList = function() {
     return this.leafList;
 };
 
-// Retrieve list of node pairs specifying hybrid edges.
-// Pairs are ordered according to [source, dest].
-Tree.prototype.getHybridEdgeList = function() {
-    if (this.hybridEdgeList === undefined) {
+// Retrieve map from source to dest nodes of recombinant edges
+Tree.prototype.getRecombEdgeMap = function() {
+    if (this.recombEdgeMap === undefined) {
 
+        var node, i;
         var hybridNodeList;
         if (this.root !== undefined) {
             hybridNodeList = this.root.applyPreOrder(function(node) {
@@ -183,27 +183,26 @@ Tree.prototype.getHybridEdgeList = function() {
             hybridNodeList = [];
         }
 
-        this.hybridEdgeList = {};
-        for (var i=0; i<hybridNodeList.length; i++) {
-            var node = hybridNodeList[i];
-            if (node.hybridID in this.hybridEdgeList) {
-                var edge = this.hybridEdgeList[node.hybridID];
-                if (node.isLeaf())
-                    edge.push(node);
-                else
-                    edge.splice(0,0,node);
-            } else {
-                this.hybridEdgeList[node.hybridID] = [node];
-            }
+        var srcHybridIDMap = {};
+        var destHybridIDMap = {};
+        for (i=0; i<hybridNodeList.length; i++) {
+            node = hybridNodeList[i];
+            if (node.isLeaf())
+                destHybridIDMap[node.hybridID] = node;
+            else
+                srcHybridIDMap[node.hybridID] = node;
         }
 
-        for (var hybridID in this.hybridEdgeList) {
-            if (this.hybridEdgeList[hybridID].length !== 2)
+        this.recombEdgeMap = {};
+        for (var hybridID in srcHybridIDMap) {
+            if (hybridID in destHybridIDMap)
+                this.recombEdgeMap[srcHybridIDMap[hybridID]] = destHybridIDMap[hybridID];
+            else
                 throw "Extended Newick error: hybrid nodes must come in pairs.";
         }
     }
 
-    return this.hybridEdgeList;
+    return this.recombEdgeMap;
 };
 
 // Sort nodes according to clade sizes.

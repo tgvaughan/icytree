@@ -67,8 +67,8 @@ TreeBuilder.prototype.stripZeroLengthBranches = function(defaultBranchLength) {
     }
 
     // Invalidate cached leaf and node lists
-    this.leafList = [];
-    this.nodeList = [];
+    this.leafList = undefined;
+    this.nodeList = undefined;
 };
 
 // Exceptions thrown during parsing

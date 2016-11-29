@@ -133,9 +133,6 @@ Node.prototype.applyPreOrder = function(f) {
 
 function Tree(root) {
     this.root = root;
-    this.nodeList = [];
-    this.leafList = [];
-    this.recombEdgeMap = undefined;
 }
 
 // Tree methods
@@ -143,7 +140,7 @@ function Tree(root) {
 // Retrieve list of nodes in tree.
 // (Should maybe use accessor function for this.)
 Tree.prototype.getNodeList = function() {
-    if (this.nodeList.length === 0 && this.root !== undefined) {
+    if (this.nodeList === undefined && this.root !== undefined) {
         this.nodeList = this.root.applyPreOrder(function(node) {
             return node;
         });
@@ -154,7 +151,7 @@ Tree.prototype.getNodeList = function() {
 
 // Retrieve list of leaves in tree, in correct order.
 Tree.prototype.getLeafList = function() {
-    if (this.leafList.length === 0 && this.root !== undefined) {
+    if (this.leafList === undefined && this.root !== undefined) {
         this.leafList = this.root.applyPreOrder(function(node) {
             if (node.isLeaf())
                 return node;
@@ -166,7 +163,7 @@ Tree.prototype.getLeafList = function() {
     return this.leafList;
 };
 
-// Retrieve map from source to dest nodes of recombinant edges
+// Retrieve map from recomb edge IDs to src/dest node pairs
 Tree.prototype.getRecombEdgeMap = function() {
     if (this.recombEdgeMap === undefined) {
 
@@ -196,7 +193,7 @@ Tree.prototype.getRecombEdgeMap = function() {
         this.recombEdgeMap = {};
         for (var hybridID in srcHybridIDMap) {
             if (hybridID in destHybridIDMap)
-                this.recombEdgeMap[srcHybridIDMap[hybridID]] = destHybridIDMap[hybridID];
+                this.recombEdgeMap[hybridID] = [srcHybridIDMap[hybridID], destHybridIDMap[hybridID]];
             else
                 throw "Extended Newick error: hybrid nodes must come in pairs.";
         }
@@ -232,7 +229,7 @@ Tree.prototype.sortNodes = function(decending) {
     sortNodesRecurse(this.root);
 
     // Clear out-of-date leaf list
-    this.leafList = [];
+    this.leafList = undefined;
 };
 
 // Retrieve list of traits defined on tree.  Optional filter function can

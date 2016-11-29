@@ -222,9 +222,6 @@ TransmissionTreeLayout.prototype.sortTree = function() { };
 
 // Produce a rectangular cladogram layout
 function CladogramLayout (tree) {
-    this.nodeRanks = {};
-    this.computeNodeRanks(tree.root);
-
     StandardTreeLayout.call(this, tree);
 }
 
@@ -232,11 +229,16 @@ CladogramLayout.prototype = Object.create(StandardTreeLayout.prototype);
 CladogramLayout.prototype.constructor = CladogramLayout;
 
 CladogramLayout.prototype.computeNodeRanks = function(node) {
+    if (node in this.nodeRanks)
+        return this.nodeRanks[node]; // Node already visited
+
     if (node.isLeaf()) {
         if (node.isHybrid()) {
-
+            var srcNode = this.tree.getRecombEdgeMap()[node.hybridID][0];
+            this.nodeRanks[node] = this.computeNodeRanks(srcNode);
+        } else {
+            this.nodeRanks[node] = 0;
         }
-        this.nodeRanks[node] = 0;
     } else {
         var maxChildRank = 0;
         for (var i=0; i<node.children.length; i++) {
@@ -250,6 +252,11 @@ CladogramLayout.prototype.computeNodeRanks = function(node) {
 };
 
 CladogramLayout.prototype.getScaledNodeHeight = function(node) {
+    if (this.nodeRanks === undefined) {
+        this.nodeRanks = {};
+        this.computeNodeRanks(this.tree.root);
+    }
+
     return this.nodeRanks[node]/this.nodeRanks[this.tree.root];
 };
 
@@ -686,8 +693,9 @@ var Display = (function() {
         // Draw recombinant edges
 
         if (TreeStyle.displayRecomb) {
-            for (var recombSrc in layout.tree.getRecombEdgeMap()) {
-                var recombDest = layout.tree.getRecombEdgeMap()[recombSrc];
+            for (var recombID in layout.tree.getRecombEdgeMap()) {
+                var recombSrc = layout.tree.getRecombEdgeMap()[recombID][0];
+                var recombDest = layout.tree.getRecombEdgeMap()[recombID][1];
 
                 var childPos = posXform(layout.nodePositions[recombSrc]);
                 var childPrimePos = posXform(layout.nodePositions[recombDest]);

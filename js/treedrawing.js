@@ -251,10 +251,56 @@ CladogramLayout.prototype.computeNodeRanks = function(node) {
     return this.nodeRanks[node];
 };
 
+CladogramLayout.prototype.adjustRecombRanks = function() {
+
+    // Construct map from unique internal node ranks to
+    // the list of (problem) recomb dest nodes having that same rank
+    var rankMap = {};
+
+    var i, node;
+    for (i=0; i<this.tree.getNodeList().length; i++) {
+        node = this.tree.getNodeList()[i];
+        if (node.isLeaf() || node.isHybrid() || this.nodeRanks[node] in rankMap)
+            continue;
+
+        rankMap[this.nodeRanks[node]] = [];
+    }
+
+    var recombID, srcNode, destNode;
+
+    // Find problem recombinations and add to rank map
+    for (recombID in this.tree.getRecombEdgeMap()) {
+        srcNode = this.tree.getRecombEdgeMap()[recombID][0];
+
+        if (this.nodeRanks[srcNode] in rankMap)
+            rankMap[this.nodeRanks[srcNode]].push(recombID);
+    }
+
+    // Alter ranks of problem recombinations
+    for (var rank in rankMap) {
+        var nProbs = rankMap[rank].length;
+
+        var offset;
+
+        for (i=0; i<nProbs; i++) {
+            offset = (i+1)/(nProbs+1);
+
+            console.log(offset);
+
+            recombID = rankMap[rank][i];
+            srcNode = this.tree.getRecombEdgeMap()[recombID][0];
+            destNode = this.tree.getRecombEdgeMap()[recombID][1];
+            this.nodeRanks[srcNode] += offset;
+            this.nodeRanks[destNode] += offset;
+        }
+    }
+};
+
 CladogramLayout.prototype.getScaledNodeHeight = function(node) {
     if (this.nodeRanks === undefined) {
         this.nodeRanks = {};
         this.computeNodeRanks(this.tree.root);
+        this.adjustRecombRanks();
     }
 
     return this.nodeRanks[node]/this.nodeRanks[this.tree.root];

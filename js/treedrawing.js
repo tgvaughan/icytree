@@ -25,6 +25,9 @@
 
 // Pretty print numbers
 function pretty(val, prec) {
+    if (val === undefined || Number.isNaN(val))
+        return "NA";
+
     prec = typeof prec !== 'undefined' ? prec : 5;
 
     var nVal = Number(val);
@@ -284,8 +287,6 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
 
         for (i=0; i<nProbs; i++) {
             offset = (i+1)/(nProbs+1);
-
-            console.log(offset);
 
             recombID = rankMap[rank][i];
             srcNode = this.tree.getRecombEdgeMap()[recombID][0];
@@ -858,7 +859,7 @@ var Display = (function() {
 
                 if (traitValue !== "") {
                     var pos = posXform(layout.nodePositions[thisNode]);
-                    if (node.children.length === 1)
+                    if (thisNode.children.length === 1)
                         pos[1] -= 2;
 
                     svg.appendChild(newNodeText(pos, traitValue));
@@ -988,14 +989,8 @@ var EdgeStatsControl = {
 
         var node = this.tree.getNode(nodeId);
 
-        var bl = "NA";
-        if (node.branchLength !== undefined)
-            bl = pretty(node.branchLength);
-
-        var pa = "NA";
-        if (node.parent !== undefined)
-            pa = pretty(node.parent.height);
-
+        var bl = pretty(node.branchLength);
+        var pa = pretty(node.parent.height);
         var ca = pretty(node.height);
         var cl = node.label;
 

@@ -129,13 +129,39 @@ Node.prototype.applyPreOrder = function(f) {
     return res;
 };
 
+
 // Tree constructor
 
 function Tree(root) {
     this.root = root;
+    this.computeNodeAges();
 }
 
 // Tree methods
+
+// Compute node ages
+Tree.prototype.computeNodeAges = function() {
+    var heights = this.root.applyPreOrder(function(node) {
+        if (node.parent === undefined)
+            node.height = 0.0;
+        else {
+            if (node.branchLength !== undefined)
+                node.height = node.parent.height - node.branchLength;
+            else {
+                node.height = NaN;
+            }
+        }
+
+        return node.height;
+    });
+    var youngestHeight = Math.min.apply(null, heights);
+
+    this.isTimeTree = !Number.isNaN(youngestHeight);
+
+    for (var i=0; i<this.getNodeList().length; i++)
+        this.getNodeList()[i].height -= youngestHeight;
+};
+
 
 // Retrieve list of nodes in tree.
 // (Should maybe use accessor function for this.)

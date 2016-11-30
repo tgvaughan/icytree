@@ -862,6 +862,9 @@ var Display = (function() {
                     if (thisNode.children.length === 1)
                         pos[1] -= 2;
 
+                    if (thisNode.children.length >1)
+                        pos[0] += 2;
+
                     svg.appendChild(newNodeText(pos, traitValue));
                 }
             }

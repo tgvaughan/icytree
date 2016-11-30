@@ -316,7 +316,7 @@ $(document).ready(function() {
                     });
                 });
 
-                updateTraitSelectors(tree);
+                updateTraitSelectors();
 
                 // Colour tree using highlighting trait
                 var hlElement;
@@ -449,6 +449,22 @@ function updateMenuItems() {
             $("#styleSort").closest("li").addClass("ui-state-disabled");
         } else {
             $("#styleSort").closest("li").removeClass("ui-state-disabled");
+        }
+
+        if (!trees[currentTreeIdx].isTimeTree || $("#styleLayout span").parent().text() === "Cladogram") {
+            $("#styleAxis").closest("li").addClass("ui-state-disabled");
+            $("#styleSetAxisOffset").addClass("ui-state-disabled");
+            $("#styleLogScale").addClass("ui-state-disabled");
+        } else {
+            $("#styleAxis").closest("li").removeClass("ui-state-disabled");
+            $("#styleSetAxisOffset").removeClass("ui-state-disabled");
+            $("#styleLogScale").removeClass("ui-state-disabled");
+        }
+
+        if (!trees[currentTreeIdx].isTimeTree) {
+            $("#styleLayout").closest("li").addClass("ui-state-disabled");
+        } else {
+            $("#styleLayout").closest("li").removeClass("ui-state-disabled");
         }
     } else {
         $("#fileExport").addClass("ui-state-disabled");
@@ -612,11 +628,13 @@ function displayError(string) {
 }
 
 // Display style change notification message
-function displayNotification(str) {
+function displayNotification(str, ms) {
+    ms = ms === undefined ? 1000 : ms;
+
     $("#notify").stop(true, true);
     $("#notify div").text(str);
     $("#notify").show();
-    $("#notify").fadeOut(1000);
+    $("#notify").fadeOut(ms);
 }
 
 // Retrieve element text content
@@ -664,6 +682,8 @@ function selectListItem(el, doUpdate, notify) {
 
 // Cycle checked item in list:
 function cycleListItem(el) {
+    if (el.closest("li").hasClass("ui-state-disabled"))
+        return;
 
     // el is <ul>
     var currentItem = el.find("span.ui-icon-check").closest("li");
@@ -678,6 +698,8 @@ function cycleListItem(el) {
 
 // Cycle checked item in list in reverse order:
 function reverseCycleListItem(el) {
+    if (el.closest("li").hasClass("ui-state-disabled"))
+        return;
 
     // el is <ul>
     var currentItem = el.find("span.ui-icon-check").closest("li");
@@ -691,6 +713,9 @@ function reverseCycleListItem(el) {
 }
 
 function toggleItem (el) {
+    if (el.hasClass("ui-state-disabled"))
+        return;
+
     if (el.find("span.ui-icon-check").length === 0) {
         el.prepend($("<span/>").addClass("ui-icon ui-icon-check"));
         displayNotification(getItemDescription(el) + ": ON");
@@ -707,7 +732,8 @@ function itemToggledOn(el) {
 }
 
 // Update submenus containing trait selectors
-function updateTraitSelectors(tree) {
+function updateTraitSelectors() {
+    var tree = trees[currentTreeIdx];
 
     var elements = [$("#styleColourTrait"),
         $("#styleTipTextTrait"),
@@ -1013,10 +1039,10 @@ function exportNEXUS() {
 
 // Update display according to current tree model and display settings
 function update() {
-    updateMenuItems();
 
-    // Update tree index selector:
     updateCurrentTreeControl();
+
+    updateMenuItems();
 
     if (trees.length === 0) {
         displayStartOutput();
@@ -1043,8 +1069,16 @@ function update() {
             break;
     }
 
+    // Non-time trees can only be displayed as cladograms
+    if (!tree.isTimeTree) {
+        if (!itemToggledOn($("#styleLayoutCladogram"))) {
+            selectListItem($("#styleLayoutCladogram"), false, false);
+            displayNotification("Switching to Cladogram Layout");
+        }
+    }
+
     // Update trait selectors:
-    updateTraitSelectors(tree);
+    updateTraitSelectors();
 
     // Determine whether colouring is required:
     TreeStyle.colourTrait = $("#styleColourTrait span").parent().text();
@@ -1125,23 +1159,27 @@ function update() {
     TreeStyle.labelPrec = $("#styleLabelPrec span").parent().data("prec");
 
     // Determine which kind of axis (if any) should be displayed
-    switch ($("#styleAxis span").parent().text()) {
-        case "Age":
-            TreeStyle.axis = true;
-            TreeStyle.axisForwards = false;
-            break;
-        case "Forwards time":
-            TreeStyle.axis = true;
-            TreeStyle.axisForwards = true;
-            break;
-        default:
-            TreeStyle.axis = false;
+    if (itemToggledOn($("#styleLayoutCladogram")))
+        TreeStyle.axis = false;
+    else {
+        switch ($("#styleAxis span").parent().text()) {
+            case "Age":
+                TreeStyle.axis = true;
+                TreeStyle.axisForwards = false;
+                break;
+            case "Forwards time":
+                TreeStyle.axis = true;
+                TreeStyle.axisForwards = true;
+                break;
+            default:
+                TreeStyle.axis = false;
+        }
     }
 
 
     // Assign remaining style properties to TreeStyle object
 
-    TreeStyle.logScale = itemToggledOn($("#styleLogScale"));
+    TreeStyle.logScale = !itemToggledOn($("#styleLayoutCladogram")) && itemToggledOn($("#styleLogScale"));
     TreeStyle.inlineRecomb = itemToggledOn($("#styleInlineRecomb"));
 
     TreeStyle.width = Math.max(window.innerWidth-5, 200);
@@ -1244,6 +1282,18 @@ function keyPressHandler(event) {
     // Presses valid only when a tree is displayed:
 
     switch(eventChar) {
+        case "'":
+            // Cycle layout:
+            cycleListItem($("#styleLayout"));
+            event.preventDefault();
+            return;
+
+        case "\"":
+            // Cycle layout:
+            reverseCycleListItem($("#styleLayout"));
+            event.preventDefault();
+            return;
+
         case "t":
             // Cycle tip text:
             cycleListItem($("#styleTipTextTrait"));

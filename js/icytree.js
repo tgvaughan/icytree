@@ -29,8 +29,6 @@ var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
 var controlsHidden = false;
-var defaultBranchLength = 1; // Branch length used when none specified
-var pollingIntervalID;
 
 // Page initialisation code:
 $(document).ready(function() {
@@ -121,12 +119,7 @@ $(document).ready(function() {
                 break;
 
             default:
-                switch(ui.item.parent().parent().attr("id")) {
-                    case "filePolling":
-                        selectListItem(ui.item, false, false);
-                        setupPolling(ui.item.data("interval"));
-                        break;
-                }
+                break;
         }
     });
 
@@ -425,25 +418,14 @@ function browserValid() {
 function updateMenuItems() {
     if (treeFile === undefined) {
         $("#fileReload").addClass("ui-state-disabled");
-        $("#filePolling").addClass("ui-state-disabled");
     } else {
-        if (pollingIntervalID === undefined)
-            $("#fileReload").removeClass("ui-state-disabled");
-        else
-            $("#fileReload").addClass("ui-state-disabled");
-        $("#filePolling").removeClass("ui-state-disabled");
+        $("#fileReload").removeClass("ui-state-disabled");
     }
 
     if (trees.length>0) {
         $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
-        if (pollingIntervalID === undefined) {
-            $("#searchMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
-            $("#fileExport").removeClass("ui-state-disabled");
-        } else {
-            $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
-            $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
-            $("#fileExport").addClass("ui-state-disabled");
-        }
+        $("#searchMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
+        $("#fileExport").removeClass("ui-state-disabled");
 
         if ($("#styleLayout span").parent().text() === "Transmission Tree") {
             $("#styleSort").closest("li").addClass("ui-state-disabled");
@@ -471,14 +453,6 @@ function updateMenuItems() {
         $("#styleMenu").closest("li").find("button").first().addClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
     }
-
-    if (pollingIntervalID === undefined) {
-        $("#fileLoad").removeClass("ui-state-disabled");
-        $("#fileEnter").removeClass("ui-state-disabled");
-    } else {
-        $("#fileLoad").addClass("ui-state-disabled");
-        $("#fileEnter").addClass("ui-state-disabled");
-    }
 }
 
 // Load tree data from file object treeFile
@@ -492,65 +466,6 @@ function loadFile() {
         reloadTreeData();
     }
 
-}
-
-// Used to reload file when polling
-function pollingReload() {
-    var reader = new FileReader();
-    reader.onload = pollingFileLoaded;
-    reader.readAsText(treeFile);
-
-    function pollingFileLoaded(evt) {
-        treeData = evt.target.result;
-
-        // Clear existing trees
-        trees = [];
-
-        // Early check for empty tree data
-        if (treeData.replace(/\s+/g,"").length === 0) {
-            displayError("No trees found!");
-            console.log("No trees found!");
-            return;
-        }
-
-        try {
-            trees = getTreesFromString(treeData, defaultBranchLength);
-        } catch (e) {
-            displayError(e.message);
-            console.log(e);
-            return;
-        }
-
-        console.log("Successfully parsed " + trees.length + " trees.");
-        currentTreeIdx = trees.length - 1;
-        update();
-    }
-}
-
-// Set up polling as required
-function setupPolling(interval) {
-    if (interval > 0) {
-        // Reload NOW:
-        pollingReload();
-
-        if (pollingIntervalID === undefined) {
-            // Start polling
-
-            pollingIntervalID = setInterval(pollingReload, interval*1000);
-        } else {
-            // Change polling interval
-
-            clearInterval(pollingIntervalID);
-            pollingIntervalID = setInterval(pollingReload, interval*1000);
-        }
-    } else {
-        // Stop polling
-
-        clearInterval(pollingIntervalID);
-        pollingIntervalID = undefined;
-    }
-
-    updateMenuItems();
 }
 
 // Display space-filling frame with big text
@@ -924,7 +839,7 @@ function reloadTreeData() {
         setTimeout(function() {
 
             try {
-                trees = getTreesFromString(treeData, defaultBranchLength);
+                trees = getTreesFromString(treeData);
             } catch (e) {
                 displayError(e.message);
                 console.log(e);
@@ -939,7 +854,7 @@ function reloadTreeData() {
         // Parse small data set NOW. (No loading screen.)
 
         try {
-            trees = getTreesFromString(treeData, defaultBranchLength);
+            trees = getTreesFromString(treeData);
         } catch (e) {
             displayError(e.message);
             console.log(e);

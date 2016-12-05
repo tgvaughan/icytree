@@ -55,19 +55,10 @@ ga('send', 'pageview');
                         <span class="ks">l</span></li>
                     <li id="fileReload" class="ui-state-disabled"><span class="ui-icon ui-icon-refresh"></span>Reload file
                         <span class="ks">r</span></li>
-                    <li id="filePolling" class="ui-state-disabled"><span class="ui-icon ui-icon-clock"></span>Polling interval...
-                        <ul>
-                            <li data-interval="5">5 seconds</li>
-                            <li data-interval="10">10 seconds</li>
-                            <li data-interval="60">1 minute</li>
-                            <li data-interval="0">No polling<span class="ui-icon ui-icon-check"></span></li>
-                        </ul>
-                    </li>
                     <li>---</li>
                     <li id="fileExport" class="ui-state-disabled"><span class="ui-icon ui-icon-disk"></span>Export tree as...
                         <ul>
                             <li id="fileExportSVG">SVG image</li>
-                            <li id="fileExportMultiSVG">Split SVG...</li>
                             <li id="fileExportNewick">Newick file</li>
                             <li id="fileExportNEXUS">NEXUS file</li>
                         </ul>
@@ -274,17 +265,6 @@ ga('send', 'pageview');
 
             Annotation key: <input type="text" id="searchAnnotationKey" value="HIGHLIGHT"></input><br/>
         </div>
-
-
-        <!-- Multi SVG export dialog -->
-        <div id="multiSVGDialog" title="Export to mulitple SVG images">
-            <p>
-            <label for="spinner">Number of images to export:</label>
-            <input id="multiSVGspinner" name="value">
-            </p>
-            Tree will be split vertically among images.
-        </div>
-
 
         <!-- Panning and zooming help -->
         <div id="navHelp" title="Tree navigation">

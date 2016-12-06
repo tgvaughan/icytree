@@ -156,7 +156,7 @@ Tree.prototype.computeNodeAges = function() {
     });
     var youngestHeight = Math.min.apply(null, heights);
 
-    this.isTimeTree = !Number.isNaN(youngestHeight);
+    this.isTimeTree = !Number.isNaN(youngestHeight) && (heights.length>1 || this.root.branchLength !== undefined);
 
     for (var i=0; i<this.getNodeList().length; i++)
         this.getNodeList()[i].height -= youngestHeight;

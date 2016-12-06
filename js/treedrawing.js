@@ -304,7 +304,10 @@ CladogramLayout.prototype.getScaledNodeHeight = function(node) {
         this.adjustRecombRanks();
     }
 
-    return this.nodeRanks[node]/this.nodeRanks[this.tree.root];
+    if (this.nodeRanks[this.tree.root]>0)
+        return this.nodeRanks[node]/(1.01*this.nodeRanks[this.tree.root]);
+    else
+        return 0;
 };
 
 // }}}

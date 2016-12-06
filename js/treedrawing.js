@@ -993,7 +993,7 @@ var EdgeStatsControl = {
         var node = this.tree.getNode(nodeId);
 
         var bl = pretty(node.branchLength);
-        var pa = pretty(node.parent.height);
+        var pa = (node.parent !== undefined) ?  pretty(node.parent.height) : pretty(undefined);
         var ca = pretty(node.height);
         var cl = node.label;
 
@@ -1035,7 +1035,7 @@ var EdgeStatsControl = {
     hideStatsBox: function() {
         this.phyloStat.style.display = "none";
     }
-}
+};
 
 // }}}
 

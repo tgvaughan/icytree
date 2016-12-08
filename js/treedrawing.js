@@ -91,6 +91,10 @@ var TreeStyle = {
 // ---- Tree layouts ---- {{{
 
 function TreeLayout(tree) {
+    this.origTree = tree; // Need this for tree modifications
+
+    this.findCollapsedClades();
+
     this.tree = tree.copy();
     this.sortTree();
     this.nodePositions = {};
@@ -125,6 +129,52 @@ TreeLayout.prototype.sortTree = function() {
     if (TreeStyle.sortNodes) {
         this.tree.sortNodes(TreeStyle.sortNodesDescending);
     }
+};
+
+TreeLayout.prototype.getCollapsedClades = function() {
+
+    function findDescendents(node, descendents) {
+        for (var i=0; i<node.children.length; i++) {
+            var child = node.children[i];
+            descendents[child] = true;
+            findDescendents(child, descendents);
+        }
+
+        return descendents;
+    }
+
+    function findCollapsed (node, collapsedClades) {
+        if (node.collapsed) {
+            descendents = {};
+            collapsedClades[node] = findDescendents(node,{});
+        } else {
+            for (var i=0; i<node.children.length; i++) {
+                var child = node.children[i];
+                findCollapsed(child, collapsedClades);
+            }
+        }
+
+        return collapsedClades;
+    }
+
+    if (this.collapsedClades === undefined) {
+        this.collapsedClades = findCollapsed(this.origTree.root, {});
+    }
+
+    return this.collapsedClades;
+
+};
+
+TreeLayout.prototype.getLeafGroups = function() {
+    if (this.leafGroups === undefined) {
+        this.leafGroups = [];
+
+        var leaves = this.tree.getLeafList();
+
+
+    }
+
+    return this.leafGroups;
 };
 
 // Standard tree layout
@@ -896,6 +946,9 @@ var Display = (function() {
         // Attach event handler for edge stats popup:
         EdgeStatsControl.init(svg, layout);
 
+        // Handler for tree modifications:
+        TreeModControl.init(svg, layout);
+
         return svg;
     }
 
@@ -906,6 +959,29 @@ var Display = (function() {
         createSVG: createSVG
     };
 }) ();
+
+// }}}
+
+// ---- TreeModControl ---- {{{
+var TreeModControl = {
+    init: function(svg, layout) {
+        this.svg = svg;
+        this.layout = layout;
+
+        var handler = function(event) {
+            var nodeID = event.target.getAttribute("id");
+            var node = layout.origTree.getNode(nodeID);
+
+            node.collapsed = !node.collapsed;
+
+            update(); // ugly!
+        };
+
+        Array.from(svg.getElementsByClassName("treeEdge")).forEach(function(el) {
+            el.addEventListener("click", handler);
+        });
+    }
+};
 
 // }}}
 

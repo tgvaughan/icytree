@@ -93,11 +93,13 @@ var TreeStyle = {
 function TreeLayout(tree) {
     this.origTree = tree; // Need this for tree modifications
 
-    this.findCollapsedClades();
-
     this.tree = tree.copy();
     this.sortTree();
+
     this.nodePositions = {};
+
+    this.groupLeaves();
+
 }
 
 TreeLayout.prototype.getTotalTreeHeight = function() {
@@ -131,50 +133,40 @@ TreeLayout.prototype.sortTree = function() {
     }
 };
 
-TreeLayout.prototype.getCollapsedClades = function() {
+TreeLayout.prototype.groupLeaves = function() {
 
     function findDescendents(node, descendents) {
-        for (var i=0; i<node.children.length; i++) {
-            var child = node.children[i];
-            descendents[child] = true;
-            findDescendents(child, descendents);
-        }
+        descendents[node] = true;
+
+        for (var i=0; i<node.children.length; i++)
+            findDescendents(node.children[i], descendents);
 
         return descendents;
     }
 
-    function findCollapsed (node, collapsedClades) {
-        if (node.collapsed) {
-            descendents = {};
-            collapsedClades[node] = findDescendents(node,{});
+    function findGroups (node, leafGroups) {
+        if (node.isLeaf() || node.collapsed) {
+            leafGroups[node] = findDescendents(node,{});
         } else {
             for (var i=0; i<node.children.length; i++) {
                 var child = node.children[i];
-                findCollapsed(child, collapsedClades);
+                findGroups(child, leafGroups);
             }
         }
 
-        return collapsedClades;
+        return leafGroups;
     }
 
-    if (this.collapsedClades === undefined) {
-        this.collapsedClades = findCollapsed(this.origTree.root, {});
-    }
-
-    return this.collapsedClades;
-
+    this.leafGroups = findGroups(this.origTree.root, {});
 };
 
-TreeLayout.prototype.getLeafGroups = function() {
-    if (this.leafGroups === undefined) {
-        this.leafGroups = [];
-
-        var leaves = this.tree.getLeafList();
-
-
+TreeLayout.prototype.getScaledLeafGroupHeight = function(leafGroupRoot) {
+    var minScaledHeight = Number.POSITIVE_INFINITY;
+    for (var nodeID in this.leafGroups[leafGroupRoot]) {
+        minScaledHeight = Math.min(minScaledHeight, this.tree.getNode(nodeID));
     }
 
-    return this.leafGroups;
+    return minScaledHeight;
 };
 
 // Standard tree layout
@@ -197,25 +189,30 @@ StandardTreeLayout.prototype = Object.create(TreeLayout.prototype);
 StandardTreeLayout.prototype.constructor = StandardTreeLayout;
 
 StandardTreeLayout.prototype.positionLeaves = function() {
-    var leaves = this.tree.getLeafList();
-    if (leaves.length === 1) {
+    var nLeafGroups = Object.keys(this.leafGroups).length;
+    var leafGroupRoot;
+
+    if (nLeafGroups === 1) {
         // Special case for single-leaf trees
-        this.nodePositions[leaves[0]] = [
+        leafGroupRoot = Object.keys(this.leafGroups)[0];
+        this.nodePositions[leafGroupRoot] = [
             0.5,
-            this.getScaledNodeHeight(leaves[0])
+            this.getScaledLeafGroupHeight(leafGroupRoot)
         ];
     } else {
-        for (var i=0; i<leaves.length; i++) {
+        for (var i=0; i<nLeafGroups; i++) {
+            leafGroupRoot = Object.keys(this.leafGroups)[i];
+
             this.nodePositions[leaves[i]] = [
                 i/(leaves.length-1),
-                this.getScaledNodeHeight(leaves[i])
+                this.getScaledLeafGroupHeight(leafGroupRoot)
             ];
         }
     }
 };
 
 StandardTreeLayout.prototype.positionInternals = function(node) {
-    if (node.isLeaf())
+    if (node in this.leafGroups)
         return this.nodePositions[node][0];
 
     var xpos = 0;

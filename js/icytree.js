@@ -30,6 +30,8 @@ var trees = [];
 var currentTreeIdx = 0;
 var controlsHidden = false;
 
+var layout;
+
 // Page initialisation code:
 $(document).ready(function() {
 
@@ -1109,7 +1111,7 @@ function update() {
     TreeStyle.legend = itemToggledOn($("#styleDisplayLegend"));
 
     // Position internal nodes
-    var layout;
+    //var layout;
     switch ($("#styleLayout span").parent().text()) {
         case "Standard Time Tree":
             layout = new StandardTreeLayout(tree);

@@ -1100,9 +1100,9 @@ function update() {
     TreeStyle.width = Math.max(window.innerWidth-5, 200);
     TreeStyle.height = Math.max(window.innerHeight-5, 200);
     TreeStyle.marginTop = 40;
-    TreeStyle.marginBottom = Math.min(0.05*TreeStyle.height, 30);
-    TreeStyle.marginLeft = 10;
-    TreeStyle.marginRight = Math.min(0.05*TreeStyle.width, 30);
+    TreeStyle.marginBottom = 20
+    TreeStyle.marginLeft = 20;
+    TreeStyle.marginRight = 20;
 
     TreeStyle.markSingletonNodes = itemToggledOn($("#styleMarkSingletons"));
     TreeStyle.displayRecomb = itemToggledOn($("#styleDisplayRecomb"));
@@ -1129,6 +1129,9 @@ function update() {
     if ($("#styleAntiAlias > span").length === 0)
         svg.style.shapeRendering = "crispEdges";
     $("#output").append(svg);
+
+    // Update bounding box (can only do this once svg is rendered).
+    ZoomControl.updateBB();
 
     // Add log scale stretching event handler:
     function logScaleStretchHandler(event) {

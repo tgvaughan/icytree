@@ -312,7 +312,7 @@ CladogramLayout.prototype.getScaledNodeHeight = function(node) {
 
 // }}}
 
-// ---- Display Module ---- {{{
+// ---- Disphlay Module ---- {{{
 var Display = (function() {
 
     var NS="http://www.w3.org/2000/svg";
@@ -1052,36 +1052,6 @@ var ZoomControl = {
         this.svg = svg;
         this.layout = layout;
 
-        // Set initial view box if undefined:
-        if (!this.initialised) {
-            this.width = svg.getAttribute("width");
-            this.height = svg.getAttribute("height");
-            this.centre = [Math.round(this.width/2),
-            Math.round(this.height/2)];
-            this.zoomFactorX = 1.0;
-            this.zoomFactorY = 1.0;
-            this.initialised = true;
-        } else {
-            // Update centre on dimension change
-            var newWidth = svg.getAttribute("width");
-            if (this.width != newWidth) {
-                this.centre[0] = this.centre[0]*newWidth/this.width;
-                this.width = newWidth;
-            }
-
-            var newHeight = svg.getAttribute("height");
-            if (this.height != newHeight) {
-                this.centre[1] = this.centre[1]*newHeight/this.height;
-                this.height = newHeight;
-            }
-        }
-
-        this.updateView();
-
-        // Ensure text positions and node mark sizes are correct
-        this.updateNonAxisTextScaling();
-        this.updateInternalNodeMarkScaling();
-
         // Add mouse event handlers
         svg.addEventListener("mousewheel",
                 this.zoomEventHandler.bind(this)); // Chrome
@@ -1099,6 +1069,42 @@ var ZoomControl = {
                 function(event) {event.preventDefault();});
     },
 
+    updateBB: function() {
+
+        var bbox = this.svg.getBBox();
+
+        // Set initial view box if undefined:
+        if (!this.initialised) {
+            this.width = bbox.width;
+            this.height = bbox.height;
+            this.centre = [Math.round(this.width/2),
+            Math.round(this.height/2)];
+            this.zoomFactorX = 1.0;
+            this.zoomFactorY = 1.0;
+            this.initialised = true;
+        } else {
+            // Update centre on dimension change
+            var newWidth = bbox.width;
+            if (this.zoomFactorX == 1) {
+                this.centre[0] = this.centre[0]*newWidth/this.width;
+            }
+            this.width = newWidth;
+
+            var newHeight = bbox.height;
+            if (this.zoomFactorY == 1) {
+                this.centre[1] = this.centre[1]*newHeight/this.height;
+            }
+            this.height = newHeight;
+        }
+
+        this.updateView();
+
+        // Ensure text positions and node mark sizes are correct
+        this.updateNonAxisTextScaling();
+        this.updateInternalNodeMarkScaling();
+
+
+    },
 
     updateView: function() {
 

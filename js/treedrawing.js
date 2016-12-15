@@ -323,15 +323,15 @@ var Display = (function() {
 
     // Transform from tree to SVG coordinates
     function posXform (treePos) {
-        var xpos = (1-treePos[1])*(TreeStyle.width - TreeStyle.marginLeft - TreeStyle.marginRight) + TreeStyle.marginLeft;
-        var ypos = (1-treePos[0])*(TreeStyle.height - TreeStyle.marginTop - TreeStyle.marginBottom) + TreeStyle.marginTop;
+        var xpos = (1-treePos[1])*TreeStyle.width;
+        var ypos = (1-treePos[0])*TreeStyle.height;
         return [xpos, ypos];
     }
 
     // Transform from SVG to tree coordinates
     function invXform (svgPos) {
-        var treePosY = 1 - (svgPos[0] - TreeStyle.marginLeft)/(TreeStyle.width - TreeStyle.marginLeft - TreeStyle.marginRight);
-        var treePosX = 1 - (svgPos[1] - TreeStyle.marginTop)/(TreeStyle.height - TreeStyle.marginTop - TreeStyle.marginBottom);
+        var treePosY = 1 - svgPos[0]/TreeStyle.width;
+        var treePosX = 1 - svgPos[1]/TreeStyle.height;
 
         return [treePosX, treePosY];
     }
@@ -1073,32 +1073,39 @@ var ZoomControl = {
 
         var bbox = this.svg.getBBox();
 
+        this.xDilation=bbox.width/this.svg.getAttribute("width");
+        this.yDilation=bbox.height/this.svg.getAttribute("height");
+
         // Set initial view box if undefined:
         if (!this.initialised) {
             this.width = bbox.width;
             this.height = bbox.height;
-            this.centre = [Math.round(this.width/2),
-            Math.round(this.height/2)];
+            this.x = bbox.x;
+            this.y = bbox.y;
+
+            this.centre = [
+                Math.round(this.x + this.width/2),
+                Math.round(this.y + this.height/2) ];
             this.zoomFactorX = 1.0;
             this.zoomFactorY = 1.0;
             this.initialised = true;
         } else {
             // Update centre on dimension change
-            var newWidth = bbox.width;
             if (this.zoomFactorX == 1) {
-                this.centre[0] = this.centre[0]*newWidth/this.width;
+                this.centre[0] = Math.round(bbox.x + bbox.width/2);
             } else {
-                this.zoomFactorX = this.zoomFactorX*newWidth/this.width;
+                this.zoomFactorX = this.zoomFactorX*bbox.width/this.width;
             }
-            this.width = newWidth;
+            this.width = bbox.width;
+            this.x = bbox.x;
 
-            var newHeight = bbox.height;
             if (this.zoomFactorY == 1) {
-                this.centre[1] = this.centre[1]*newHeight/this.height;
+                this.centre[1] = Math.round(bbox.y + bbox.height/2);
             } else {
-                this.zoomFactorY = this.zoomFactorY*newHeight/this.height;
+                this.zoomFactorY = this.zoomFactorY*bbox.height/this.height;
             }
-            this.height = newHeight;
+            this.height = bbox.height;
+            this.y = bbox.y;
         }
 
         this.updateView();
@@ -1120,14 +1127,14 @@ var ZoomControl = {
         var heightZoomed = this.height/this.zoomFactorY;
 
         // Sanitize centre point
-        this.centre[0] = Math.max(0.5*widthZoomed, this.centre[0]);
-        this.centre[0] = Math.min(this.width-0.5*widthZoomed, this.centre[0]);
+        this.centre[0] = Math.max(this.x + 0.5*widthZoomed, this.centre[0]);
+        this.centre[0] = Math.min(this.x + this.width - 0.5*widthZoomed, this.centre[0]);
 
-        this.centre[1] = Math.max(0.5*heightZoomed, this.centre[1]);
-        this.centre[1] = Math.min(this.height-0.5*heightZoomed, this.centre[1]);
+        this.centre[1] = Math.max(this.y + 0.5*heightZoomed, this.centre[1]);
+        this.centre[1] = Math.min(this.y + this.height - 0.5*heightZoomed, this.centre[1]);
 
-        var x = Math.max(0, this.centre[0] - 0.5*widthZoomed);
-        var y = Math.max(0, this.centre[1] - 0.5*heightZoomed);
+        var x = Math.max(this.x, this.centre[0] - 0.5*widthZoomed);
+        var y = Math.max(this.y, this.centre[1] - 0.5*heightZoomed);
 
         this.svg.setAttribute("viewBox", x + " " + y + " " +
                               widthZoomed + " " + heightZoomed);
@@ -1162,13 +1169,13 @@ var ZoomControl = {
         var textPosX = textEl.getAttribute("x")*1.0;
         var textPosY = textEl.getAttribute("y")*1.0;
         var tlate = this.svg.createSVGMatrix();
-        tlate.e = textPosX*(this.zoomFactorX - 1.0);
-        tlate.f = textPosY*(this.zoomFactorY - 1.0);
+        tlate.e = textPosX*(this.zoomFactorX/this.xDilation - 1.0);
+        tlate.f = textPosY*(this.zoomFactorY/this.yDilation - 1.0);
         var tlateXform = this.svg.createSVGTransformFromMatrix(tlate);
 
         var scaleMat = this.svg.createSVGMatrix();
-        scaleMat.a = 1.0/this.zoomFactorX;
-        scaleMat.d = 1.0/this.zoomFactorY;
+        scaleMat.a = 1.0/this.zoomFactorX*this.xDilation;
+        scaleMat.d = 1.0/this.zoomFactorY*this.yDilation;
         var scaleXform = this.svg.createSVGTransformFromMatrix(scaleMat);
 
         textEl.transform.baseVal.clear();
@@ -1181,8 +1188,8 @@ var ZoomControl = {
         for (var i=0; i<nodeMarkElements.length; i++) {
             var dash = nodeMarkElements[i];
 
-            var w = 2*TreeStyle.lineWidth/this.zoomFactorX;
-            var h = 2*TreeStyle.lineWidth/this.zoomFactorY;
+            var w = 2*TreeStyle.lineWidth/this.zoomFactorX*this.xDilation;
+            var h = 2*TreeStyle.lineWidth/this.zoomFactorY*this.yDilation;
 
             dash.setAttribute("rx", w);
             dash.setAttribute("ry", h);

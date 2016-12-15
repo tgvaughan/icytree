@@ -569,6 +569,8 @@ function prepareOutputForTree() {
     var output = $("#output");
     output.removeClass();
     output.css("padding", "0px");
+    output.css("width", "");
+    output.css("height", "");
 }
 
 // Update checked item in list.

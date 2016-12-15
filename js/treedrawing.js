@@ -1073,6 +1073,10 @@ var ZoomControl = {
 
         var bbox = this.svg.getBBox();
 
+        // These are the relative differences in width and height
+        // between the original SVG and the viewbox expanded to
+        // include all elements including those which exceed the
+        // original SVG bounds.
         this.xDilation=bbox.width/this.svg.getAttribute("width");
         this.yDilation=bbox.height/this.svg.getAttribute("height");
 

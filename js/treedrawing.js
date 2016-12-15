@@ -1087,12 +1087,16 @@ var ZoomControl = {
             var newWidth = bbox.width;
             if (this.zoomFactorX == 1) {
                 this.centre[0] = this.centre[0]*newWidth/this.width;
+            } else {
+                this.zoomFactorX = this.zoomFactorX*newWidth/this.width;
             }
             this.width = newWidth;
 
             var newHeight = bbox.height;
             if (this.zoomFactorY == 1) {
                 this.centre[1] = this.centre[1]*newHeight/this.height;
+            } else {
+                this.zoomFactorY = this.zoomFactorY*newHeight/this.height;
             }
             this.height = newHeight;
         }

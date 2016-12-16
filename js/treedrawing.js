@@ -1244,16 +1244,19 @@ var ZoomControl = {
         // (This is a hack.  Should modify centre update formula to
         // make use of SVG coordinates.)
         var point = this.svg.createSVGPoint();
-        point.x = this.centre[0] - 0.5*width/this.zoomFactorX;
-        point.y = this.centre[1] - 0.5*height/this.zoomFactorY;
-        point = point.matrixTransform(this.svg.getScreenCTM());
-        point.x = event.clientX - point.x;
-        point.y = event.clientY - point.y;
+        point.x = event.clientX;
+        point.y = event.clientY;
+        console.log(point.x + " " + point.y)
+
+        point = point.matrixTransform(this.svg.getScreenCTM().inverse());
+
+        console.log(point.x + " " + point.y)
+        console.log('---')
 
         // Update centre so that SVG coordinates under mouse don't
         // change:
-        this.centre[0] += (1/this.zoomFactorX - 1/zoomFactorXP)*(point.x - 0.5*width);
-        this.centre[1] += (1/this.zoomFactorY - 1/zoomFactorYP)*(point.y - 0.5*height);
+        this.centre[0] += (1/this.zoomFactorX - 1/zoomFactorXP)*(point.x - (this.x + 0.5*this.width));
+        this.centre[1] += (1/this.zoomFactorY - 1/zoomFactorYP)*(point.y - (this.y + 0.5*this.height));
 
         this.zoomFactorX = zoomFactorXP;
         this.zoomFactorY = zoomFactorYP;

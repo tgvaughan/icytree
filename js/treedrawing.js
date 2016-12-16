@@ -1240,23 +1240,15 @@ var ZoomControl = {
         var width = this.svg.getAttribute("width");
         var height = this.svg.getAttribute("height");
 
-        // Get position of mouse relative to top-left corner.
-        // (This is a hack.  Should modify centre update formula to
-        // make use of SVG coordinates.)
+        // Get SVG coordinates of mouse pointer:
         var point = this.svg.createSVGPoint();
         point.x = event.clientX;
         point.y = event.clientY;
-        console.log(point.x + " " + point.y)
-
         point = point.matrixTransform(this.svg.getScreenCTM().inverse());
 
-        console.log(point.x + " " + point.y)
-        console.log('---')
-
-        // Update centre so that SVG coordinates under mouse don't
-        // change:
-        this.centre[0] += (1/this.zoomFactorX - 1/zoomFactorXP)*(point.x - (this.x + 0.5*this.width));
-        this.centre[1] += (1/this.zoomFactorY - 1/zoomFactorYP)*(point.y - (this.y + 0.5*this.height));
+        // Update centre so that SVG coordinates under mouse don't change:
+        this.centre[0] = point.x + (this.centre[0] - point.x)*this.zoomFactorX/zoomFactorXP;
+        this.centre[1] = point.y + (this.centre[1] - point.y)*this.zoomFactorY/zoomFactorYP;
 
         this.zoomFactorX = zoomFactorXP;
         this.zoomFactorY = zoomFactorYP;

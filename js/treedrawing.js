@@ -1073,10 +1073,35 @@ var ZoomControl = {
 
         var bbox = this.svg.getBBox();
 
+        // Addjust bbox to account for margins
+
         bbox.x -= TreeStyle.marginLeft;
         bbox.width += TreeStyle.marginLeft + TreeStyle.marginRight;
         bbox.y -= TreeStyle.marginTop;
         bbox.height += TreeStyle.marginTop + TreeStyle.marginBottom;
+
+        // Adjust bbox to account for nominally-sized text labels
+
+        var rightmostTextWidth;
+        var rightmostTextPos;
+        var textElements = this.svg.getElementsByTagName("text");
+        for (var i=0; i<textElements.length; i++) {
+            var textEl = textElements[i];
+            textEl.transform.baseVal.clear();
+            var textBBox = textEl.getBBox();
+
+            if (rightmostTextWidth === undefined ||
+                    (textBBox.x + textBBox.width) > (rightmostTextPos + rightmostTextWidth)) {
+                rightmostTextWidth = textBBox.width;
+                rightmostTextPos = textBBox.x;
+            }
+        }
+
+        if (rightmostTextWidth !== undefined) {
+            var W = this.svg.getAttribute("width");
+            var newWidth = (rightmostTextPos-bbox.x)/(1 - rightmostTextWidth/W);
+            bbox.width = Math.max(newWidth, bbox.width);
+        }
 
         // These are the relative differences in width and height
         // between the original SVG and the viewbox expanded to

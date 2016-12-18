@@ -1069,9 +1069,14 @@ var ZoomControl = {
                 function(event) {event.preventDefault();});
     },
 
-    updateBB: function() {
+    setBBox: function() {
 
         var bbox = this.svg.getBBox();
+
+        bbox.x -= TreeStyle.marginLeft;
+        bbox.width += TreeStyle.marginLeft + TreeStyle.marginRight;
+        bbox.y -= TreeStyle.marginTop;
+        bbox.height += TreeStyle.marginTop + TreeStyle.marginBottom;
 
         // These are the relative differences in width and height
         // between the original SVG and the viewbox expanded to

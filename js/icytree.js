@@ -1133,7 +1133,7 @@ function update() {
     $("#output").append(svg);
 
     // Update bounding box (can only do this once svg is rendered).
-    ZoomControl.updateBB();
+    ZoomControl.setBBox();
 
     // Add log scale stretching event handler:
     function logScaleStretchHandler(event) {

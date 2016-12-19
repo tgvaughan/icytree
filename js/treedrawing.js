@@ -97,6 +97,8 @@ function TreeLayout(tree) {
     this.sortTree();
 
     this.nodePositions = {};
+    this.leafGroups = [];
+    this.collapsedClades = [];
 
     this.groupLeaves();
 
@@ -136,37 +138,46 @@ TreeLayout.prototype.sortTree = function() {
 TreeLayout.prototype.groupLeaves = function() {
 
     function findDescendents(node, descendents) {
-        descendents[node] = true;
 
-        for (var i=0; i<node.children.length; i++)
-            findDescendents(node.children[i], descendents);
+        for (var i=0; i<node.children.length; i++) {
+            var child = node.children[i];
+            descendents[child] = true;
+            findDescendents(child, descendents);
+        }
 
         return descendents;
     }
 
-    function findGroups (node, leafGroups) {
-        if (node.isLeaf() || node.collapsed) {
-            leafGroups[node] = findDescendents(node,{});
+    function findGroups (node, leafGroups, collapsedClades) {
+        if (node.isLeaf()) {
+            leafGroups.push([node]);
+        } else if (node.collapsed) {
+            var descendents = {};
+            findDescendents(node, descendents);
+            leafGroups.push([node, descendents]);
+            collapsedClades.push(node);
         } else {
             for (var i=0; i<node.children.length; i++) {
                 var child = node.children[i];
-                findGroups(child, leafGroups);
+                findGroups(child, leafGroups, collapsedClades);
             }
         }
-
-        return leafGroups;
     }
 
-    this.leafGroups = findGroups(this.origTree.root, {});
+    this.leafGroups = [];
+    this.collapsedClades = [];
+    findGroups(this.tree.root, this.leafGroups, this.collapsedClades);
 };
 
-TreeLayout.prototype.getScaledLeafGroupHeight = function(leafGroupRoot) {
-    var minScaledHeight = Number.POSITIVE_INFINITY;
-    for (var nodeID in this.leafGroups[leafGroupRoot]) {
-        minScaledHeight = Math.min(minScaledHeight, this.tree.getNode(nodeID));
+TreeLayout.prototype.getYoungestScaledHeight = function(nodeSet) {
+    var youngest = Number.POSITIVE_INFINITY;
+
+    for (var nodeID in nodeSet) {
+        var node = this.tree.getNode(nodeID);
+        youngest = Math.min(this.getScaledNodeHeight(node), youngest);
     }
 
-    return minScaledHeight;
+    return youngest;
 };
 
 // Standard tree layout
@@ -189,30 +200,33 @@ StandardTreeLayout.prototype = Object.create(TreeLayout.prototype);
 StandardTreeLayout.prototype.constructor = StandardTreeLayout;
 
 StandardTreeLayout.prototype.positionLeaves = function() {
-    var nLeafGroups = Object.keys(this.leafGroups).length;
+    var nLeafGroups = this.leafGroups.length;
     var leafGroupRoot;
 
-    if (nLeafGroups === 1) {
-        // Special case for single-leaf trees
-        leafGroupRoot = Object.keys(this.leafGroups)[0];
-        this.nodePositions[leafGroupRoot] = [
-            0.5,
-            this.getScaledLeafGroupHeight(leafGroupRoot)
-        ];
-    } else {
-        for (var i=0; i<nLeafGroups; i++) {
-            leafGroupRoot = Object.keys(this.leafGroups)[i];
+    var delta = nLeafGroups>1 ? 0.24/(nLeafGroups-1) : 0.24;
 
-            this.nodePositions[leaves[i]] = [
-                i/(leaves.length-1),
-                this.getScaledLeafGroupHeight(leafGroupRoot)
-            ];
+    for (var i=0; i<nLeafGroups; i++) {
+        leafGroupRoot = this.leafGroups[i][0];
+
+        var xpos = nLeafGroups>1 ? i/(nLeafGroups-1) : 0.5;
+
+        var entry = [xpos, this.getScaledNodeHeight(leafGroupRoot)];
+
+        if (this.leafGroups[i].length>1) {
+            var youngest = this.getYoungestScaledHeight(this.leafGroups[i][1]);
+
+            entry.push(xpos-delta);
+            entry.push(youngest);
+            entry.push(xpos+delta);
+            entry.push(youngest);
         }
+
+        this.nodePositions[leafGroupRoot] = entry;
     }
 };
 
 StandardTreeLayout.prototype.positionInternals = function(node) {
-    if (node in this.leafGroups)
+    if (node.collapsed || node.isLeaf())
         return this.nodePositions[node][0];
 
     var xpos = 0;
@@ -251,7 +265,7 @@ TransmissionTreeLayout.prototype.constructor = TransmissionTreeLayout;
 
 // Position internal transmission tree nodes
 TransmissionTreeLayout.prototype.positionInternals = function (node) {
-    if (node.isLeaf())
+    if (node.collapsed || node.isLeaf())
         return this.nodePositions[node][0];
 
     var xpos = this.positionInternals(node.children[0]);
@@ -714,6 +728,26 @@ var Display = (function() {
         return(bullet);
     }
 
+    // Draw collapsed clade
+    function newCollapsedClade(rootPos, bottomLeftPos, bottomRightPos) {
+
+        var vertexString = rootPos[0] + "," + rootPos[1] +
+            " " + bottomLeftPos[0] + "," + bottomLeftPos[1] +
+            " " + bottomRightPos[0] + "," + bottomRightPos[1];
+
+        var polygon = document.createElementNS(NS, "polygon");
+
+        polygon.setAttribute("class", "collapsedClade");
+
+        polygon.setAttribute("points", vertexString);
+        polygon.setAttribute("fill", "gray");
+        polygon.setAttribute("stroke", "black");
+        polygon.setAttribute("vector-effect", "non-scaling-stroke");
+        polygon.setAttribute("shape-rendering", "auto");
+
+        return(polygon);
+    }
+
 
     function createSVG(layout) {
         // Create SVG element:
@@ -739,11 +773,13 @@ var Display = (function() {
         // Draw axis:
         //this.updateAxis(svg); // Drawn by zoom controller.
 
+        var nodeID, thisNode;
+
         // Draw node bars:
 
         if (TreeStyle.nodeBarTrait !== undefined) {
-            for (var i=0; i<layout.tree.getNodeList().length; i++) {
-                var thisNode = layout.tree.getNodeList()[i];
+            for (nodeID in layout.nodePositions) {
+                thisNode = layout.tree.getNode(nodeID);
 
                 var traitValue = thisNode.annotation[TreeStyle.nodeBarTrait];
                 if (traitValue !== undefined && traitValue.length === 2) {
@@ -761,8 +797,8 @@ var Display = (function() {
 
         // Draw tree edges:
 
-        for (var i=0; i<layout.tree.getNodeList().length; i++) {
-            var thisNode = layout.tree.getNodeList()[i];
+        for (nodeID in layout.nodePositions) {
+            thisNode = layout.tree.getNode(nodeID);
 
             // Skip leaf hybrid nodes.
             if (thisNode.isHybrid() && thisNode.isLeaf())
@@ -835,13 +871,27 @@ var Display = (function() {
             }
         }
 
+        // Draw collapsed clades:
+        for (var i=0; i<layout.collapsedClades.length; i++) {
+            thisNode = layout.collapsedClades[i];
+
+            var pos = layout.nodePositions[thisNode];
+            var posRoot = posXform(pos.slice(0,2));
+            var posLeft = posXform(pos.slice(2,4));
+            var posRight = posXform(pos.slice(4,6));
+
+            var clade = newCollapsedClade(posRoot, posLeft, posRight);
+            clade.id = thisNode;
+            svg.appendChild(clade);
+        }
+
         // Draw tip and recombinant edge labels:
 
         if (TreeStyle.tipTextTrait !== undefined) {
-            for (var i=0; i<layout.tree.getLeafList().length; i++) {
-                var thisNode = layout.tree.getLeafList()[i];
+            for (var i=0; i<layout.leafGroups.length; i++) {
+                thisNode = layout.leafGroups[i][0];
 
-                if (thisNode.isHybrid())
+                if (thisNode.collapsed || thisNode.isHybrid())
                     continue;
 
                 var trait = TreeStyle.tipTextTrait;
@@ -862,10 +912,10 @@ var Display = (function() {
         }
 
         if (TreeStyle.displayRecomb && TreeStyle.recombTextTrait !== undefined) {
-            for (var i=0; i<layout.tree.getLeafList().length; i++) {
-                var thisNode = layout.tree.getLeafList()[i];
+            for (var i=0; i<layout.leafGroups.length; i++) {
+                thisNode = layout.tree.getLeafList()[i][0];
 
-                if (!thisNode.isHybrid())
+                if (thisNode.collapsed || !thisNode.isHybrid())
                     continue;
 
                 var trait = TreeStyle.recombTextTrait;
@@ -892,9 +942,10 @@ var Display = (function() {
         // Draw internal node labels:
 
         if (TreeStyle.nodeTextTrait !== undefined) {
-            for (var i=0; i<layout.tree.getNodeList().length; i++) {
-                var thisNode = layout.tree.getNodeList()[i];
-                if (thisNode.isLeaf())
+            for (var i=0; i<layout.leafGroups.length; i++) {
+                thisNode = layout.leafGroups[i][0];
+
+                if (thisNode.collapsed || thisNode.isLeaf())
                     continue;
 
                 var traitValue;
@@ -922,8 +973,11 @@ var Display = (function() {
 
         // Mark internal nodes:
 
-        for (var i=0; i<layout.tree.getNodeList().length; i++) {
-            var thisNode = layout.tree.getNodeList()[i];
+        for (nodeID in layout.nodePositions) {
+            thisNode = layout.tree.getNode(nodeID);
+
+            if (thisNode.collapsed)
+                continue;
 
             if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
                 svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
@@ -969,12 +1023,19 @@ var TreeModControl = {
             var nodeID = event.target.getAttribute("id");
             var node = layout.origTree.getNode(nodeID);
 
+            if (node.isLeaf())
+                return;
+
             node.collapsed = !node.collapsed;
 
-            update(); // ugly!
+            update();
         };
 
         Array.from(svg.getElementsByClassName("treeEdge")).forEach(function(el) {
+            el.addEventListener("click", handler);
+        });
+
+        Array.from(svg.getElementsByClassName("collapsedClade")).forEach(function(el) {
             el.addEventListener("click", handler);
         });
     }

@@ -108,6 +108,7 @@ Node.prototype.copy = function() {
         nodeCopy.annotation[key] = this.annotation[key];
     nodeCopy.id = this.id;
     nodeCopy.hybridID = this.hybridID;
+    nodeCopy.collapsed = this.collapsed;
 
     for (var i=0; i<this.children.length; i++)
         nodeCopy.addChild(this.children[i].copy());

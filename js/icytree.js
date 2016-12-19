@@ -168,7 +168,6 @@ $(document).ready(function() {
                         break;
 
                     case "styleEdgeWidth":
-                        console.log(ui.item.text())
                         if (ui.item.text().indexOf("Increase")>=0)
                             edgeWidthChange(1);
                         else
@@ -320,11 +319,13 @@ $(document).ready(function() {
                         hlElement = $(this);
                     }
                 });
-                selectListItem(hlElement);
 
-                $(this).dialog("close");
+                selectListItem(hlElement, false, false);
+
+                update();
             },
-            Cancel: function() {
+
+            Done: function() {
                 $(this).dialog("close");
             }}
     });

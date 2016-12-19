@@ -68,79 +68,84 @@ ga('send', 'pageview');
 
             <li><button>Style</button>
                 <ul id="styleMenu">
-                    <li>Node sorting/layout
+                    <li title="Alter ordering of child nodes.">Node sorting/layout
                         <ul id="styleSort">
-                            <li><span class="ui-icon ui-icon-check"></span>Sorted (descending)</li>
-                            <li>Sorted (ascending)</li>
-                            <li>Unsorted</li>
+                            <li title="Sort nodes in DECREASING order of clade size."><span class="ui-icon ui-icon-check"></span>Sorted (descending)</li>
+                            <li title="Sort nodes in INCREASING order of clade size.">Sorted (ascending)</li>
+                            <li title="Do not sort nodes (order determined by original file).">Unsorted</li>
                         </ul>
                     </li>
-                    <li>Tree layout
+                    <li title="Alter tree layout.">Tree layout
                         <ul id="styleLayout">
-                            <li id="styleLayoutStandard"><span class="ui-icon ui-icon-check"></span>Standard Time Tree</li>
-                            <li id="styleLayoutTransmission">Transmission Tree</li>
-                            <li id="styleLayoutCladogram">Cladogram</li>
+                            <li title="Use time tree layout: heights represent node ages."
+                                id="styleLayoutStandard"><span class="ui-icon ui-icon-check"></span>Standard Time Tree</li>
+                            <li title="Use transmission (time) tree layout: horizontal edges represent individual hosts."
+                                id="styleLayoutTransmission">Transmission Tree</li>
+                            <li title="Use cladogram layout: heights represent node ranks."
+                                id="styleLayoutCladogram">Cladogram</li>
                         </ul>
                         <span class="ks">'</span>
                     </li>
                     <li>--</li>
-                    <li>Colour edges by
+                    <li title="Colour edges based on chosen attribute.">Colour edges by
                         <ul id="styleColourTrait">
                             <li>None<span class="ui-icon ui-icon-check"></li>
                         </ul>
                         <span class="ks">c</span>
                     </li>
-                    <li>Tip text
+                    <li title="Select attribute used to label leaf nodes.">Tip text
                         <ul id="styleTipTextTrait">
                             <li>None</li>
                             <li>Label<span class="ui-icon ui-icon-check"></span></li>
                         </ul>
                         <span class="ks">t</span>
                     </li>
-                    <li>Internal node text
+                    <li title="Select attribute used to label internal nodes.">Internal node text
                         <ul id="styleNodeTextTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                             <li>Label</li>
                         </ul>
                         <span class="ks">i</span>
                     </li>
-                     <li>Node height error bars
+                    <li title="Select attribute containing node height credible interval.">Node height error bars
                         <ul id="styleNodeBarTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                         </ul>
                         <span class="ks">b</span>
                     </li>
-                    <li>Edge opacity
+                    <li title="Select attribute determining opacity of tree edges.">Edge opacity
                         <ul id="styleEdgeOpacityTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                         </ul>
                         <span class="ks">o</span>
                     </li>
-                    <li id="styleMarkSingletons">Mark singletons
+                    <li title="Explicitly mark nodes having a single child edge." id="styleMarkSingletons">Mark singletons
                         <span class="ks">m</span>
                     </li>
                    <li>--</li>
-                    <li>Recomb. edge text
+                    <li title="Select attribute used to label recombinant edges.">Recomb. edge text
                         <ul id="styleRecombTextTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                             <li>Label</li>
                         </ul>
                         <span class="ks">n</span>
                     </li>
-                    <li>Recomb. edge opacity
+                    <li title="Select attribute determining opacity of recombinant edges.">Recomb. edge opacity
                         <ul id="styleRecombOpacityTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
                         </ul>
                         <span class="ks">p</span>
                     </li>
-                    <li id="styleDisplayRecomb"><span class="ui-icon ui-icon-check"></span>Display recomb. edges
+                    <li title="Display or hide recombinant edges."
+                        id="styleDisplayRecomb"><span class="ui-icon ui-icon-check"></span>Display recomb. edges
                         <span class="ks">d</span>
                     </li>
-                    <li id="styleInlineRecomb">Inline recomb. edges
+                    <li title="Display parents of recombinant edges inline with their non-recombinant descendents."
+                        id="styleInlineRecomb">Inline recomb. edges
                         <span class="ks">w</span>
                     </li>
                     <li>--</li>
-                    <li>Edge width
+                    <li title="Alter width of lines used to represent tree edges.">Edge width
                         <ul id="styleEdgeWidth" class="subsub">
                             <li><span class="ui-icon ui-icon-plus"></span>Increase
                                 <span class="ks">+</span>
@@ -150,7 +155,7 @@ ga('send', 'pageview');
                             </li>
                         </ul>
                     </li>
-                    <li>Font size
+                    <li title="Alter size of font used for node label and legend text.">Font size
                         <ul id="styleFontSize" class="subsub">
                             <li><span class="ui-icon ui-icon-plus"></span>Increase
                                 <span class="ks">[</span>
@@ -160,7 +165,7 @@ ga('send', 'pageview');
                             </li>
                         </ul>
                     </li>
-                    <li>Label precision limit
+                    <li title="Limit the numeric precision of node labels.">Label precision limit
                         <ul id="styleLabelPrec" class="subsub">
                             <li data-prec="0"><span class="ui-icon ui-icon-check"></span>None</li>
                             <li data-prec="2">2 sig. figures</li>
@@ -169,18 +174,21 @@ ga('send', 'pageview');
                             <li data-prec="5">5 sig. figures</li>
                         </ul>
                     </li>
-                    <li>Axis
+                    <li title="Options determining display of horizontal axis.">Axis
                         <ul id="styleAxis" class="subsub">
-                            <li><span class="ui-icon ui-icon-check"></span>None</li>
-                            <li>Age</li>
-                            <li>Forwards time</li>
+                            <li title="Don't display an axis."><span class="ui-icon ui-icon-check"></span>None</li>
+                            <li title="Display axis for node ages (times before youngest sample).">Age</li>
+                            <li title="Display forward-time axis">Forwards time</li>
                         </ul>
                         <span class="ks">a</span>
                     </li>
-                    <li id="styleSetAxisOffset">Set axis offset</li>
-                    <li id="styleDisplayLegend">Display legend<span class="ks">g</span></li>
-                    <li id="styleLogScale">Log scale<span class="ks">s</span></li>
-                    <li id="styleAntiAlias">Anti-alias</li>
+                    <li title="Select age or time of most recent sample. Affects numeric values displayed on axis."
+                        id="styleSetAxisOffset">Set axis offset</li>
+                    <li title="Display legend for edge colours."
+                        id="styleDisplayLegend">Display legend<span class="ks">g</span></li>
+                    <li title="Display node heights on offset log scale." id="styleLogScale">Log scale<span class="ks">s</span></li>
+                    <li title="Use anti-aliased lines for drawing tree edges.  (Can make densely-packed tree edges easier to resolve.)"
+                        id="styleAntiAlias">Anti-alias</li>
                 </ul>
             </li>
 

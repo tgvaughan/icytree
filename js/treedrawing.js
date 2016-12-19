@@ -946,8 +946,8 @@ var Display = (function() {
         // Draw internal node labels:
 
         if (TreeStyle.nodeTextTrait !== undefined) {
-            for (var i=0; i<layout.leafGroups.length; i++) {
-                thisNode = layout.leafGroups[i][0];
+            for (nodeID in layout.nodePositions) {
+                thisNode = layout.tree.getNode(nodeID);
 
                 if (thisNode.collapsed || thisNode.isLeaf())
                     continue;

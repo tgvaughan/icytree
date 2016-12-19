@@ -141,7 +141,7 @@ TreeLayout.prototype.groupLeaves = function() {
 
         for (var i=0; i<node.children.length; i++) {
             var child = node.children[i];
-            descendents[child] = true;
+            descendents.push(child);
             findDescendents(child, descendents);
         }
 
@@ -152,7 +152,7 @@ TreeLayout.prototype.groupLeaves = function() {
         if (node.isLeaf()) {
             leafGroups.push([node]);
         } else if (node.collapsed) {
-            var descendents = {};
+            var descendents = [];
             findDescendents(node, descendents);
             leafGroups.push([node, descendents]);
             collapsedClades.push(node);
@@ -169,11 +169,11 @@ TreeLayout.prototype.groupLeaves = function() {
     findGroups(this.tree.root, this.leafGroups, this.collapsedClades);
 };
 
-TreeLayout.prototype.getYoungestScaledHeight = function(nodeSet) {
+TreeLayout.prototype.getYoungestScaledHeight = function(descendents) {
     var youngest = Number.POSITIVE_INFINITY;
 
-    for (var nodeID in nodeSet) {
-        var node = this.tree.getNode(nodeID);
+    for (var i=0; i<descendents.length; i++) {
+        var node = descendents[i];
         youngest = Math.min(this.getScaledNodeHeight(node), youngest);
     }
 
@@ -213,12 +213,18 @@ StandardTreeLayout.prototype.positionLeaves = function() {
         var entry = [xpos, this.getScaledNodeHeight(leafGroupRoot)];
 
         if (this.leafGroups[i].length>1) {
-            var youngest = this.getYoungestScaledHeight(this.leafGroups[i][1]);
+            var descendents = this.leafGroups[i][1];
+            var youngest = this.getYoungestScaledHeight(descendents);
 
             entry.push(xpos-delta);
             entry.push(youngest);
             entry.push(xpos+delta);
             entry.push(youngest);
+
+            for (var j=0; j<descendents.length; j++) {
+                var decNode = descendents[j];
+                this.nodePositions[decNode] = [xpos, this.getScaledNodeHeight(decNode)];
+            }
         }
 
         this.nodePositions[leafGroupRoot] = entry;
@@ -823,6 +829,20 @@ var Display = (function() {
             svg.appendChild(branch);
         }
 
+        // Draw collapsed clades:
+        for (var i=0; i<layout.collapsedClades.length; i++) {
+            thisNode = layout.collapsedClades[i];
+
+            var pos = layout.nodePositions[thisNode];
+            var posRoot = posXform(pos.slice(0,2));
+            var posLeft = posXform(pos.slice(2,4));
+            var posRight = posXform(pos.slice(4,6));
+
+            var clade = newCollapsedClade(posRoot, posLeft, posRight);
+            clade.id = thisNode;
+            svg.appendChild(clade);
+        }
+
         // Draw recombinant edges
 
         if (TreeStyle.displayRecomb) {
@@ -871,20 +891,6 @@ var Display = (function() {
             }
         }
 
-        // Draw collapsed clades:
-        for (var i=0; i<layout.collapsedClades.length; i++) {
-            thisNode = layout.collapsedClades[i];
-
-            var pos = layout.nodePositions[thisNode];
-            var posRoot = posXform(pos.slice(0,2));
-            var posLeft = posXform(pos.slice(2,4));
-            var posRight = posXform(pos.slice(4,6));
-
-            var clade = newCollapsedClade(posRoot, posLeft, posRight);
-            clade.id = thisNode;
-            svg.appendChild(clade);
-        }
-
         // Draw tip and recombinant edge labels:
 
         if (TreeStyle.tipTextTrait !== undefined) {
@@ -913,9 +919,9 @@ var Display = (function() {
 
         if (TreeStyle.displayRecomb && TreeStyle.recombTextTrait !== undefined) {
             for (var i=0; i<layout.leafGroups.length; i++) {
-                thisNode = layout.tree.getLeafList()[i][0];
+                thisNode = layout.leafGroups[i][0];
 
-                if (thisNode.collapsed || !thisNode.isHybrid())
+                if (thisNode.collapsed || !thisNode.isHybrid() || !thisNode.isLeaf())
                     continue;
 
                 var trait = TreeStyle.recombTextTrait;
@@ -931,10 +937,8 @@ var Display = (function() {
                 }
 
                 var pos = posXform(layout.nodePositions[thisNode]);
-                if (node.children.length === 1)
-                    pos[1] -= 2;
 
-                svg.appendChild(newNodeText(thisNode, traitValue));
+                svg.appendChild(newNodeText(pos, traitValue));
             }
         }
 

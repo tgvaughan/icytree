@@ -1048,10 +1048,19 @@ var TreeModControl = {
             var nodeID = event.target.getAttribute("id");
             var node = layout.origTree.getNode(nodeID);
 
-            if (node.isLeaf())
-                return;
+            if (event.ctrlKey) {
+                // Re-root
 
-            node.collapsed = !node.collapsed;
+                layout.origTree.reroot(node);
+
+            } else {
+                // Collapse clade
+
+                if (node.isLeaf())
+                    return;
+
+                node.collapsed = !node.collapsed;
+            }
 
             update();
         };

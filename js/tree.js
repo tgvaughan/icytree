@@ -259,6 +259,44 @@ Tree.prototype.sortNodes = function(decending) {
     this.leafList = undefined;
 };
 
+// Re-root tree:
+Tree.prototype.reroot = function(newRoot) {
+
+    if (newRoot.isLeaf())
+        this.rerootLeaf(newRoot);
+    else
+        this.rerootInternal(newRoot);
+
+    this.computeNodeAges();
+};
+
+Tree.prototype.rerootLeaf = function(newRoot) {
+
+    function rerootRecurse(node, fromNode) {
+
+        if (node.isRoot()) {
+            node.removeChild(fromNode);
+            node.parent = fromNode;
+
+            if (node.branchLength !== undefined) {
+            } else {
+            }
+        } else {
+            if (fromNode !== undefined)
+                node.removeChild(fromNode);
+            node.children.push(node.parent);
+
+            var oldParent = node.parent;
+            node.parent = fromNode;
+
+            rerootRecurse(oldParent, node);
+        }
+    }
+
+    this.root = newRoot;
+    rerootRecurse(newRoot, undefined);
+};
+
 // Retrieve list of traits defined on tree.  Optional filter function can
 // be used to disregard traits defined on a particular subset of nodes.
 Tree.prototype.getTraitList = function(filter) {

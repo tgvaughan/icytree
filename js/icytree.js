@@ -131,6 +131,7 @@ $(document).ready(function() {
             case "styleDisplayRecomb":
             case "styleInlineRecomb":
             case "styleDisplayLegend":
+            case "styleAngleText":
             case "styleLogScale":
             case "styleAntiAlias":
                 toggleItem(ui.item);
@@ -1101,11 +1102,12 @@ function update() {
 
     TreeStyle.logScale = !itemToggledOn($("#styleLayoutCladogram")) && itemToggledOn($("#styleLogScale"));
     TreeStyle.inlineRecomb = itemToggledOn($("#styleInlineRecomb"));
+    TreeStyle.angleText = itemToggledOn($("#styleAngleText"));
 
     TreeStyle.width = Math.max(window.innerWidth-5, 200);
     TreeStyle.height = Math.max(window.innerHeight-5, 200);
     TreeStyle.marginTop = 40;
-    TreeStyle.marginBottom = 20
+    TreeStyle.marginBottom = 20;
     TreeStyle.marginLeft = 20;
     TreeStyle.marginRight = 20;
 
@@ -1316,6 +1318,12 @@ function keyPressHandler(event) {
         case "w":
             // Toggle inlining of recombinant edges:
             toggleItem($("#styleInlineRecomb"));
+            event.preventDefault();
+            return;
+
+        case "v":
+            // Toggle angled node labels:
+            toggleItem($("#styleAngleText"));
             event.preventDefault();
             return;
 

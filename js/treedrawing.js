@@ -58,6 +58,7 @@ var TreeStyle = {
     nodeTextTrait: undefined,
     recombTextTrait: undefined,
     labelPrec: 0,
+    angleText: true,
 
     edgeOpacityTrait: undefined,
     recombOpacityTrait: undefined,
@@ -705,10 +706,27 @@ var Display = (function() {
     }
 
     // Draw node text
-    function newNodeText(pos, string) {
+    function newNodeText(pos, string, offset) {
         var text = document.createElementNS(NS, "text");
+
+        if (offset) {
+            pos[0] += offset[0]*TreeStyle.lineWidth;
+            pos[1] += offset[1]*TreeStyle.lineWidth;
+        }
+
         text.setAttribute("x", pos[0]);
         text.setAttribute("y", pos[1]);
+
+        if (TreeStyle.angleText) {
+            text.setAttribute("angle", -45);
+            text.setAttribute("transform", "rotate(-45 " + pos[0] + " " + pos[1] + ")");
+        }
+
+        if (offset) {
+            text.setAttribute("pixelOffsetX", offset[0]*TreeStyle.lineWidth);
+            text.setAttribute("pixelOffsetY", offset[1]*TreeStyle.lineWidth);
+        }
+
         // text.setAttribute("vector-effect", "non-scaling-text"); // I wish
 
         // Limit precision of numeric labels
@@ -964,13 +982,16 @@ var Display = (function() {
 
                 if (traitValue !== "") {
                     var pos = posXform(layout.nodePositions[thisNode]);
+                    var offset = [0,0];
                     if (thisNode.children.length === 1)
-                        pos[1] -= 2;
+                        offset[1] = -2.5;
 
                     if (thisNode.children.length >1)
-                        pos[0] += 2;
+                        offset[0] = 2.5;
 
-                    svg.appendChild(newNodeText(pos, traitValue));
+                    var text = newNodeText(pos, traitValue, offset);
+                    text.setAttribute("class", "internalText");
+                    svg.appendChild(text);
                 }
             }
         }
@@ -1285,8 +1306,6 @@ var ZoomControl = {
         // Ensure text positions and node mark sizes are correct
         this.updateNonAxisTextScaling();
         this.updateInternalNodeMarkScaling();
-
-
     },
 
     updateView: function() {
@@ -1351,8 +1370,31 @@ var ZoomControl = {
         var scaleXform = this.svg.createSVGTransformFromMatrix(scaleMat);
 
         textEl.transform.baseVal.clear();
+
         textEl.transform.baseVal.appendItem(scaleXform);
         textEl.transform.baseVal.appendItem(tlateXform);
+
+        if (textEl.hasAttribute("pixelOffsetX")) {
+            var oldOffset, newOffset;
+
+            oldOffset = textEl.getAttribute("pixelOffsetX")*this.zoomFactorX/this.xDilation;
+            newOffset = textEl.getAttribute("pixelOffsetX")*1.0;
+            deltaX = newOffset - oldOffset;
+
+            oldOffset = textEl.getAttribute("pixelOffsetY")*this.zoomFactorY/this.yDilation;
+            newOffset = textEl.getAttribute("pixelOffsetY")*1.0;
+            deltaY = newOffset - oldOffset;
+
+            var offsetXform = this.svg.createSVGTransform();
+            offsetXform.setTranslate(deltaX, deltaY);
+            textEl.transform.baseVal.appendItem(offsetXform);
+        }
+
+        if (textEl.hasAttribute("angle")) {
+            var rotateXform = this.svg.createSVGTransform();
+            rotateXform.setRotate(textEl.getAttribute("angle")*1.0, textPosX, textPosY);
+            textEl.transform.baseVal.appendItem(rotateXform);
+        }
     },
 
     updateInternalNodeMarkScaling: function() {

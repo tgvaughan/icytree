@@ -49,14 +49,18 @@ ga('send', 'pageview');
         <ul id="menu">
             <li><button>File</button>
                 <ul id="fileMenu">
-                    <li id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...
-                        <span class="ks">e</span></li>
-                    <li id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...
+                    <li title="Load trees from Newick, Nexus, PhyloXML or NeXML file."
+                        id="fileLoad"><span class="ui-icon ui-icon-folder-open"></span>Load from file...
                         <span class="ks">l</span></li>
-                    <li id="fileReload" class="ui-state-disabled"><span class="ui-icon ui-icon-refresh"></span>Reload file
+                    <li title="Reload tree file. (Requires Chrome.)"
+                        id="fileReload" class="ui-state-disabled"><span class="ui-icon ui-icon-refresh"></span>Reload file
                         <span class="ks">r</span></li>
+                    <li title="Open a dialog box where trees can be entered directly in Newick format or any of the other supported formats."
+                        id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...
+                        <span class="ks">e</span></li>
                     <li>---</li>
-                    <li id="fileExport" class="ui-state-disabled"><span class="ui-icon ui-icon-disk"></span>Export tree as...
+                    <li title="Export currently-displayed tree."
+                        id="fileExport" class="ui-state-disabled"><span class="ui-icon ui-icon-disk"></span>Export tree as...
                         <ul>
                             <li id="fileExportSVG">SVG image</li>
                             <li id="fileExportNewick">Newick file</li>
@@ -197,18 +201,23 @@ ga('send', 'pageview');
 
             <li><button>Search</button>
                 <ul id="searchMenu">
-                    <li id="searchNodes">Find nodes
+                    <li title="Find nodes with specific attribute values."
+                        id="searchNodes">Find nodes
                         <span class="ks">/</span>
                     </li>
-                    <li id="searchClear">Clear search results</li>
+                    <li title="Clear previous search results."
+                        id="searchClear">Clear search results</li>
                 </ul>
             </li>
 
             <li><button>Help</button>
                 <ul id="helpMenu">
-                    <li id="helpTreeNav">Tree navigation...</li>
-                    <li id="helpShortcuts">Keyboard shortcuts...<span class="ks">?</span></li>
-                    <li id="helpAbout">About IcyTree...</li>
+                    <li title="Information on how to explore trees."
+                        id="helpTreeNav">Tree navigation...</li>
+                    <li title="Display full list of keyboard shortcuts."
+                        id="helpShortcuts">Keyboard shortcuts...<span class="ks">?</span></li>
+                    <li title="What is IcyTree?"
+                        id="helpAbout">About IcyTree...</li>
                 </ul>
             </li>
         </ul>
@@ -262,9 +271,32 @@ ga('send', 'pageview');
         </div>
 
         <!-- Node search dialog -->
-        <div id="nodeSearchDialog" title="Search nodes">
+        <div id="nodeSearchDialog" title="Search leaf node attributes">
             <input type="text" id="searchStringInput"
                                placeholder="Comma-delimited substrings to search for..."></input>
+
+            <br>
+            <br>
+
+            <label for="attribute">Attribute to search</label>
+            <select name="attribute" id="searchAttribute">
+                <option selected="selected">Label</option>
+            </select>
+
+            <br>
+
+            <input type="checkbox" name="searchWholeAttrib" id="searchWholeAttrib">
+            <label for="searchWholeAttrib">Whole attribute value must match</label>
+            
+            <br>
+
+            <input type="checkbox" name="searchCaseSensitive" id="searchCaseSensitive">
+            <label for="searchCaseSensitive">Case sensitive</label>
+            
+            <br>
+            <br>
+
+            Presentation of search results:
 
             <ul>
                 <li><input type="radio" name="searchOpt" checked="checked"

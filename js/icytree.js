@@ -180,20 +180,15 @@ $(document).ready(function() {
     });
 
     $("#searchMenu").on("menuselect", function(event, ui) {
+        var tree = trees[currentTreeIdx];
+
         switch(ui.item.attr("id")) {
             case "searchNodes":
                 $("#nodeSearchDialog").dialog("open");
                 break;
 
             case "searchClear":
-                var tree = trees[currentTreeIdx];
-                var akey = $("#searchAnnotationKey").val();
-                $.each(tree.getNodeList(), function(nidx, node) {
-                    delete node.annotation[akey];
-                });
-
-                var noneElement = $($("#styleColourTrait a")[0]);
-                selectListItem(noneElement, true, false);
+                clearSearchHighlight();
                 break;
         }
     });
@@ -271,7 +266,7 @@ $(document).ready(function() {
 
     $("#nodeSearchDialog").dialog({
         autoOpen: false,
-        modal: true,
+        modal: false,
         width: 450,
         buttons: {
             Search: function() {
@@ -282,20 +277,45 @@ $(document).ready(function() {
                 var akey = $("#searchAnnotationKey").val();
                 var highlightType = $("input[name=searchOpt]:checked", "#nodeSearchDialog").val();
 
+                var searchAttrib = $("#searchAttribute").val();
+
+                var wholeAttribMatch = $("#searchWholeAttrib").prop("checked");
+                var caseSensitive = $("#searchCaseSensitive").prop("checked");
+
                 // Clear existing highlights
                 $.each(tree.getNodeList(), function(nidx, node) {
                     delete node.annotation[akey];
                 });
 
+                var noMatch = true;
+
                 $.each(searchStrings, function(eidx, str) {
                     var matchVal = eidx+1;
+
+                    if (!caseSensitive)
+                        str = str.toLowerCase();
 
                     // Find matching nodes
                     var matchingNodes = [];
                     $.each(tree.getNodeList(), function(nidx, node) {
-                        if (node.label.search(str)>=0)
+
+                        var searchText;
+                        if (searchAttrib === "Label")
+                            searchText = node.label;
+                        else
+                            searchText = node.annotation[searchAttrib];
+
+                        if (!caseSensitive)
+                            searchText = searchText.toLowerCase();
+
+                        if ((wholeAttribMatch && (searchText === str)) || (!wholeAttribMatch && searchText.search(str)>=0))
                             matchingNodes = matchingNodes.concat(node);
                     });
+
+                    if (matchingNodes.length === 0)
+                        return;
+
+                    noMatch = false;
 
                     // Highlight additional nodes as required
 
@@ -310,6 +330,11 @@ $(document).ready(function() {
                         node.annotation[akey] = matchVal;
                     });
                 });
+
+                if (noMatch) {
+                    update();
+                    return;
+                }
 
                 updateTraitSelectors();
 
@@ -326,10 +351,13 @@ $(document).ready(function() {
                 update();
             },
 
+            Clear: clearSearchHighlight,
+
             Done: function() {
                 $(this).dialog("close");
             }}
     });
+    $("#searchCaseSensitive").prop("checked", true);
 
 
     $("#shortcutHelp").dialog({
@@ -457,6 +485,19 @@ function updateMenuItems() {
         $("#styleMenu").closest("li").find("button").first().addClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
     }
+}
+
+// Clear search highlighting
+function clearSearchHighlight() {
+    var tree = trees[currentTreeIdx];
+
+    var akey = $("#searchAnnotationKey").val();
+    $.each(tree.getNodeList(), function(nidx, node) {
+        delete node.annotation[akey];
+    });
+
+    var noneElement = $($("#styleColourTrait a")[0]);
+    selectListItem(noneElement, true, false);
 }
 
 // Load tree data from file object treeFile
@@ -725,13 +766,36 @@ function updateTraitSelectors() {
         traitList = traitList.concat(tree.getTraitList(filter));
 
         // Construct selector trait lists:
-        for (var i=0; i<traitList.length; i++) {
-            var selector = $("<li />").text(traitList[i]);
+        var selector, i;
+        for (i=0; i<traitList.length; i++) {
+            selector = $("<li />").text(traitList[i]);
             if (traitList[i] === selectedTrait)
-        $("<span/>").addClass("ui-icon ui-icon-check").prependTo(selector);
-    el.append(selector);
+                $("<span/>").addClass("ui-icon ui-icon-check").prependTo(selector);
+            el.append(selector);
         }
 
+        // Update search dialog trait list:
+
+        selectedTrait = $("#searchAttribute").val();
+
+        traitList = ["Label"].concat(tree.getTraitList(function(node, trait) {
+            return node.isLeaf() && !node.isHybrid();
+        }));
+
+        $("#searchAttribute").html("");
+
+        var akey = $("#searchAnnotationKey").val();
+        for (i=0; i<traitList.length; i++) {
+            if (traitList[i] == akey)
+                continue;
+
+            selector = $("<option />").text(traitList[i]);
+            
+            if (traitList[i] == selectedTrait)
+                $(selector).attr("selected", "selected");
+
+            $("#searchAttribute").append(selector);
+        }
     });
 
     $("#styleMenu").menu("refresh");

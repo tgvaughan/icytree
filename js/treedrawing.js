@@ -380,7 +380,7 @@ CladogramLayout.prototype.getScaledNodeHeight = function(node) {
 
 // }}}
 
-// ---- Disphlay Module ---- {{{
+// ---- Display Module ---- {{{
 var Display = (function() {
 
     var NS="http://www.w3.org/2000/svg";

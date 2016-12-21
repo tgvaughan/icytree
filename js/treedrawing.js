@@ -1151,12 +1151,13 @@ var EdgeStatsControl = {
     displayStatsBox: function(nodeId, x, y) {
 
         var prec = 6;
+        var pixelOffset = 10;
 
         if (x>window.innerWidth/2) {
             this.phyloStat.style.left = "";
-            this.phyloStat.style.right = (window.innerWidth-x) + "px";
+            this.phyloStat.style.right = (window.innerWidth-x+pixelOffset) + "px";
         } else {
-            this.phyloStat.style.left = x + "px";
+            this.phyloStat.style.left = (x+pixelOffset) + "px";
             this.phyloStat.style.right = "";
         }
 
@@ -1173,7 +1174,7 @@ var EdgeStatsControl = {
         var bl = pretty(node.branchLength);
         var pa = (node.parent !== undefined) ?  pretty(node.parent.height) : pretty(undefined);
         var ca = pretty(node.height);
-        var cl = node.label;
+        var cl = pretty(node.label);
 
         document.getElementById("psBL").innerHTML = bl;
         document.getElementById("psPA").innerHTML = pa;

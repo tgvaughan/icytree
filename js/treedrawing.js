@@ -625,11 +625,15 @@ var Display = (function() {
     // {{{ 
 
     // Returns value of colour trait for given node:
-    function selectColourTrait(node) {
+    function getColourTraitValue(node) {
         if (TreeStyle.colourTrait === undefined)
             return undefined;
 
-        var traitValue = node.annotation[TreeStyle.colourTrait];
+        var traitValue;
+        if (TreeStyle.colourTrait === "Label")
+            traitValue = node.label;
+        else
+            traitValue = node.annotation[TreeStyle.colourTrait];
 
         if (traitValue !== undefined && seenColourTraitValues.indexOf(traitValue)<0) {
             seenColourTraitValues = seenColourTraitValues.concat(traitValue);
@@ -842,7 +846,7 @@ var Display = (function() {
             else
                 edgeOpacityFactor = 1.0;
 
-            var branch = newBranch(thisPos, parentPos, selectColourTrait(thisNode), edgeOpacityFactor);
+            var branch = newBranch(thisPos, parentPos, getColourTraitValue(thisNode), edgeOpacityFactor);
             branch.id = thisNode;
             svg.appendChild(branch);
         }
@@ -879,7 +883,7 @@ var Display = (function() {
                     recombOpacityFactor = 1.0;
 
                 var branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
-                                                  selectColourTrait(recombDest), recombOpacityFactor);
+                                                  getColourTraitValue(recombDest), recombOpacityFactor);
                 branch.id = recombDest;
                 svg.appendChild(branch);
             }

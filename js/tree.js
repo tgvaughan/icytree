@@ -32,7 +32,7 @@ function Node(id) {
     this.children = [];
     this.height = undefined;
     this.branchLength = undefined;
-    this.label = "";
+    this.label = undefined;
     this.annotation = {};
     this.hybridID = undefined;
 }
@@ -374,7 +374,7 @@ Tree.prototype.getNewick = function(annotate) {
             res += ")";
         }
 
-        if (node.label.length>0)
+        if (node.label !== undefined)
             res += "\"" + node.label + "\"";
 
         if (node.hybridID !== undefined)

@@ -277,23 +277,40 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     edgeBaseNodeP.removeChild(edgeBaseNode);
     this.root.addChild(edgeBaseNode);
 
+    if (edgeBaseNode.branchLength !== undefined)
+        edgeBaseNode.branchLength /= 2;
+
     var node = edgeBaseNodeP;
     var prevNode = this.root;
+    var BL = edgeBaseNode.branchLength;
     var nodeP;
 
     var terminate = false;
 
     do {
         nodeP = node.parent;
-        nodeP.removeChild(node);
+        if (nodeP !== undefined)
+            nodeP.removeChild(node);
         prevNode.addChild(node);
+
+        var tmpBL = node.branchLength;
+        node.branchLength = BL;
+        BL = tmpBL;
 
         prevNode = node;
         node = nodeP;
-    } while (!node.isRoot());
+    } while (node !== undefined);
 
-    node.branchLength = 1;
-    prevNode.addChild(node);
+    // Delete singleton node left by old root
+    if (prevNode.children.length == 1) {
+        var child = prevNode.children[0];
+        var parent = prevNode.parent;
+        parent.removeChild(prevNode);
+        prevNode.removeChild(child);
+        parent.addChild(child);
+
+        child.branchLength = child.branchLength + prevNode.branchLength;
+    }
 
     // Clear out-of-date leaf and node lists
     this.leafList = undefined;

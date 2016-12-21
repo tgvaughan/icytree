@@ -1053,6 +1053,9 @@ var TreeModControl = {
 
                 layout.origTree.reroot(node);
 
+                // Necessary because rerooting creates new nodes.
+                layout.origTree.reassignNodeIDs();
+
             } else {
                 // Collapse clade
 

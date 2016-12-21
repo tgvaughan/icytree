@@ -164,6 +164,15 @@ Tree.prototype.computeNodeAges = function() {
 };
 
 
+// Assign new node IDs (use with care!)
+Tree.prototype.reassignNodeIDs = function() {
+    var nodeID = 0;
+    for (var i=0; i<this.getNodeList().length; i++)
+        this.getNodeList()[i].id = nodeID++;
+};
+
+
+
 // Retrieve list of nodes in tree.
 // (Should maybe use accessor function for this.)
 Tree.prototype.getNodeList = function() {
@@ -262,35 +271,35 @@ Tree.prototype.sortNodes = function(decending) {
 // Re-root tree:
 Tree.prototype.reroot = function(edgeBaseNode) {
 
-    function rerootRecurse(node, fromNode, BL) {
+    this.root = new Node();
 
-        var oldParent = node.parent;
-        node.removeChild(fromNode);
-        node.parent = fromNode;
+    var edgeBaseNodeP = edgeBaseNode.parent;
+    edgeBaseNodeP.removeChild(edgeBaseNode);
+    this.root.addChild(edgeBaseNode);
 
-        if (oldParent !== undefined) {
-            node.children.push(oldParent);
-            var oldBL = oldParent.branchLength;
-            oldParent.branchLength = BL;
-            rerootRecurse(oldParent, node, oldBL);
-        }
-    }
+    var node = edgeBaseNodeP;
+    var prevNode = this.root;
+    var nodeP;
 
-    var oldParent = edgeBaseNode.parent;
+    var terminate = false;
 
-    var newRoot = new Node();
-    newRoot.children = [edgeBaseNode, oldParent];
+    do {
+        nodeP = node.parent;
+        nodeP.removeChild(node);
+        prevNode.addChild(node);
 
-    edgeBaseNode.parent = newRoot;
+        prevNode = node;
+        node = nodeP;
+    } while (!node.isRoot());
 
-    var oldParentBL = oldParent.branchLength;
-    edgeBaseNode.branchLength /= 2;
-    oldParent.branchLength = edgeBaseNode.branchLength;
+    node.branchLength = 1;
+    prevNode.addChild(node);
 
-    rerootRecurse(oldParent, newRoot, oldParentBL);
+    // Clear out-of-date leaf and node lists
+    this.leafList = undefined;
+    this.nodeList = undefined;
 
-    this.root = newRoot;
-
+    // Recompute node ages
     this.computeNodeAges();
 };
 

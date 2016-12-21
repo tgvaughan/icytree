@@ -260,41 +260,38 @@ Tree.prototype.sortNodes = function(decending) {
 };
 
 // Re-root tree:
-Tree.prototype.reroot = function(newRoot) {
+Tree.prototype.reroot = function(edgeBaseNode) {
 
-    if (newRoot.isLeaf())
-        this.rerootLeaf(newRoot);
-    else
-        this.rerootInternal(newRoot);
+    function rerootRecurse(node, fromNode, BL) {
 
-    this.computeNodeAges();
-};
+        var oldParent = node.parent;
+        node.removeChild(fromNode);
+        node.parent = fromNode;
 
-Tree.prototype.rerootLeaf = function(newRoot) {
-
-    function rerootRecurse(node, fromNode) {
-
-        if (node.isRoot()) {
-            node.removeChild(fromNode);
-            node.parent = fromNode;
-
-            if (node.branchLength !== undefined) {
-            } else {
-            }
-        } else {
-            if (fromNode !== undefined)
-                node.removeChild(fromNode);
-            node.children.push(node.parent);
-
-            var oldParent = node.parent;
-            node.parent = fromNode;
-
-            rerootRecurse(oldParent, node);
+        if (oldParent !== undefined) {
+            node.children.push(oldParent);
+            var oldBL = oldParent.branchLength;
+            oldParent.branchLength = BL;
+            rerootRecurse(oldParent, node, oldBL);
         }
     }
 
+    var oldParent = edgeBaseNode.parent;
+
+    var newRoot = new Node();
+    newRoot.children = [edgeBaseNode, oldParent];
+
+    edgeBaseNode.parent = newRoot;
+
+    var oldParentBL = oldParent.branchLength;
+    edgeBaseNode.branchLength /= 2;
+    oldParent.branchLength = edgeBaseNode.branchLength;
+
+    rerootRecurse(oldParent, newRoot, oldParentBL);
+
     this.root = newRoot;
-    rerootRecurse(newRoot, undefined);
+
+    this.computeNodeAges();
 };
 
 // Retrieve list of traits defined on tree.  Optional filter function can

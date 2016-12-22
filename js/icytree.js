@@ -130,6 +130,7 @@ $(document).ready(function() {
             case "styleMarkSingletons":
             case "styleDisplayRecomb":
             case "styleInlineRecomb":
+            case "styleMinRecombLength":
             case "styleDisplayLegend":
             case "styleAngleText":
             case "styleLogScale":
@@ -1180,6 +1181,7 @@ function update() {
 
     TreeStyle.logScale = !itemToggledOn($("#styleLayoutCladogram")) && itemToggledOn($("#styleLogScale"));
     TreeStyle.inlineRecomb = itemToggledOn($("#styleInlineRecomb"));
+    TreeStyle.minRecombEdgeLength = itemToggledOn($("#styleMinRecombLength"));
     TreeStyle.angleText = itemToggledOn($("#styleAngleText"));
 
     TreeStyle.width = Math.max(window.innerWidth-5, 200);
@@ -1396,6 +1398,12 @@ function keyPressHandler(event) {
         case "w":
             // Toggle inlining of recombinant edges:
             toggleItem($("#styleInlineRecomb"));
+            event.preventDefault();
+            return;
+
+        case "f":
+            // Toggle inlining of recombinant edges:
+            toggleItem($("#styleMinRecombLength"));
             event.preventDefault();
             return;
 

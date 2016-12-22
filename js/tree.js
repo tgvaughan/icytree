@@ -268,6 +268,25 @@ Tree.prototype.sortNodes = function(decending) {
     this.leafList = undefined;
 };
 
+// Minimize distance between hybrid pairs
+Tree.prototype.minimizeHybridSeparation = function() {
+
+    var recombEdgeMap = this.getRecombEdgeMap();
+
+    for (var recombID in recombEdgeMap) {
+        var srcNode = recombEdgeMap[recombID][0];
+        var destNode = recombEdgeMap[recombID][1];
+        var destNodeP = destNode.parent;
+
+        destNodeP.removeChild(destNode);
+        if (srcNode.isLeftOf(destNodeP)) {
+            destNodeP.children.splice(0,0,destNode);
+        } else {
+            destNodeP.children.push(destNode);
+        }
+    }
+};
+
 // Re-root tree:
 Tree.prototype.reroot = function(edgeBaseNode) {
 

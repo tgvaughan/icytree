@@ -79,6 +79,7 @@ var TreeStyle = {
 
     displayRecomb: true,
     inlineRecomb: true,
+    minRecombEdgeLength: true,
 
     lineWidth: 2,
     fontSize: 11,
@@ -135,6 +136,9 @@ TreeLayout.prototype.sortTree = function() {
     if (TreeStyle.sortNodes) {
         this.tree.sortNodes(TreeStyle.sortNodesDescending);
     }
+
+    if (TreeStyle.minRecombEdgeLength)
+        this.tree.minimizeHybridSeparation();
 };
 
 TreeLayout.prototype.groupLeaves = function() {

@@ -950,19 +950,14 @@ var Display = (function() {
                 svg.appendChild(branch);
 
                 // Add end markers
-                //if (!(recombSrc in layout.collapsedCladeNodes))
                 svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombSrc])));
 
                 if (TreeStyle.inlineRecomb && !(recombDest.parent in layout.collapsedCladeRoots ||
                                                 recombDest.parent in layout.collapsedCladeNodes))
                     svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombDest.parent])));
 
-                //if (recombDest in layout.collapsedCladeNodes) {
-                //    var destMark = newNodeMark(posXform(layout.nodePositions[recombDest]));
-                //    destMark.setAttribute("fill", "gray");
-                //    destMark.setAttribute("stroke", "black");
-                //    svg.appendChild(destMark);
-                //}
+                if (recombDest in layout.collapsedCladeNodes)
+                    svg.appendChild(newNodeMark(parentPos));
             }
         }
 

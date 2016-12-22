@@ -143,6 +143,7 @@ TreeLayout.prototype.groupLeaves = function() {
 
         for (var i=0; i<node.children.length; i++) {
             var child = node.children[i];
+
             descendents.push(child);
             collapsedCladeNodes[child] = cladeRoot;
             findDescendents(child, descendents, cladeRoot, collapsedCladeNodes);
@@ -156,7 +157,7 @@ TreeLayout.prototype.groupLeaves = function() {
             leafGroups.push([node]);
         } else if (node.collapsed) {
             var descendents = [];
-            findDescendents(node, descendents, node, collapsedCladeNodes);
+            findDescendents(node, descendents, node, collapsedCladeNodes, leafGroups);
             leafGroups.push([node, descendents]);
             collapsedCladeRoots[node] = true;
         } else {
@@ -171,6 +172,49 @@ TreeLayout.prototype.groupLeaves = function() {
     this.collapsedCladeRoots = {};
     this.collapsedCladeNodes = {};
     findGroups(this.tree.root, this.leafGroups, this.collapsedCladeRoots, this.collapsedCladeNodes);
+
+    var i,j;
+
+    // Add hybrid nodes to leafgroups in a sorted manner.
+    var newLeafGroups = [];
+    for (i=0; i<this.leafGroups.length; i++) {
+        var groupRoot = this.leafGroups[i][0];
+        var descendents = this.leafGroups[i][1];
+
+        if (descendents === undefined) {
+            newLeafGroups.push(this.leafGroups[i]);
+            continue;
+        }
+
+        var hybridsLeft = [];
+        var hybridsRight = [];
+
+        for (j=0; j<descendents.length; j++) {
+            var descendent = descendents[j];
+
+            if (!descendent.isLeaf() || !descendent.isHybrid())
+                continue;
+            
+            var recombID = descendent.hybridID;
+            var recombSrc = this.tree.getRecombEdgeMap()[recombID][0];
+            var recombDest = this.tree.getRecombEdgeMap()[recombID][1];
+
+            // Skip recombinations within a single collapsed clade:
+            if (recombSrc in this.collapsedCladeNodes && this.collapsedCladeNodes[recombSrc] === groupRoot)
+                    continue;
+
+            if (recombDest.isLeftOf(recombSrc))
+                hybridsLeft.push([recombDest]);
+            else
+                hybridsRight.push([recombDest]);
+        }
+
+        Array.prototype.push.apply(newLeafGroups, hybridsRight);
+        newLeafGroups.push(this.leafGroups[i]);
+        Array.prototype.push.apply(newLeafGroups, hybridsLeft);
+    }
+
+    this.leafGroups = newLeafGroups;
 };
 
 TreeLayout.prototype.getYoungestScaledHeight = function(descendents) {
@@ -227,7 +271,9 @@ StandardTreeLayout.prototype.positionLeaves = function() {
 
             for (var j=0; j<descendents.length; j++) {
                 var decNode = descendents[j];
-                this.nodePositions[decNode] = [xpos, this.getScaledNodeHeight(decNode)];
+
+                if (!(decNode.isLeaf() && decNode.isHybrid()))
+                    this.nodePositions[decNode] = [xpos, this.getScaledNodeHeight(decNode)];
             }
         }
 
@@ -687,14 +733,12 @@ var Display = (function() {
     }
 
     // Draw recombination edge
-    function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor, destCollapsed) {
+    function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor) {
         var pathStr = "M " + childPos[0] + " " + childPos[1];
         pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
 
-        if (!destCollapsed) {
-            pathStr += " H " + parentPos[0];
-            pathStr += " V " + parentPos[1];
-        }
+        pathStr += " H " + parentPos[0];
+        pathStr += " V " + parentPos[1];
 
         var path = document.createElementNS(NS, "path");
         path.setAttribute("d", pathStr);
@@ -897,8 +941,7 @@ var Display = (function() {
                     recombOpacityFactor = 1.0;
 
                 var branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
-                                                  getColourTraitValue(recombDest), recombOpacityFactor,
-                                                  recombDest in layout.collapsedCladeNodes);
+                                                  getColourTraitValue(recombDest), recombOpacityFactor);
                 branch.id = recombDest;
                 svg.appendChild(branch);
 
@@ -910,12 +953,12 @@ var Display = (function() {
                                                 recombDest.parent in layout.collapsedCladeNodes))
                     svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombDest.parent])));
 
-                if (recombDest in layout.collapsedCladeNodes) {
-                    var destMark = newNodeMark(posXform(layout.nodePositions[recombDest]));
-                    destMark.setAttribute("fill", "gray");
-                    destMark.setAttribute("stroke", "black");
-                    svg.appendChild(destMark);
-                }
+                //if (recombDest in layout.collapsedCladeNodes) {
+                //    var destMark = newNodeMark(posXform(layout.nodePositions[recombDest]));
+                //    destMark.setAttribute("fill", "gray");
+                //    destMark.setAttribute("stroke", "black");
+                //    svg.appendChild(destMark);
+                //}
             }
         }
 

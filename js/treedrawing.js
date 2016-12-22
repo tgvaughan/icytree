@@ -99,7 +99,8 @@ function TreeLayout(tree) {
 
     this.nodePositions = {};
     this.leafGroups = [];
-    this.collapsedClades = [];
+    this.collapsedCladeRoots = {};
+    this.collapsedCladeNodes = {};
 
     this.groupLeaves();
 
@@ -138,36 +139,38 @@ TreeLayout.prototype.sortTree = function() {
 
 TreeLayout.prototype.groupLeaves = function() {
 
-    function findDescendents(node, descendents) {
+    function findDescendents(node, descendents, cladeRoot, collapsedCladeNodes) {
 
         for (var i=0; i<node.children.length; i++) {
             var child = node.children[i];
             descendents.push(child);
-            findDescendents(child, descendents);
+            collapsedCladeNodes[child] = cladeRoot;
+            findDescendents(child, descendents, cladeRoot, collapsedCladeNodes);
         }
 
         return descendents;
     }
 
-    function findGroups (node, leafGroups, collapsedClades) {
+    function findGroups (node, leafGroups, collapsedCladeRoots, collapsedCladeNodes) {
         if (node.isLeaf()) {
             leafGroups.push([node]);
         } else if (node.collapsed) {
             var descendents = [];
-            findDescendents(node, descendents);
+            findDescendents(node, descendents, node, collapsedCladeNodes);
             leafGroups.push([node, descendents]);
-            collapsedClades.push(node);
+            collapsedCladeRoots[node] = true;
         } else {
             for (var i=0; i<node.children.length; i++) {
                 var child = node.children[i];
-                findGroups(child, leafGroups, collapsedClades);
+                findGroups(child, leafGroups, collapsedCladeRoots, collapsedCladeNodes);
             }
         }
     }
 
     this.leafGroups = [];
-    this.collapsedClades = [];
-    findGroups(this.tree.root, this.leafGroups, this.collapsedClades);
+    this.collapsedCladeRoots = {};
+    this.collapsedCladeNodes = {};
+    findGroups(this.tree.root, this.leafGroups, this.collapsedCladeRoots, this.collapsedCladeNodes);
 };
 
 TreeLayout.prototype.getYoungestScaledHeight = function(descendents) {
@@ -684,11 +687,15 @@ var Display = (function() {
     }
 
     // Draw recombination edge
-    function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor) {
+    function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor, destCollapsed) {
         var pathStr = "M " + childPos[0] + " " + childPos[1];
         pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
-        pathStr += " H " + parentPos[0];
-        pathStr += " V " + parentPos[1];
+
+        if (!destCollapsed) {
+            pathStr += " H " + parentPos[0];
+            pathStr += " V " + parentPos[1];
+        }
+
         var path = document.createElementNS(NS, "path");
         path.setAttribute("d", pathStr);
         path.setAttribute("fill", "none");
@@ -832,6 +839,10 @@ var Display = (function() {
             if (thisNode.isHybrid() && thisNode.isLeaf())
                 continue;
 
+            // Skip collapsed nodes:
+            if (thisNode in layout.collapsedCladeNodes)
+                continue;
+
             var thisPos = posXform(layout.nodePositions[thisNode]);
 
             var parentPos;
@@ -852,16 +863,14 @@ var Display = (function() {
         }
 
         // Draw collapsed clades:
-        for (var i=0; i<layout.collapsedClades.length; i++) {
-            thisNode = layout.collapsedClades[i];
-
-            var pos = layout.nodePositions[thisNode];
+        for (nodeID in layout.collapsedCladeRoots) {
+            var pos = layout.nodePositions[nodeID];
             var posRoot = posXform(pos.slice(0,2));
             var posLeft = posXform(pos.slice(2,4));
             var posRight = posXform(pos.slice(4,6));
 
             var clade = newCollapsedClade(posRoot, posLeft, posRight);
-            clade.id = thisNode;
+            clade.id = nodeID;
             svg.appendChild(clade);
         }
 
@@ -871,6 +880,11 @@ var Display = (function() {
             for (var recombID in layout.tree.getRecombEdgeMap()) {
                 var recombSrc = layout.tree.getRecombEdgeMap()[recombID][0];
                 var recombDest = layout.tree.getRecombEdgeMap()[recombID][1];
+
+                // Skip recombinations within a single collapsed clade:
+                if (recombSrc in layout.collapsedCladeNodes && recombDest in layout.collapsedCladeNodes &&
+                    layout.collapsedCladeNodes[recombSrc] === layout.collapsedCladeNodes[recombDest])
+                    continue;
 
                 var childPos = posXform(layout.nodePositions[recombSrc]);
                 var childPrimePos = posXform(layout.nodePositions[recombDest]);
@@ -883,9 +897,25 @@ var Display = (function() {
                     recombOpacityFactor = 1.0;
 
                 var branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
-                                                  getColourTraitValue(recombDest), recombOpacityFactor);
+                                                  getColourTraitValue(recombDest), recombOpacityFactor,
+                                                  recombDest in layout.collapsedCladeNodes);
                 branch.id = recombDest;
                 svg.appendChild(branch);
+
+                // Add end markers
+                //if (!(recombSrc in layout.collapsedCladeNodes))
+                svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombSrc])));
+
+                if (TreeStyle.inlineRecomb && !(recombDest.parent in layout.collapsedCladeRoots ||
+                                                recombDest.parent in layout.collapsedCladeNodes))
+                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombDest.parent])));
+
+                if (recombDest in layout.collapsedCladeNodes) {
+                    var destMark = newNodeMark(posXform(layout.nodePositions[recombDest]));
+                    destMark.setAttribute("fill", "gray");
+                    destMark.setAttribute("stroke", "black");
+                    svg.appendChild(destMark);
+                }
             }
         }
 
@@ -919,7 +949,7 @@ var Display = (function() {
             for (var i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
-                if (thisNode.collapsed || thisNode.isHybrid())
+                if (thisNode in layout.collapsedCladeRoots || thisNode.isHybrid())
                     continue;
 
                 var trait = TreeStyle.tipTextTrait;
@@ -943,7 +973,7 @@ var Display = (function() {
             for (var i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
-                if (thisNode.collapsed || !thisNode.isHybrid() || !thisNode.isLeaf())
+                if (thisNode in layout.collapsedCladeRoots || !thisNode.isHybrid() || !thisNode.isLeaf())
                     continue;
 
                 var trait = TreeStyle.recombTextTrait;
@@ -971,7 +1001,7 @@ var Display = (function() {
             for (nodeID in layout.nodePositions) {
                 thisNode = layout.tree.getNode(nodeID);
 
-                if (thisNode.collapsed || thisNode.isLeaf())
+                if (thisNode.isLeaf() || thisNode in layout.collapsedCladeRoots || thisNode in layout.collapsedCladeNodes)
                     continue;
 
                 var traitValue;
@@ -1005,19 +1035,20 @@ var Display = (function() {
         for (nodeID in layout.nodePositions) {
             thisNode = layout.tree.getNode(nodeID);
 
-            if (thisNode.collapsed)
+            if (thisNode in layout.collapsedCladeRoots || thisNode in layout.collapsedCladeNodes)
                 continue;
 
             if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
                 svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
-            } else {
-                if (thisNode.isHybrid()) {
-                    if (thisNode.children.length == 1)
-                        svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
-                    else if (TreeStyle.inlineRecomb && thisNode.isLeaf())
-                        svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode.parent])));
-                }
             }
+            // else {
+            //     if (thisNode.isHybrid()) {
+            //         if (thisNode.children.length == 1)
+            //             svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
+            //         else if (TreeStyle.inlineRecomb && thisNode.isLeaf())
+            //             svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode.parent])));
+            //     }
+            // }
         }
 
         // Attach event handlers for pan and zoom:

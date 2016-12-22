@@ -1129,14 +1129,7 @@ var TreeModControl = {
             if (event.ctrlKey) {
                 // Re-root
 
-                if (node.isLeaf() && node.isHybrid())
-                    return;
-
-                layout.origTree.reroot(node);
-
-                // Necessary because rerooting creates new nodes.
-                //layout.origTree.reassignNodeIDs();
-
+                // layout.origTree.reroot(node);
             } else {
                 // Collapse clade
 

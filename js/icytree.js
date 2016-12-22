@@ -202,9 +202,6 @@ $(document).ready(function() {
             case "helpShortcuts":
                 $("#shortcutHelp").dialog("open");
                 break;
-            case "helpGuide":
-                $("#guide").dialog("open");
-                break;
             case "helpAbout":
                 $("#about").dialog("open");
                 break;
@@ -390,17 +387,6 @@ $(document).ready(function() {
         width: 450,
         buttons: {
             Ok: function() {
-                $(this).dialog("close");
-            }}
-    });
-
-    $("#guide").dialog({
-        autoOpen: false,
-        modal: true,
-        width: 450,
-        height: 450,
-        buttons: {
-            Close: function() {
                 $(this).dialog("close");
             }}
     });

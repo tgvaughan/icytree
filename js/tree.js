@@ -342,6 +342,7 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     this.reassignNodeIDs();
 
     // Fix network
+    /*
     for (var recombID in this.getRecombEdgeMap()) {
         var srcNode = this.getRecombEdgeMap()[recombID][0];
         var destNode = this.getRecombEdgeMap()[recombID][1];
@@ -367,6 +368,7 @@ Tree.prototype.reroot = function(edgeBaseNode) {
             destNode.branchLength = destNodeP.height - destNode.height;
         }
     }
+    */
 };
 
 // Retrieve list of traits defined on tree.  Optional filter function can

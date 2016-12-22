@@ -321,7 +321,7 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     } while (node !== undefined);
 
     // Delete singleton node left by old root
-    if (prevNode.children.length == 1) {
+    if (prevNode.children.length == 1 && !prevNode.isHybrid()) {
         var child = prevNode.children[0];
         var parent = prevNode.parent;
         parent.removeChild(prevNode);
@@ -337,6 +337,36 @@ Tree.prototype.reroot = function(edgeBaseNode) {
 
     // Recompute node ages
     this.computeNodeAges();
+
+    this.recombEdgeMap = undefined;
+    this.reassignNodeIDs();
+
+    // Fix network
+    for (var recombID in this.getRecombEdgeMap()) {
+        var srcNode = this.getRecombEdgeMap()[recombID][0];
+        var destNode = this.getRecombEdgeMap()[recombID][1];
+        var destNodeP = destNode.parent;
+
+        if (srcNode.height > destNodeP.height) {
+            // Topology modification
+
+            srcNode.hybridID = undefined;
+            destNodeP.removeChild(destNode);
+            destNodeP.hybridID = recombID;
+            srcNode.addChild(destNode);
+            destNode.height = destNodeP.height;
+            destNode.branchLength = srcNode.height - destNode.height;
+
+            this.getRecombEdgeMap()[recombID][0] = destNodeP;
+            this.getRecombEdgeMap()[recombID][1] = srcNode;
+
+        } else {
+            // Just fix destNode height
+
+            destNode.height = srcNode.height;
+            destNode.branchLength = destNodeP.height - destNode.height;
+        }
+    }
 };
 
 // Retrieve list of traits defined on tree.  Optional filter function can

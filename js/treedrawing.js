@@ -966,7 +966,8 @@ var Display = (function() {
         genColourPallet(seenColourTraitValues.length);
 
         var traitsAreNumeric = true;
-        for (var traitVal of seenColourTraitValues) {
+        for (i=0; i<seenColourTraitValues.length; i++) {
+            var traitVal = seenColourTraitValues[i];
             if (isNaN(traitVal-0)) {
                 traitsAreNumeric = false;
                 break;
@@ -1128,10 +1129,13 @@ var TreeModControl = {
             if (event.ctrlKey) {
                 // Re-root
 
+                if (node.isLeaf() && node.isHybrid())
+                    return;
+
                 layout.origTree.reroot(node);
 
                 // Necessary because rerooting creates new nodes.
-                layout.origTree.reassignNodeIDs();
+                //layout.origTree.reassignNodeIDs();
 
             } else {
                 // Collapse clade

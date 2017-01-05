@@ -379,14 +379,14 @@ CladogramLayout.prototype.computeNodeRanks = function(node) {
 
 CladogramLayout.prototype.adjustRecombRanks = function() {
 
-    // Construct map from unique internal node ranks to
-    // the list of (problem) recomb dest nodes having that same rank
+    // Construct map from unique node ranks to
+    // the list of recomb IDs having that same rank
     var rankMap = {};
 
     var i, node;
     for (i=0; i<this.tree.getNodeList().length; i++) {
         node = this.tree.getNodeList()[i];
-        if (node.isLeaf() || node.isHybrid() || this.nodeRanks[node] in rankMap)
+        if (this.nodeRanks[node] in rankMap)
             continue;
 
         rankMap[this.nodeRanks[node]] = [];
@@ -394,7 +394,7 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
 
     var recombID, srcNode, destNode;
 
-    // Find problem recombinations and add to rank map
+    // Add recombinations to rank map
     for (recombID in this.tree.getRecombEdgeMap()) {
         srcNode = this.tree.getRecombEdgeMap()[recombID][0];
 
@@ -402,7 +402,7 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
             rankMap[this.nodeRanks[srcNode]].push(recombID);
     }
 
-    // Alter ranks of problem recombinations
+    // Alter ranks of recombinations
     for (var rank in rankMap) {
         var nProbs = rankMap[rank].length;
 

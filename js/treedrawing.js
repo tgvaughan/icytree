@@ -420,11 +420,31 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
     }
 };
 
+CladogramLayout.prototype.adjustCollapsedRecombRanks = function() {
+
+    var rankMap, leafGroup, groupIdx;
+    var i
+
+    for (groupIdx=0; groupIdx<this.leafGroups.length; groupIdx++) {
+        leafGroup = this.leafGroups[groupIdx];
+
+        rankMap = {};
+
+        for (i=0; i<leafGroup.descendents; i++) {
+        }
+
+        // TODO
+
+    }
+
+};
+
 CladogramLayout.prototype.getScaledNodeHeight = function(node) {
     if (this.nodeRanks === undefined) {
         this.nodeRanks = {};
         this.computeNodeRanks(this.tree.root);
         this.adjustRecombRanks();
+        this.adjustCollapsedRecombRanks();
     }
 
     if (this.nodeRanks[this.tree.root]>0)

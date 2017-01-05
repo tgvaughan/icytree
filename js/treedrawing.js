@@ -226,7 +226,9 @@ TreeLayout.prototype.getYoungestScaledHeight = function(descendents) {
 
     for (var i=0; i<descendents.length; i++) {
         var node = descendents[i];
-        youngest = Math.min(this.getScaledNodeHeight(node), youngest);
+
+        if (!(node.isHybrid() && node.isLeaf()))
+            youngest = Math.min(this.getScaledNodeHeight(node), youngest);
     }
 
     return youngest;
@@ -1129,7 +1131,7 @@ var TreeModControl = {
             if (event.ctrlKey) {
                 // Re-root
 
-                // layout.origTree.reroot(node);
+                layout.origTree.reroot(node);
             } else {
                 // Collapse clade
 

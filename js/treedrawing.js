@@ -422,18 +422,60 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
 
 CladogramLayout.prototype.adjustCollapsedRecombRanks = function() {
 
-    var rankMap, leafGroup, groupIdx;
-    var i
+    var rankMap, leafGroup, groupIdx, recombID;
+    var node, srcNode, destNode, destNodeP;
+    var i; 
 
     for (groupIdx=0; groupIdx<this.leafGroups.length; groupIdx++) {
-        leafGroup = this.leafGroups[groupIdx];
+        descendents = this.leafGroups[groupIdx][1];
+
+        if (descendents === undefined)
+            continue;
+
+        // Record ranks of nodes in collapsed clade in rankMap
 
         rankMap = {};
 
-        for (i=0; i<leafGroup.descendents; i++) {
+        for (i=0; i<descendents.length; i++) {
+            node = descendents[i];
+
+            if (this.nodeRanks[node] in rankMap)
+                continue;
+
+            rankMap[this.nodeRanks[node]] = [];
         }
 
-        // TODO
+        // Make rankMap a map from destNodeP ranks to the recombID of the
+        // corresponding recombination.
+
+        for (recombID in this.tree.getRecombEdgeMap()) {
+            destNodeP = this.tree.getRecombEdgeMap()[recombID][1].parent;
+
+            if (descendents.indexOf(destNodeP)<0)
+                continue;
+
+            var destNodePRank = this.nodeRanks[destNodeP];
+
+            if (destNodePRank in rankMap && rankMap[destNodePRank].indexOf(recombID)<0)
+                rankMap[destNodePRank].push(recombID);
+
+        }
+
+        // Alter ranks of destNodePs:
+        for (var rank in rankMap) {
+            var nProbs = rankMap[rank].length;
+
+            var offset;
+
+            for (i=0; i<nProbs; i++) {
+                offset = (i+1)/(nProbs + 1);
+
+                recombID = rankMap[rank][i];
+                destNodeP = this.tree.getRecombEdgeMap()[recombID][1].parent;
+
+                this.nodeRanks[destNodeP] += offset;
+            }
+        }
 
     }
 

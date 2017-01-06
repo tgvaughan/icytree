@@ -384,17 +384,14 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
 
     var recombID, srcNode, destNode;
     for (recombID in this.tree.getRecombEdgeMap()) {
-        srcNode = this.tree.getRecombEdgeMap()[0];
-        destNode = this.tree.getRecombEdgeMap()[1];
+        srcNode = this.tree.getRecombEdgeMap()[recombID][0];
+        destNodes = this.tree.getRecombEdgeMap()[recombID].slice(1);
 
-        if (srcNode in srcToDestMap)
-            srcToDestMap[srcNode].push(destNode);
-        else
-            srcToDestMap[srcNode] = [destNode];
+        srcToDestMap[srcNode] = destNodes;
     }
 
     // Construct map from unique node ranks to
-    // the list of recomb IDs having that same rank
+    // the list of recomb nodes having that same rank
     var rankMap = {};
     var rankMapTops = {};
 
@@ -412,17 +409,24 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
 
     // Add recombinations to rank map
     for (recombID in this.tree.getRecombEdgeMap()) {
-        srcNode = this.tree.getRecombEdgeMap()[recombID][0];
-        destNodeP = this.tree.getRecombEdgeMap()[recombID][1].parent;
 
+        srcNode = this.tree.getRecombEdgeMap()[recombID][0];
         var srcNodeRank = this.nodeRanks[srcNode];
-        var destNodePRank = this.nodeRanks[destNodeP];
 
         if (rankMap[srcNodeRank].indexOf(srcNode)<0)
             rankMap[srcNodeRank].push(srcNode);
 
-        if (rankMapTops[destNodePRank].indexOf(destNodeP)<0)
-            rankMapTops[destNodePrank].push(destNodeP);
+        var destNodes = this.tree.getRecombEdgeMap()[recombID].slice(1);
+
+        for (var destNodeIdx=0; destNodeIdx<destNodes.length; destNodeIdx++) {
+            destNode = destNodes[destNodeIdx];
+            destNodeP = destNode.parent;
+
+            var destNodePRank = this.nodeRanks[destNodeP];
+
+            if (rankMapTops[destNodePRank].indexOf(destNodeP)<0)
+                rankMapTops[destNodePRank].push(destNodeP);
+        }
     }
 
     // Alter ranks of recombinations
@@ -431,18 +435,29 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
         var nProbTops = rankMapTops[rank].length;
         nProbs = nProbBottoms + nProbTops;
 
-        var offset;
+        var offset, j;
 
         for (i=0; i<nProbs; i++) {
             offset = (i+1)/(nProbs+1);
 
             if (i<nProbBottoms) {
-                srcNode = this.tree.getNode(rankMap[rank][i]);
-                srcNode = this.tree.getRecombEdgeMap()[recombID][0];
-                destNode = this.tree.getRecombEdgeMap()[recombID][1];
+                srcNode = rankMap[rank][i];
                 this.nodeRanks[srcNode] += offset;
-                this.nodeRanks[destNode] += offset;
+
+                for (j=0; j<srcToDestMap[srcNode].length; j++) {
+                    destNode = srcToDestMap[srcNode][j];
+                    this.nodeRanks[destNode] += offset;
+                }
             } else {
+                destNodeP = rankMapTops[rank][i-nProbBottoms];
+                this.nodeRanks[destNodeP] += offset;
+
+                if (destNodeP.isHybrid()) {
+                    for (j=0; j<srcToDestMap[destNodeP].length; j++) {
+                        destNode = srcToDestMap[destNodeP][j];
+                        this.nodeRanks[destNode] = this.nodeRanks[destNodeP];
+                    }
+                }
             }
         }
     }
@@ -452,7 +467,7 @@ CladogramLayout.prototype.getScaledNodeHeight = function(node) {
     if (this.nodeRanks === undefined) {
         this.nodeRanks = {};
         this.computeNodeRanks(this.tree.root);
-        //this.adjustRecombRanks();
+        this.adjustRecombRanks();
     }
 
     if (this.nodeRanks[this.tree.root]>0)

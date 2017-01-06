@@ -220,16 +220,19 @@ Tree.prototype.getRecombEdgeMap = function() {
         var destHybridIDMap = {};
         for (i=0; i<hybridNodeList.length; i++) {
             node = hybridNodeList[i];
-            if (node.isLeaf())
-                destHybridIDMap[node.hybridID] = node;
-            else
+            if (node.isLeaf()) {
+                if (node.hybridID in destHybridIDMap)
+                    destHybridIDMap[node.hybridID].push(node);
+                else
+                    destHybridIDMap[node.hybridID] = [node];
+            } else
                 srcHybridIDMap[node.hybridID] = node;
         }
 
         this.recombEdgeMap = {};
         for (var hybridID in srcHybridIDMap) {
             if (hybridID in destHybridIDMap)
-                this.recombEdgeMap[hybridID] = [srcHybridIDMap[hybridID], destHybridIDMap[hybridID]];
+                this.recombEdgeMap[hybridID] = [srcHybridIDMap[hybridID]].concat(destHybridIDMap[hybridID]);
             else
                 throw "Extended Newick error: hybrid nodes must come in pairs.";
         }
@@ -275,14 +278,17 @@ Tree.prototype.minimizeHybridSeparation = function() {
 
     for (var recombID in recombEdgeMap) {
         var srcNode = recombEdgeMap[recombID][0];
-        var destNode = recombEdgeMap[recombID][1];
-        var destNodeP = destNode.parent;
 
-        destNodeP.removeChild(destNode);
-        if (srcNode.isLeftOf(destNodeP)) {
-            destNodeP.children.splice(0,0,destNode);
-        } else {
-            destNodeP.children.push(destNode);
+        for (var i=1; i<recombEdgeMap[recombID].length; i++) {
+            var destNode = recombEdgeMap[recombID][i];
+            var destNodeP = destNode.parent;
+
+            destNodeP.removeChild(destNode);
+            if (srcNode.isLeftOf(destNodeP)) {
+                destNodeP.children.splice(0,0,destNode);
+            } else {
+                destNodeP.children.push(destNode);
+            }
         }
     }
 };

@@ -201,7 +201,7 @@ TreeLayout.prototype.groupLeaves = function() {
             
             var recombID = descendent.hybridID;
             var recombSrc = this.tree.getRecombEdgeMap()[recombID][0];
-            var recombDest = this.tree.getRecombEdgeMap()[recombID][1];
+            var recombDest = descendent;
 
             // Skip recombinations within a single collapsed clade:
             if (recombSrc in this.collapsedCladeNodes && this.collapsedCladeNodes[recombSrc] === groupRoot)
@@ -379,114 +379,80 @@ CladogramLayout.prototype.computeNodeRanks = function(node) {
 
 CladogramLayout.prototype.adjustRecombRanks = function() {
 
+    // Construct map from srcNodes to destNodes:
+    srcToDestMap = {};
+
+    var recombID, srcNode, destNode;
+    for (recombID in this.tree.getRecombEdgeMap()) {
+        srcNode = this.tree.getRecombEdgeMap()[0];
+        destNode = this.tree.getRecombEdgeMap()[1];
+
+        if (srcNode in srcToDestMap)
+            srcToDestMap[srcNode].push(destNode);
+        else
+            srcToDestMap[srcNode] = [destNode];
+    }
+
     // Construct map from unique node ranks to
     // the list of recomb IDs having that same rank
     var rankMap = {};
+    var rankMapTops = {};
 
-    var i, node;
+    var i, nodeRank;
     for (i=0; i<this.tree.getNodeList().length; i++) {
-        node = this.tree.getNodeList()[i];
-        if (this.nodeRanks[node] in rankMap)
-            continue;
+        nodeRank = this.nodeRanks[this.tree.getNodeList()[i]];
+        if (!(nodeRank in rankMap))
+            rankMap[nodeRank] = [];
 
-        rankMap[this.nodeRanks[node]] = [];
+        if (!(nodeRank in rankMapTops))
+            rankMapTops[nodeRank] = [];
     }
 
-    var recombID, srcNode, destNode;
+    var destNodeP;
 
     // Add recombinations to rank map
     for (recombID in this.tree.getRecombEdgeMap()) {
         srcNode = this.tree.getRecombEdgeMap()[recombID][0];
+        destNodeP = this.tree.getRecombEdgeMap()[recombID][1].parent;
 
-        if (this.nodeRanks[srcNode] in rankMap)
-            rankMap[this.nodeRanks[srcNode]].push(recombID);
+        var srcNodeRank = this.nodeRanks[srcNode];
+        var destNodePRank = this.nodeRanks[destNodeP];
+
+        if (rankMap[srcNodeRank].indexOf(srcNode)<0)
+            rankMap[srcNodeRank].push(srcNode);
+
+        if (rankMapTops[destNodePRank].indexOf(destNodeP)<0)
+            rankMapTops[destNodePrank].push(destNodeP);
     }
 
     // Alter ranks of recombinations
     for (var rank in rankMap) {
-        var nProbs = rankMap[rank].length;
+        var nProbBottoms = rankMap[rank].length;
+        var nProbTops = rankMapTops[rank].length;
+        nProbs = nProbBottoms + nProbTops;
 
         var offset;
 
         for (i=0; i<nProbs; i++) {
             offset = (i+1)/(nProbs+1);
 
-            recombID = rankMap[rank][i];
-            srcNode = this.tree.getRecombEdgeMap()[recombID][0];
-            destNode = this.tree.getRecombEdgeMap()[recombID][1];
-            this.nodeRanks[srcNode] += offset;
-            this.nodeRanks[destNode] += offset;
-        }
-    }
-};
-
-CladogramLayout.prototype.adjustCollapsedRecombRanks = function() {
-
-    var rankMap, leafGroup, groupIdx, recombID;
-    var node, srcNode, destNode, destNodeP;
-    var i; 
-
-    for (groupIdx=0; groupIdx<this.leafGroups.length; groupIdx++) {
-        descendents = this.leafGroups[groupIdx][1];
-
-        if (descendents === undefined)
-            continue;
-
-        // Record ranks of nodes in collapsed clade in rankMap
-
-        rankMap = {};
-
-        for (i=0; i<descendents.length; i++) {
-            node = descendents[i];
-
-            if (this.nodeRanks[node] in rankMap)
-                continue;
-
-            rankMap[this.nodeRanks[node]] = [];
-        }
-
-        // Make rankMap a map from destNodeP ranks to the recombID of the
-        // corresponding recombination.
-
-        for (recombID in this.tree.getRecombEdgeMap()) {
-            destNodeP = this.tree.getRecombEdgeMap()[recombID][1].parent;
-
-            if (descendents.indexOf(destNodeP)<0)
-                continue;
-
-            var destNodePRank = this.nodeRanks[destNodeP];
-
-            if (destNodePRank in rankMap && rankMap[destNodePRank].indexOf(recombID)<0)
-                rankMap[destNodePRank].push(recombID);
-
-        }
-
-        // Alter ranks of destNodePs:
-        for (var rank in rankMap) {
-            var nProbs = rankMap[rank].length;
-
-            var offset;
-
-            for (i=0; i<nProbs; i++) {
-                offset = (i+1)/(nProbs + 1);
-
-                recombID = rankMap[rank][i];
-                destNodeP = this.tree.getRecombEdgeMap()[recombID][1].parent;
-
-                this.nodeRanks[destNodeP] += offset;
+            if (i<nProbBottoms) {
+                srcNode = this.tree.getNode(rankMap[rank][i]);
+                srcNode = this.tree.getRecombEdgeMap()[recombID][0];
+                destNode = this.tree.getRecombEdgeMap()[recombID][1];
+                this.nodeRanks[srcNode] += offset;
+                this.nodeRanks[destNode] += offset;
+            } else {
             }
         }
-
     }
-
 };
 
 CladogramLayout.prototype.getScaledNodeHeight = function(node) {
     if (this.nodeRanks === undefined) {
         this.nodeRanks = {};
         this.computeNodeRanks(this.tree.root);
-        this.adjustRecombRanks();
-        this.adjustCollapsedRecombRanks();
+        //this.adjustRecombRanks();
     }
 
     if (this.nodeRanks[this.tree.root]>0)
@@ -991,37 +957,41 @@ var Display = (function() {
         if (TreeStyle.displayRecomb) {
             for (var recombID in layout.tree.getRecombEdgeMap()) {
                 var recombSrc = layout.tree.getRecombEdgeMap()[recombID][0];
-                var recombDest = layout.tree.getRecombEdgeMap()[recombID][1];
 
-                // Skip recombinations within a single collapsed clade:
-                if (recombSrc in layout.collapsedCladeNodes && recombDest in layout.collapsedCladeNodes &&
-                    layout.collapsedCladeNodes[recombSrc] === layout.collapsedCladeNodes[recombDest])
-                    continue;
+                for (var recombDestIdx=1; recombDestIdx<layout.tree.getRecombEdgeMap()[recombID].length; recombDestIdx++) {
+                    var recombDest = layout.tree.getRecombEdgeMap()[recombID][recombDestIdx];
 
-                var childPos = posXform(layout.nodePositions[recombSrc]);
-                var childPrimePos = posXform(layout.nodePositions[recombDest]);
-                var parentPos = posXform(layout.nodePositions[recombDest.parent]);
+                    // Skip recombinations within a single collapsed clade:
+                    if (recombSrc in layout.collapsedCladeNodes && recombDest in layout.collapsedCladeNodes &&
+                        layout.collapsedCladeNodes[recombSrc] === layout.collapsedCladeNodes[recombDest])
+                        continue;
 
-                var recombOpacityFactor;
-                if (TreeStyle.recombOpacityTrait !== undefined && recombDest.annotation[TreeStyle.recombOpacityTrait] !== undefined)
-                    recombOpacityFactor = recombDest.annotation[TreeStyle.recombOpacityTrait];
-                else
-                    recombOpacityFactor = 1.0;
+                    var childPos = posXform(layout.nodePositions[recombSrc]);
+                    var childPrimePos = posXform(layout.nodePositions[recombDest]);
+                    var parentPos = posXform(layout.nodePositions[recombDest.parent]);
 
-                var branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
-                                                  getColourTraitValue(recombDest), recombOpacityFactor);
-                branch.id = recombDest;
-                svg.appendChild(branch);
+                    var recombOpacityFactor;
+                    if (TreeStyle.recombOpacityTrait !== undefined && recombDest.annotation[TreeStyle.recombOpacityTrait] !== undefined)
+                        recombOpacityFactor = recombDest.annotation[TreeStyle.recombOpacityTrait];
+                    else
+                        recombOpacityFactor = 1.0;
 
-                // Add end markers
-                svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombSrc])));
+                    var branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
+                        getColourTraitValue(recombDest), recombOpacityFactor);
+                    branch.id = recombDest;
+                    svg.appendChild(branch);
 
-                if (TreeStyle.inlineRecomb && !(recombDest.parent in layout.collapsedCladeRoots ||
-                                                recombDest.parent in layout.collapsedCladeNodes))
-                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombDest.parent])));
+                    // Add end markers
+                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombSrc])));
 
-                if (recombDest in layout.collapsedCladeNodes)
-                    svg.appendChild(newNodeMark(parentPos));
+                    if (TreeStyle.inlineRecomb && !(recombDest.parent in layout.collapsedCladeRoots ||
+                        recombDest.parent in layout.collapsedCladeNodes))
+                        svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombDest.parent])));
+
+                    if (recombDest in layout.collapsedCladeNodes)
+                        svg.appendChild(newNodeMark(parentPos));
+
+                }
             }
         }
 

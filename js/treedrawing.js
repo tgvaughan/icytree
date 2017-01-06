@@ -1182,7 +1182,14 @@ var TreeModControl = {
             } else {
                 // Collapse clade
 
+                // Abort on leaf nodes
                 if (node.isLeaf())
+                    return;
+
+                // Abort when node has only hybrid leaf children
+                if (node.children.filter(function(child) {
+                    return !(child.isLeaf() && child.isHybrid());
+                }).length === 0)
                     return;
 
                 node.collapsed = !node.collapsed;

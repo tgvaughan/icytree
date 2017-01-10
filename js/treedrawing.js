@@ -378,89 +378,52 @@ CladogramLayout.prototype.computeNodeRanks = function(node) {
 };
 
 CladogramLayout.prototype.adjustRecombRanks = function() {
+    var nodesByRank = {};
+    var destNodePs = {};
 
-    // Construct map from srcNodes to destNodes:
-    srcToDestMap = {};
+    var nodeID, node, rank;
 
-    var recombID, srcNode, destNode;
-    for (recombID in this.tree.getRecombEdgeMap()) {
-        srcNode = this.tree.getRecombEdgeMap()[recombID][0];
-        destNodes = this.tree.getRecombEdgeMap()[recombID].slice(1);
+    for (nodeID in this.nodeRanks) {
+        node = this.tree.getNode(nodeID);
+        rank = this.nodeRanks[nodeID];
 
-        srcToDestMap[srcNode] = destNodes;
-    }
+        if (node.isLeaf()) {
+            if (node.isHybrid())
+                destNodePs[node.parent] = true;
 
-    // Construct map from unique node ranks to
-    // the list of recomb nodes having that same rank
-    var rankMap = {};
-    var rankMapTops = {};
-
-    var i, nodeRank;
-    for (i=0; i<this.tree.getNodeList().length; i++) {
-        nodeRank = this.nodeRanks[this.tree.getNodeList()[i]];
-        if (!(nodeRank in rankMap))
-            rankMap[nodeRank] = [];
-
-        if (!(nodeRank in rankMapTops))
-            rankMapTops[nodeRank] = [];
-    }
-
-    var destNodeP;
-
-    // Add recombinations to rank map
-    for (recombID in this.tree.getRecombEdgeMap()) {
-
-        srcNode = this.tree.getRecombEdgeMap()[recombID][0];
-        var srcNodeRank = this.nodeRanks[srcNode];
-
-        if (rankMap[srcNodeRank].indexOf(srcNode)<0)
-            rankMap[srcNodeRank].push(srcNode);
-
-        var destNodes = this.tree.getRecombEdgeMap()[recombID].slice(1);
-
-        for (var destNodeIdx=0; destNodeIdx<destNodes.length; destNodeIdx++) {
-            destNode = destNodes[destNodeIdx];
-            destNodeP = destNode.parent;
-
-            var destNodePRank = this.nodeRanks[destNodeP];
-
-            if (rankMapTops[destNodePRank].indexOf(destNodeP)<0)
-                rankMapTops[destNodePRank].push(destNodeP);
+            continue;
         }
+
+        if (rank in nodesByRank)
+            nodesByRank[rank].push(node);
+        else
+            nodesByRank[rank] = [node];
     }
 
-    // Alter ranks of recombinations
-    for (var rank in rankMap) {
-        var nProbBottoms = rankMap[rank].length;
-        var nProbTops = rankMapTops[rank].length;
-        nProbs = nProbBottoms + nProbTops;
 
-        var offset, j;
+    for (rank in nodesByRank) {
 
-        for (i=0; i<nProbs; i++) {
-            offset = (i+1)/(nProbs+1);
+        var movableNodes = [];
+        var i;
 
-            if (i<nProbBottoms) {
-                srcNode = rankMap[rank][i];
-                this.nodeRanks[srcNode] += offset;
+        for (i=0; i<nodesByRank[rank].length; i++) {
+            node = nodesByRank[rank][i];
+            if (node.isHybrid() || node in destNodePs)
+                movableNodes.push(node);
+        }
 
-                for (j=0; j<srcToDestMap[srcNode].length; j++) {
-                    destNode = srcToDestMap[srcNode][j];
-                    this.nodeRanks[destNode] += offset;
-                }
-            } else {
-                destNodeP = rankMapTops[rank][i-nProbBottoms];
-                this.nodeRanks[destNodeP] += offset;
+        if (movableNodes.length>1 || (movableNodes.length==1 && nodesByRank[rank].length - movableNodes.length>0)) {
+            for (i=0; i<movableNodes.length; i++) {
+                node = movableNodes[i];
 
-                if (destNodeP.isHybrid()) {
-                    for (j=0; j<srcToDestMap[destNodeP].length; j++) {
-                        destNode = srcToDestMap[destNodeP][j];
-                        this.nodeRanks[destNode] = this.nodeRanks[destNodeP];
-                    }
-                }
+                // Improve this
+                this.nodeRanks[node] += (i+1)/(movableNodes.length+2);
             }
         }
     }
+
+    // TODO: Update destNode ranks
+
 };
 
 CladogramLayout.prototype.getScaledNodeHeight = function(node) {

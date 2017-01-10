@@ -383,6 +383,10 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
 
     var nodeID, node, rank;
 
+    var i;
+
+    // Group non-destNode nodes by rank:
+
     for (nodeID in this.nodeRanks) {
         node = this.tree.getNode(nodeID);
         rank = this.nodeRanks[nodeID];
@@ -401,10 +405,11 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
     }
 
 
+    // Adjust potentially problematic nodes (leave recomb destNodes alone)
+
     for (rank in nodesByRank) {
 
         var movableNodes = [];
-        var i;
 
         for (i=0; i<nodesByRank[rank].length; i++) {
             node = nodesByRank[rank][i];
@@ -413,16 +418,28 @@ CladogramLayout.prototype.adjustRecombRanks = function() {
         }
 
         if (movableNodes.length>1 || (movableNodes.length==1 && nodesByRank[rank].length - movableNodes.length>0)) {
-            for (i=0; i<movableNodes.length; i++) {
-                node = movableNodes[i];
 
-                // Improve this
-                this.nodeRanks[node] += (i+1)/(movableNodes.length+2);
+            var delta = 1/(movableNodes.length+1);
+
+            for (i=0; i<movableNodes.length; i++) {
+                this.nodeRanks[movableNodes[i]] += (i+1)*delta;
             }
         }
     }
 
-    // TODO: Update destNode ranks
+    // Update destNode ranks
+
+    var recombID, hybridNodes;
+    for (recombID in this.tree.getRecombEdgeMap()) {
+        hybridNodes = this.tree.getRecombEdgeMap()[recombID];
+
+        var srcNode = hybridNodes[0];
+
+        for (i=1; i<hybridNodes.length; i++) {
+            var destNode = hybridNodes[i];
+            this.nodeRanks[destNode] = this.nodeRanks[srcNode];
+        }
+    }
 
 };
 

@@ -295,7 +295,7 @@ StandardTreeLayout.prototype.positionInternals = function(node) {
     var nonHybridCount = 0;
 
     for (var i=0; i<node.children.length; i++) {
-        if (TreeStyle.inlineRecomb && this.tree.isRecombDestNode(node)) {
+        if (TreeStyle.inlineRecomb && this.tree.isRecombDestNode(node.children[i])) {
             this.positionInternals(node.children[i]);
         } else {
             xpos += this.positionInternals(node.children[i]);

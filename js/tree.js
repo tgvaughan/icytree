@@ -297,7 +297,6 @@ Tree.prototype.minimizeHybridSeparation = function() {
 Tree.prototype.reroot = function(edgeBaseNode) {
 
     this.recombEdgeMap = undefined;
-    console.log(this.getRecombEdgeMap());
 
     this.root = new Node();
 
@@ -325,23 +324,6 @@ Tree.prototype.reroot = function(edgeBaseNode) {
         node.branchLength = BL;
         BL = tmpBL;
 
-        if (node.isHybrid() && seenHybridIDs.indexOf(node.hybridID)<0) {
-            var recombID = node.hybridID;
-            var srcNode = node;
-            var destNode = this.getRecombEdgeMap()[recombID][1];
-            var destNodeP = destNode.parent;
-
-            srcNode.hybridID = undefined;
-            destNodeP.removeChild(destNode);
-            destNodeP.hybridID = recombID;
-            srcNode.addChild(destNode);
-
-            this.getRecombEdgeMap()[recombID][0] = destNodeP;
-            this.getRecombEdgeMap()[recombID][1] = srcNode;
-
-            seenHybridIDs.push(recombID);
-        }
-
         prevNode = node;
         node = nodeP;
     } while (node !== undefined);
@@ -366,35 +348,6 @@ Tree.prototype.reroot = function(edgeBaseNode) {
 
     this.recombEdgeMap = undefined;
     this.reassignNodeIDs();
-
-    // Fix time network
-    if (this.isTimeTree) {
-        for (var recombID in this.getRecombEdgeMap()) {
-            var srcNode = this.getRecombEdgeMap()[recombID][0];
-            var destNode = this.getRecombEdgeMap()[recombID][1];
-            var destNodeP = destNode.parent;
-
-            if (srcNode.height > destNodeP.height) {
-                // Topology modification
-
-                srcNode.hybridID = undefined;
-                destNodeP.removeChild(destNode);
-                destNodeP.hybridID = recombID;
-                srcNode.addChild(destNode);
-                destNode.height = destNodeP.height;
-                destNode.branchLength = srcNode.height - destNode.height;
-
-                this.getRecombEdgeMap()[recombID][0] = destNodeP;
-                this.getRecombEdgeMap()[recombID][1] = srcNode;
-
-            } else {
-                // Just fix destNode height
-
-                destNode.height = srcNode.height;
-                destNode.branchLength = destNodeP.height - destNode.height;
-            }
-        }
-    }
 };
 
 // Retrieve list of traits defined on tree.  Optional filter function can

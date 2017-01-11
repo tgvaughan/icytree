@@ -229,12 +229,21 @@ Tree.prototype.getRecombEdgeMap = function() {
                 srcHybridIDMap[node.hybridID] = node;
         }
 
+        var hybridID;
+
         this.recombEdgeMap = {};
-        for (var hybridID in srcHybridIDMap) {
+        for (hybridID in srcHybridIDMap) {
             if (hybridID in destHybridIDMap)
                 this.recombEdgeMap[hybridID] = [srcHybridIDMap[hybridID]].concat(destHybridIDMap[hybridID]);
             else
                 throw "Extended Newick error: hybrid nodes must come in pairs.";
+        }
+
+        // Edge case: leaf recombinations
+
+        for (hybridID in destHybridIDMap) {
+            if (!(hybridID in this.recombEdgeMap))
+                this.recombEdgeMap[hybridID] = [].concat(destHybridIDMap[hybridID]);
         }
     }
 
@@ -297,6 +306,7 @@ Tree.prototype.minimizeHybridSeparation = function() {
 Tree.prototype.reroot = function(edgeBaseNode) {
 
     this.recombEdgeMap = undefined;
+    var currentRecombEdgeMap = this.getRecombEdgeMap();
 
     var oldRoot = this.root;
     this.root = new Node();
@@ -314,19 +324,41 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     var nodeP;
 
     var seenNodes = {};
+    var usedHybridIDs = {};
+    for (var recombID in currentRecombEdgeMap) {
+        usedHybridIDs[recombID] = true;
+    }
 
     function recurseReroot(node, prevNode, seenNodes, BL) {
-        if (node === undefined || node in seenNodes)
+        if (node === undefined)
             return;
 
-        var nodeP = node.parent;
+        if (node in seenNodes) {
 
-        var otherParents = [];
-        if (node.isHybrid()) {
-            var destNodes = this.getRecombEdgeMap()[node.hybridID].slice(1);
-            for (var i=0; i<destNodes.length; i++)
-                otherParents.push(destNodes[i].parent);
+            // Handle creation of hybrid nodes
+
+            var newHybrid = new Node();
+            if (node.isHybrid())
+                newHybrid.hybridID = node.hybridID;
+            else {
+                var newHybridID = 0;
+                while (newHybridID in usedHybridIDs) {
+                    newHybridID += 1;
+                }
+                node.hybridID = newHybridID;
+                newHybrid.hybridID = newHybridID;
+                usedHybridIDs[newHybridID] = true;
+            }
+
+            newHybrid.branchLength = BL;
+            prevNode.addChild(newHybrid);
+
+            return;
+        } else {
+            seenNodes[node] = true;
         }
+
+        var nodeP = node.parent;
 
         if (nodeP !== undefined)
             nodeP.removeChild(node);
@@ -337,13 +369,36 @@ Tree.prototype.reroot = function(edgeBaseNode) {
         BL = tmpBL;
 
         recurseReroot(nodeP, node, seenNodes, BL);
+
+        if (node.isHybrid()) {
+            var destNodes = [];
+            var destNodePs = [];
+
+            destNodes = currentRecombEdgeMap[node.hybridID].slice(1);
+            destNodePs = destNodes.map(function(destNode) {
+                return destNode.parent;
+            });
+
+            console.log(destNodes);
+            console.log(destNodePs);
+
+            // Node will no longer be hybrid
+            node.hybridID = undefined;
+
+            for (var i=0; i<destNodes.length; i++) {
+                destNodePs[i].removeChild(destNodes[i]);
+
+                recurseReroot(destNodePs[i], node, seenNodes, destNodes[i].branchLength);
+            }
+        }
+
     }
 
     recurseReroot(node, prevNode, seenNodes, BL);
 
     // Delete singleton node left by old root
 
-    if (oldRoot.children.length == 1) {
+    if (oldRoot.children.length == 1 && !oldRoot.isHybrid()) {
         var child = oldRoot.children[0];
         var parent = oldRoot.parent;
         parent.removeChild(oldRoot);
@@ -362,6 +417,12 @@ Tree.prototype.reroot = function(edgeBaseNode) {
 
     this.recombEdgeMap = undefined;
     this.reassignNodeIDs();
+
+    for (recombID in this.getRecombEdgeMap()) {
+        for (i=1; i<this.getRecombEdgeMap()[recombID].length; i++) {
+            this.getRecombEdgeMap()[recombID][i].height = this.getRecombEdgeMap()[recombID][0].height;
+        }
+    }
 };
 
 // Retrieve list of traits defined on tree.  Optional filter function can

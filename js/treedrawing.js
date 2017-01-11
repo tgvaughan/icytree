@@ -908,8 +908,8 @@ var Display = (function() {
         for (nodeID in layout.nodePositions) {
             thisNode = layout.tree.getNode(nodeID);
 
-            // Skip leaf hybrid nodes.
-            if (thisNode.isHybrid() && thisNode.isLeaf())
+            // Skip hybrid destNodes.
+            if (thisNode.isHybrid() && layout.tree.getRecombEdgeMap()[thisNode.hybridID][0] != thisNode)
                 continue;
 
             // Skip collapsed nodes:

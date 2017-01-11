@@ -196,7 +196,7 @@ TreeLayout.prototype.groupLeaves = function() {
         for (j=0; j<descendents.length; j++) {
             var descendent = descendents[j];
 
-            if (!descendent.isLeaf() || !descendent.isHybrid())
+            if (!this.tree.isRecombDestNode(descendent))
                 continue;
             
             var recombID = descendent.hybridID;
@@ -227,7 +227,7 @@ TreeLayout.prototype.getYoungestScaledHeight = function(descendents) {
     for (var i=0; i<descendents.length; i++) {
         var node = descendents[i];
 
-        if (!(node.isHybrid() && node.isLeaf()))
+        if (!(this.tree.isRecombDestNode(node)))
             youngest = Math.min(this.getScaledNodeHeight(node), youngest);
     }
 
@@ -276,10 +276,10 @@ StandardTreeLayout.prototype.positionLeaves = function() {
             entry.push(youngest);
 
             for (var j=0; j<descendents.length; j++) {
-                var decNode = descendents[j];
+                var descendent = descendents[j];
 
-                if (!(decNode.isLeaf() && decNode.isHybrid()))
-                    this.nodePositions[decNode] = [xpos, this.getScaledNodeHeight(decNode)];
+                if (!this.tree.isRecombDestNode(descendent))
+                    this.nodePositions[descendent] = [xpos, this.getScaledNodeHeight(descendent)];
             }
         }
 
@@ -295,7 +295,7 @@ StandardTreeLayout.prototype.positionInternals = function(node) {
     var nonHybridCount = 0;
 
     for (var i=0; i<node.children.length; i++) {
-        if (TreeStyle.inlineRecomb && node.children[i].isHybrid() && node.children[i].isLeaf()) {
+        if (TreeStyle.inlineRecomb && this.tree.isRecombDestNode(node)) {
             this.positionInternals(node.children[i]);
         } else {
             xpos += this.positionInternals(node.children[i]);
@@ -1166,9 +1166,9 @@ var TreeModControl = {
                 if (node.isLeaf())
                     return;
 
-                // Abort when node has only hybrid leaf children
+                // Abort when node has only hybrid destNode leaf children
                 if (node.children.filter(function(child) {
-                    return !(child.isLeaf() && child.isHybrid());
+                    return !layout.origTree.isRecombDestNode(child);
                 }).length === 0)
                     return;
 

@@ -1158,7 +1158,9 @@ var TreeModControl = {
             if (event.ctrlKey) {
                 // Re-root
 
-                layout.origTree.reroot(node);
+                if (!layout.origTree.isRecombDestNode(node))
+                    layout.origTree.reroot(node);
+
             } else {
                 // Collapse clade
 

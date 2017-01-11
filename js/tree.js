@@ -236,7 +236,7 @@ Tree.prototype.getRecombEdgeMap = function() {
             if (hybridID in destHybridIDMap)
                 this.recombEdgeMap[hybridID] = [srcHybridIDMap[hybridID]].concat(destHybridIDMap[hybridID]);
             else
-                throw "Extended Newick error: hybrid nodes must come in pairs.";
+                throw "Extended Newick error: hybrid nodes must come in groups of 2 or more.";
         }
 
         // Edge case: leaf recombinations
@@ -331,7 +331,6 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     var BL = edgeBaseNode.branchLength;
     var nodeP;
 
-    var seenNodes = {};
     var usedHybridIDs = {};
     for (var recombID in currentRecombEdgeMap) {
         usedHybridIDs[recombID] = true;
@@ -399,7 +398,7 @@ Tree.prototype.reroot = function(edgeBaseNode) {
 
     }
 
-    recurseReroot(node, prevNode, seenNodes, BL);
+    recurseReroot(node, prevNode, {}, BL);
 
     // Delete singleton node left by old root
 
@@ -424,10 +423,11 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     this.reassignNodeIDs();
 
     // Ensure destNode leaf heights match those of corresponding srcNodes
-    console.log(this.getRecombEdgeMap());
     for (recombID in this.getRecombEdgeMap()) {
+        var srcNode = this.getRecombEdgeMap()[recombID][0];
         for (i=1; i<this.getRecombEdgeMap()[recombID].length; i++) {
-            this.getRecombEdgeMap()[recombID][i].height = this.getRecombEdgeMap()[recombID][0].height;
+            var destNode = this.getRecombEdgeMap()[recombID][i];
+            destNode.branchLength += destNode.height - srcNode.height;
         }
     }
 };

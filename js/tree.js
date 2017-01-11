@@ -298,6 +298,7 @@ Tree.prototype.reroot = function(edgeBaseNode) {
 
     this.recombEdgeMap = undefined;
 
+    var oldRoot = this.root;
     this.root = new Node();
 
     var edgeBaseNodeP = edgeBaseNode.parent;
@@ -312,10 +313,21 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     var BL = edgeBaseNode.branchLength;
     var nodeP;
 
-    var seenHybridIDs = [];
+    var seenNodes = {};
 
-    do {
-        nodeP = node.parent;
+    function recurseReroot(node, prevNode, seenNodes, BL) {
+        if (node === undefined || node in seenNodes)
+            return;
+
+        var nodeP = node.parent;
+
+        var otherParents = [];
+        if (node.isHybrid()) {
+            var destNodes = this.getRecombEdgeMap()[node.hybridID].slice(1);
+            for (var i=0; i<destNodes.length; i++)
+                otherParents.push(destNodes[i].parent);
+        }
+
         if (nodeP !== undefined)
             nodeP.removeChild(node);
         prevNode.addChild(node);
@@ -324,19 +336,21 @@ Tree.prototype.reroot = function(edgeBaseNode) {
         node.branchLength = BL;
         BL = tmpBL;
 
-        prevNode = node;
-        node = nodeP;
-    } while (node !== undefined);
+        recurseReroot(nodeP, node, seenNodes, BL);
+    }
+
+    recurseReroot(node, prevNode, seenNodes, BL);
 
     // Delete singleton node left by old root
-    if (prevNode.children.length == 1 && !prevNode.isHybrid()) {
-        var child = prevNode.children[0];
-        var parent = prevNode.parent;
-        parent.removeChild(prevNode);
-        prevNode.removeChild(child);
+
+    if (oldRoot.children.length == 1) {
+        var child = oldRoot.children[0];
+        var parent = oldRoot.parent;
+        parent.removeChild(oldRoot);
+        oldRoot.removeChild(child);
         parent.addChild(child);
 
-        child.branchLength = child.branchLength + prevNode.branchLength;
+        child.branchLength = child.branchLength + oldRoot.branchLength;
     }
 
     // Clear out-of-date leaf and node lists

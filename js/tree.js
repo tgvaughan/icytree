@@ -250,6 +250,10 @@ Tree.prototype.getRecombEdgeMap = function() {
     return this.recombEdgeMap;
 };
 
+Tree.prototype.isRecombSrcNode = function(node) {
+    return node.isHybrid() && this.getRecombEdgeMap()[node.hybridID][0] == node;
+};
+
 // Sort nodes according to clade sizes.
 Tree.prototype.sortNodes = function(decending) {
     if (this.root === undefined)
@@ -378,9 +382,6 @@ Tree.prototype.reroot = function(edgeBaseNode) {
             destNodePs = destNodes.map(function(destNode) {
                 return destNode.parent;
             });
-
-            console.log(destNodes);
-            console.log(destNodePs);
 
             // Node will no longer be hybrid
             node.hybridID = undefined;

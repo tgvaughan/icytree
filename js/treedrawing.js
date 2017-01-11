@@ -359,7 +359,7 @@ CladogramLayout.prototype.computeNodeRanks = function(node) {
         return this.nodeRanks[node]; // Node already visited
 
     if (node.isLeaf()) {
-        if (node.isHybrid()) {
+        if (node.isHybrid() && !this.tree.isRecombSrcNode(node)) {
             var srcNode = this.tree.getRecombEdgeMap()[node.hybridID][0];
             this.nodeRanks[node] = this.computeNodeRanks(srcNode);
         } else {
@@ -909,7 +909,7 @@ var Display = (function() {
             thisNode = layout.tree.getNode(nodeID);
 
             // Skip hybrid destNodes.
-            if (thisNode.isHybrid() && layout.tree.getRecombEdgeMap()[thisNode.hybridID][0] != thisNode)
+            if (thisNode.isHybrid() && !layout.tree.isRecombSrcNode(thisNode))
                 continue;
 
             // Skip collapsed nodes:
@@ -1021,7 +1021,7 @@ var Display = (function() {
             for (var i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
-                if (thisNode in layout.collapsedCladeRoots || thisNode.isHybrid())
+                if (thisNode in layout.collapsedCladeRoots || (thisNode.isHybrid() && !layout.tree.isRecombSrcNode(thisNode)))
                     continue;
 
                 var trait = TreeStyle.tipTextTrait;
@@ -1045,7 +1045,7 @@ var Display = (function() {
             for (var i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
-                if (thisNode in layout.collapsedCladeRoots || !thisNode.isHybrid() || !thisNode.isLeaf())
+                if (thisNode in layout.collapsedCladeRoots || (thisNode.isHybrid() && layout.tree.isRecombSrcNode(thisNode)))
                     continue;
 
                 var trait = TreeStyle.recombTextTrait;

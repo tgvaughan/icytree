@@ -1198,7 +1198,7 @@ var TreeModControl = {
                 "You are attempting to reroot a tree/network containing node annotations. " +
                 "In the case that these include annotations of the node's parental edge, " +
                 "this operation will result in an incorrectly annotated tree. " +
-                "(See <a href='http://biorxiv.org/content/early/2016/09/07/035360'>this preprint</a> " +
+                "(See <a target='new' href='http://biorxiv.org/content/early/2016/09/07/035360'>this preprint</a> " +
                 "of Czech et al. for a detailed description of the problem.)";
 
             var timeNetworkWarningText =

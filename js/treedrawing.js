@@ -196,7 +196,7 @@ TreeLayout.prototype.groupLeaves = function() {
         for (j=0; j<descendents.length; j++) {
             var descendent = descendents[j];
 
-            if (!descendent.isLeaf() || !descendent.isHybrid())
+            if (!this.tree.isRecombDestNode(descendent))
                 continue;
             
             var recombID = descendent.hybridID;
@@ -227,7 +227,7 @@ TreeLayout.prototype.getYoungestScaledHeight = function(descendents) {
     for (var i=0; i<descendents.length; i++) {
         var node = descendents[i];
 
-        if (!(node.isHybrid() && node.isLeaf()))
+        if (!(this.tree.isRecombDestNode(node)))
             youngest = Math.min(this.getScaledNodeHeight(node), youngest);
     }
 
@@ -276,10 +276,10 @@ StandardTreeLayout.prototype.positionLeaves = function() {
             entry.push(youngest);
 
             for (var j=0; j<descendents.length; j++) {
-                var decNode = descendents[j];
+                var descendent = descendents[j];
 
-                if (!(decNode.isLeaf() && decNode.isHybrid()))
-                    this.nodePositions[decNode] = [xpos, this.getScaledNodeHeight(decNode)];
+                if (!this.tree.isRecombDestNode(descendent))
+                    this.nodePositions[descendent] = [xpos, this.getScaledNodeHeight(descendent)];
             }
         }
 
@@ -295,7 +295,7 @@ StandardTreeLayout.prototype.positionInternals = function(node) {
     var nonHybridCount = 0;
 
     for (var i=0; i<node.children.length; i++) {
-        if (TreeStyle.inlineRecomb && node.children[i].isHybrid() && node.children[i].isLeaf()) {
+        if (TreeStyle.inlineRecomb && this.tree.isRecombDestNode(node.children[i])) {
             this.positionInternals(node.children[i]);
         } else {
             xpos += this.positionInternals(node.children[i]);
@@ -359,7 +359,7 @@ CladogramLayout.prototype.computeNodeRanks = function(node) {
         return this.nodeRanks[node]; // Node already visited
 
     if (node.isLeaf()) {
-        if (node.isHybrid()) {
+        if (node.isHybrid() && !this.tree.isRecombSrcNode(node)) {
             var srcNode = this.tree.getRecombEdgeMap()[node.hybridID][0];
             this.nodeRanks[node] = this.computeNodeRanks(srcNode);
         } else {
@@ -908,8 +908,8 @@ var Display = (function() {
         for (nodeID in layout.nodePositions) {
             thisNode = layout.tree.getNode(nodeID);
 
-            // Skip leaf hybrid nodes.
-            if (thisNode.isHybrid() && thisNode.isLeaf())
+            // Skip hybrid destNodes.
+            if (thisNode.isHybrid() && !layout.tree.isRecombSrcNode(thisNode))
                 continue;
 
             // Skip collapsed nodes:
@@ -1021,7 +1021,7 @@ var Display = (function() {
             for (var i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
-                if (thisNode in layout.collapsedCladeRoots || thisNode.isHybrid())
+                if (thisNode in layout.collapsedCladeRoots || (thisNode.isHybrid() && !layout.tree.isRecombSrcNode(thisNode)))
                     continue;
 
                 var trait = TreeStyle.tipTextTrait;
@@ -1045,7 +1045,7 @@ var Display = (function() {
             for (var i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
-                if (thisNode in layout.collapsedCladeRoots || !thisNode.isHybrid() || !thisNode.isLeaf())
+                if (thisNode in layout.collapsedCladeRoots || (thisNode.isHybrid() && layout.tree.isRecombSrcNode(thisNode)))
                     continue;
 
                 var trait = TreeStyle.recombTextTrait;
@@ -1158,7 +1158,65 @@ var TreeModControl = {
             if (event.ctrlKey) {
                 // Re-root
 
-                //layout.origTree.reroot(node);
+                if (layout.origTree.isRecombDestNode(node))
+                    return;
+
+                var isTimeNetwork = layout.origTree.isTimeTree && Object.keys(layout.origTree.getRecombEdgeMap()).length>0;
+                var isAnnotated = false;
+                for (var i=0; i<layout.origTree.getNodeList().length; i++) {
+                    if (Object.keys(layout.origTree.getNodeList()[i].annotation).length>0) {
+                        isAnnotated = true;
+                        break;
+                    }
+                }
+
+                if (isTimeNetwork || isAnnotated) {
+
+                    var warningText = "<img src='images/alert.png'/>";
+
+                    var annotatedTreeWarningText =
+                        "You are attempting to reroot a tree/network containing node annotations. " +
+                        "In the case that these include annotations of the node's parental edge, " +
+                        "this operation will result in an incorrectly annotated tree. " +
+                        "(See <a href='http://biorxiv.org/content/early/2016/09/07/035360'>this preprint</a> " +
+                        "of Czech et al. for a detailed description of the problem.)";
+
+                    var timeNetworkWarningText =
+                        "You are attempting to reroot a network which includes explicit branch lengths.  " +
+                        "This operation cannot preserve these branch lengths and may even result in " +
+                        "negative branch lengths.";
+
+
+                    if (isTimeNetwork && isAnnotated) {
+                        warningText += "<ul><li>" + timeNetworkWarningText + "</li><li>" + annotatedTreeWarningText + "</li></ul>";
+                    } else {
+                        if (isTimeNetwork)
+                            warningText += "<p>" + timeNetworkWarningText + "</p>";
+                        else
+                            warningText += "<p>" + annotatedTreeWarningText + "</p>";
+                    }
+
+
+                    $("<div class='warning'/>").dialog({
+                        title: "Warning!",
+                        modal: true,
+                        width: 400,
+                        buttons: {
+                            Abort: function() {
+                                $(this).dialog("close");
+                            },
+                            Confirm: function() {
+                                $(this).dialog("close");
+                                layout.origTree.reroot(node);
+                                update();
+                            }
+                        }
+                    }).html(warningText);
+                } else {
+                    layout.origTree.reroot(node);
+                    update();
+                }
+
             } else {
                 // Collapse clade
 
@@ -1166,16 +1224,16 @@ var TreeModControl = {
                 if (node.isLeaf())
                     return;
 
-                // Abort when node has only hybrid leaf children
+                // Abort when node has only hybrid destNode leaf children
                 if (node.children.filter(function(child) {
-                    return !(child.isLeaf() && child.isHybrid());
+                    return !layout.origTree.isRecombDestNode(child);
                 }).length === 0)
                     return;
 
                 node.collapsed = !node.collapsed;
-            }
 
-            update();
+                update();
+            }
         };
 
         Array.from(svg.getElementsByClassName("treeEdge")).forEach(function(el) {

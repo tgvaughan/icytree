@@ -229,16 +229,33 @@ Tree.prototype.getRecombEdgeMap = function() {
                 srcHybridIDMap[node.hybridID] = node;
         }
 
+        var hybridID;
+
         this.recombEdgeMap = {};
-        for (var hybridID in srcHybridIDMap) {
+        for (hybridID in srcHybridIDMap) {
             if (hybridID in destHybridIDMap)
                 this.recombEdgeMap[hybridID] = [srcHybridIDMap[hybridID]].concat(destHybridIDMap[hybridID]);
             else
-                throw "Extended Newick error: hybrid nodes must come in pairs.";
+                throw "Extended Newick error: hybrid nodes must come in groups of 2 or more.";
+        }
+
+        // Edge case: leaf recombinations
+
+        for (hybridID in destHybridIDMap) {
+            if (!(hybridID in this.recombEdgeMap))
+                this.recombEdgeMap[hybridID] = [].concat(destHybridIDMap[hybridID]);
         }
     }
 
     return this.recombEdgeMap;
+};
+
+Tree.prototype.isRecombSrcNode = function(node) {
+    return node.isHybrid() && this.getRecombEdgeMap()[node.hybridID][0] == node;
+};
+
+Tree.prototype.isRecombDestNode = function(node) {
+    return node.isHybrid() && this.getRecombEdgeMap()[node.hybridID][0] != node;
 };
 
 // Sort nodes according to clade sizes.
@@ -297,8 +314,9 @@ Tree.prototype.minimizeHybridSeparation = function() {
 Tree.prototype.reroot = function(edgeBaseNode) {
 
     this.recombEdgeMap = undefined;
-    console.log(this.getRecombEdgeMap());
+    var currentRecombEdgeMap = this.getRecombEdgeMap();
 
+    var oldRoot = this.root;
     this.root = new Node();
 
     var edgeBaseNodeP = edgeBaseNode.parent;
@@ -313,10 +331,42 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     var BL = edgeBaseNode.branchLength;
     var nodeP;
 
-    var seenHybridIDs = [];
+    var usedHybridIDs = {};
+    for (var recombID in currentRecombEdgeMap) {
+        usedHybridIDs[recombID] = true;
+    }
 
-    do {
-        nodeP = node.parent;
+    function recurseReroot(node, prevNode, seenNodes, BL) {
+        if (node === undefined)
+            return;
+
+        if (node in seenNodes) {
+
+            // Handle creation of hybrid nodes
+
+            var newHybrid = new Node();
+            if (node.isHybrid())
+                newHybrid.hybridID = node.hybridID;
+            else {
+                var newHybridID = 0;
+                while (newHybridID in usedHybridIDs) {
+                    newHybridID += 1;
+                }
+                node.hybridID = newHybridID;
+                newHybrid.hybridID = newHybridID;
+                usedHybridIDs[newHybridID] = true;
+            }
+
+            newHybrid.branchLength = BL;
+            prevNode.addChild(newHybrid);
+
+            return;
+        } else {
+            seenNodes[node] = true;
+        }
+
+        var nodeP = node.parent;
+
         if (nodeP !== undefined)
             nodeP.removeChild(node);
         prevNode.addChild(node);
@@ -325,36 +375,41 @@ Tree.prototype.reroot = function(edgeBaseNode) {
         node.branchLength = BL;
         BL = tmpBL;
 
-        if (node.isHybrid() && seenHybridIDs.indexOf(node.hybridID)<0) {
-            var recombID = node.hybridID;
-            var srcNode = node;
-            var destNode = this.getRecombEdgeMap()[recombID][1];
-            var destNodeP = destNode.parent;
+        recurseReroot(nodeP, node, seenNodes, BL);
 
-            srcNode.hybridID = undefined;
-            destNodeP.removeChild(destNode);
-            destNodeP.hybridID = recombID;
-            srcNode.addChild(destNode);
+        if (node.isHybrid()) {
+            var destNodes = [];
+            var destNodePs = [];
 
-            this.getRecombEdgeMap()[recombID][0] = destNodeP;
-            this.getRecombEdgeMap()[recombID][1] = srcNode;
+            destNodes = currentRecombEdgeMap[node.hybridID].slice(1);
+            destNodePs = destNodes.map(function(destNode) {
+                return destNode.parent;
+            });
 
-            seenHybridIDs.push(recombID);
+            // Node will no longer be hybrid
+            node.hybridID = undefined;
+
+            for (var i=0; i<destNodes.length; i++) {
+                destNodePs[i].removeChild(destNodes[i]);
+
+                recurseReroot(destNodePs[i], node, seenNodes, destNodes[i].branchLength);
+            }
         }
 
-        prevNode = node;
-        node = nodeP;
-    } while (node !== undefined);
+    }
+
+    recurseReroot(node, prevNode, {}, BL);
 
     // Delete singleton node left by old root
-    if (prevNode.children.length == 1 && !prevNode.isHybrid()) {
-        var child = prevNode.children[0];
-        var parent = prevNode.parent;
-        parent.removeChild(prevNode);
-        prevNode.removeChild(child);
+
+    if (oldRoot.children.length == 1 && !oldRoot.isHybrid()) {
+        var child = oldRoot.children[0];
+        var parent = oldRoot.parent;
+        parent.removeChild(oldRoot);
+        oldRoot.removeChild(child);
         parent.addChild(child);
 
-        child.branchLength = child.branchLength + prevNode.branchLength;
+        child.branchLength = child.branchLength + oldRoot.branchLength;
     }
 
     // Clear out-of-date leaf and node lists
@@ -367,32 +422,12 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     this.recombEdgeMap = undefined;
     this.reassignNodeIDs();
 
-    // Fix time network
-    if (this.isTimeTree) {
-        for (var recombID in this.getRecombEdgeMap()) {
-            var srcNode = this.getRecombEdgeMap()[recombID][0];
-            var destNode = this.getRecombEdgeMap()[recombID][1];
-            var destNodeP = destNode.parent;
-
-            if (srcNode.height > destNodeP.height) {
-                // Topology modification
-
-                srcNode.hybridID = undefined;
-                destNodeP.removeChild(destNode);
-                destNodeP.hybridID = recombID;
-                srcNode.addChild(destNode);
-                destNode.height = destNodeP.height;
-                destNode.branchLength = srcNode.height - destNode.height;
-
-                this.getRecombEdgeMap()[recombID][0] = destNodeP;
-                this.getRecombEdgeMap()[recombID][1] = srcNode;
-
-            } else {
-                // Just fix destNode height
-
-                destNode.height = srcNode.height;
-                destNode.branchLength = destNodeP.height - destNode.height;
-            }
+    // Ensure destNode leaf heights match those of corresponding srcNodes
+    for (recombID in this.getRecombEdgeMap()) {
+        var srcNode = this.getRecombEdgeMap()[recombID][0];
+        for (i=1; i<this.getRecombEdgeMap()[recombID].length; i++) {
+            var destNode = this.getRecombEdgeMap()[recombID][i];
+            destNode.branchLength += destNode.height - srcNode.height;
         }
     }
 };

@@ -306,6 +306,9 @@ $(document).ready(function() {
                         else
                             searchText = node.annotation[searchAttrib];
 
+                        if (!searchText)
+                            return;
+
                         if (!caseSensitive)
                             searchText = searchText.toLowerCase();
 

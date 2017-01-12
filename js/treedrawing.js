@@ -1225,7 +1225,7 @@ var TreeModControl = {
                     Abort: function() {
                         $(this).dialog("close");
                     },
-                    Confirm: function() {
+                    Continue: function() {
                         $(this).dialog("close");
                         TreeModControl.expandAllClades();
                         layout.origTree.reroot(node);

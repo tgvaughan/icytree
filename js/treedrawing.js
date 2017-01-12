@@ -1158,8 +1158,64 @@ var TreeModControl = {
             if (event.ctrlKey) {
                 // Re-root
 
-                if (!layout.origTree.isRecombDestNode(node))
+                if (layout.origTree.isRecombDestNode(node))
+                    return;
+
+                var isTimeNetwork = layout.origTree.isTimeTree && Object.keys(layout.origTree.getRecombEdgeMap()).length>0;
+                var isAnnotated = false;
+                for (var i=0; i<layout.origTree.getNodeList().length; i++) {
+                    if (Object.keys(layout.origTree.getNodeList()[i].annotation).length>0) {
+                        isAnnotated = true;
+                        break;
+                    }
+                }
+
+                if (isTimeNetwork || isAnnotated) {
+
+                    var warningText = "<img src='images/alert.png'/>";
+
+                    var annotatedTreeWarningText =
+                        "You are attempting to reroot a tree/network containing node annotations. " +
+                        "In the case that these include annotations of the node's parental edge, " +
+                        "this operation will result in an incorrectly annotated tree. " +
+                        "(See <a href='http://biorxiv.org/content/early/2016/09/07/035360'>this preprint</a> " +
+                        "of Czech et al. for a detailed description of the problem.)";
+
+                    var timeNetworkWarningText =
+                        "You are attempting to reroot a network which includes explicit branch lengths.  " +
+                        "This operation cannot preserve these branch lengths and may even result in " +
+                        "negative branch lengths.";
+
+
+                    if (isTimeNetwork && isAnnotated) {
+                        warningText += "<ul><li>" + timeNetworkWarningText + "</li><li>" + annotatedTreeWarningText + "</li></ul>";
+                    } else {
+                        if (isTimeNetwork)
+                            warningText += "<p>" + timeNetworkWarningText + "</p>";
+                        else
+                            warningText += "<p>" + annotatedTreeWarningText + "</p>";
+                    }
+
+
+                    $("<div class='warning'/>").dialog({
+                        title: "Warning!",
+                        modal: true,
+                        width: 400,
+                        buttons: {
+                            Abort: function() {
+                                $(this).dialog("close");
+                            },
+                            Confirm: function() {
+                                $(this).dialog("close");
+                                layout.origTree.reroot(node);
+                                update();
+                            }
+                        }
+                    }).html(warningText);
+                } else {
                     layout.origTree.reroot(node);
+                    update();
+                }
 
             } else {
                 // Collapse clade
@@ -1175,9 +1231,9 @@ var TreeModControl = {
                     return;
 
                 node.collapsed = !node.collapsed;
-            }
 
-            update();
+                update();
+            }
         };
 
         Array.from(svg.getElementsByClassName("treeEdge")).forEach(function(el) {

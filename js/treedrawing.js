@@ -1155,7 +1155,7 @@ var TreeModControl = {
             var nodeID = event.target.getAttribute("id");
             var node = layout.origTree.getNode(nodeID);
 
-            if (event.ctrlKey) {
+            if (event.shiftKey) {
                 // Re-root
 
                 TreeModControl.reroot(node);

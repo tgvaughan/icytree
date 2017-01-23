@@ -434,7 +434,7 @@ ga('send', 'pageview');
         </div>
 
         <!-- Manual -->
-        <div class="manual" id="manual" title="Online Manual">
+        <div class="manual" id="manual" title="Online Manual" tabindex="-1">
             {% capture x %}{% include manual.md %}{% endcapture %}
             {{x | markdownify}}
         </div>

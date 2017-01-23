@@ -1,3 +1,5 @@
+---
+---
 <!doctype html>
 <html>
     <head>
@@ -72,7 +74,7 @@ ga('send', 'pageview');
 
             <li><button>Style</button>
                 <ul id="styleMenu">
-                    <li title="Alter ordering of child nodes.">Node sorting/layout
+                    <li title="Alter ordering of child nodes.">Node sorting
                         <ul id="styleSort">
                             <li title="Sort nodes in DECREASING order of clade size."><span class="ui-icon ui-icon-check"></span>Sorted (descending)</li>
                             <li title="Sort nodes in INCREASING order of clade size.">Sorted (ascending)</li>
@@ -221,6 +223,8 @@ ga('send', 'pageview');
                         id="helpTreeNav">Tree navigation...</li>
                     <li title="Display full list of keyboard shortcuts."
                         id="helpShortcuts">Keyboard shortcuts...<span class="ks">?</span></li>
+                    <li title="Open IcyTree manual."
+                        id="helpManual">Manual...</li>
                     <li title="What is IcyTree?"
                         id="helpAbout">About IcyTree...</li>
                 </ul>
@@ -427,6 +431,12 @@ ga('send', 'pageview');
             <p>In the meantime, if one-key file reloading is important for you,
             you might want to consider using IcyTree via an alternative browser
             (e.g. Chrome).</p>
+        </div>
+
+        <!-- Manual -->
+        <div class="manual" id="manual" title="Online Manual">
+            {% capture x %}{% include manual.md %}{% endcapture %}
+            {{x | markdownify}}
         </div>
 
     </body>

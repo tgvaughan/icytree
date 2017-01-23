@@ -1,7 +1,6 @@
-# Tree files for testing
-*.nexus
-*.xml
-
 # Jekyll stuff
-_site
+/_site
 Gemfile.lock
+
+# Ignore examples dir for now
+/examples

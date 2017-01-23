@@ -393,7 +393,7 @@ $(document).ready(function() {
         width: 500,
         height: 400,
         buttons: {
-            Ok: function() {
+            Close: function() {
                 $(this).dialog("close");
             },
             "Open in new window": function () {

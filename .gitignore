@@ -1,0 +1,7 @@
+# Tree files for testing
+*.nexus
+*.xml
+
+# Jekyll stuff
+_site
+Gemfile.lock

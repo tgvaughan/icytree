@@ -11,11 +11,11 @@ In addition, IcyTree can be used to produce visualizations of phylogenetic
 networks represented using the Extended Newick format.
 
 **Warning:** IcyTree does _not_ produce visualizations of unrooted trees, but
-may still display such trees as rooted if a root implied by the input file format.
-(For instance, Newick formatted tree files always implicitly specify a root.)
-It is therefore important not to read significance into the placement of the
-root in such situations. Instead, one should use a specialised unrooted tree
-viewer to view such files.
+may still display such trees as rooted if a root is implied by the input file
+format.  (For instance, Newick formatted tree files always implicitly specify a
+root.) It is important not to read significance into the placement of the root
+in such situations. Instead, one should use a specialised unrooted tree viewer
+to view such files.
 
 Input/Output
 ============
@@ -49,7 +49,11 @@ IcyTree supports the following input file formats:
 
 ### BEAST NEXUS Annotations
 
+NEXUS tree logs produced by BEAST include additional node metadata. IcyTree
+can read this data and use it to style the visualization.
+
 ### Extended Newick
+
 
 Loading trees from files
 ------------------------

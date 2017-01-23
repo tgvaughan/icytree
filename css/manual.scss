@@ -1,0 +1,17 @@
+---
+---
+
+$aqua: #00a0ff;
+
+.jumbotron {
+    margin-top: 10px;
+    border: solid 3px $aqua;
+    background: white;
+    color: $aqua;
+}
+
+.jumbotron > h1 {
+    font-weight: bold;
+    font-family: serif;
+    text-align: center;
+}

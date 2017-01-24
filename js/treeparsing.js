@@ -397,6 +397,9 @@ function TreeFromPhyloXML (phylogenyElement) {
             }
         }
 
+        if (phylogenyElement.hasAttribute("rooted") && phylogenyElement.getAttribute("rooted").toLowerCase() === "false")
+            throw new SkipTreeException("Unrooted tree.");
+
         if (cladeElement.hasAttribute("branch_length"))
             node.branchLength = Number(cladeElement.getAttribute("branch_length"));
 
@@ -446,9 +449,7 @@ function TreeFromNeXML(treeElement) {
     }
 
     if (root === undefined)
-        throw new SkipTreeException("Skipping unrooted NexML tree.");
-
-    TreeBuilder.call(this, root);
+        throw new SkipTreeException("Unrooted tree.");
 
     for (var eidx=0; eidx < edgeElements.length; eidx++) {
         var edgeEl = edgeElements[eidx];
@@ -458,6 +459,8 @@ function TreeFromNeXML(treeElement) {
         parent.addChild(child);
         child.branchLength = edgeEl.getAttribute("length");
     }
+
+    TreeBuilder.call(this, root);
 
     var rootEdgeElements = treeElement.getElementsByTagName("rootedge");
     if (rootEdgeElements.length>0)
@@ -491,7 +494,7 @@ function getTreesFromNexML(dom) {
             trees.push(new TreeFromNeXML(treeElements[i]));
         } catch (e) {
             if (e instanceof SkipTreeException)
-                console.log(e.message);
+                console.log("Skipping NeXML tree: " + e.message);
             else
                 throw e;
         }
@@ -506,9 +509,14 @@ function getTreesFromPhyloXML(dom) {
 
     var phyloElements = dom.getElementsByTagName("phylogeny");
     for (var i=0; i<phyloElements.length; i++) {
-        trees.push(new TreeFromPhyloXML(phyloElements[i]));
-        if (phyloElements[i].getAttribute("rooted").toLowerCase() === "false")
-            console.log("Warning: File includes unrooted trees.");
+        try {
+            trees.push(new TreeFromPhyloXML(phyloElements[i]));
+        } catch (e) {
+            if (e instanceof SkipTreeException)
+                console.log("Skipping PhyloXML tree: " + e.message);
+            else
+                throw e;
+        }
     }
 
     return trees;
@@ -528,7 +536,7 @@ function getTreesFromNewick(string) {
             trees.push(new TreeFromNewick(thisLine));
         } catch (e) {
             if (e instanceof SkipTreeException)
-                console.log(e.message);
+                console.log("Skipping Newick tree: " + e.message);
             else
                 throw e;
         }

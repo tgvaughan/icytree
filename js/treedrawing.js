@@ -1045,7 +1045,9 @@ var Display = (function() {
             for (var i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
-                if (thisNode in layout.collapsedCladeRoots || (thisNode.isHybrid() && layout.tree.isRecombSrcNode(thisNode)))
+                if (thisNode in layout.collapsedCladeRoots ||
+                        !thisNode.isHybrid() ||
+                        (thisNode.isHybrid() && layout.tree.isRecombSrcNode(thisNode)))
                     continue;
 
                 var trait = TreeStyle.recombTextTrait;

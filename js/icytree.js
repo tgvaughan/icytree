@@ -391,7 +391,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: false,
         width: 500,
-        height: 400,
+        height: 500,
         buttons: {
             Close: function() {
                 $(this).dialog("close");

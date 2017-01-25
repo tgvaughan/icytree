@@ -32,6 +32,10 @@ var controlsHidden = false;
 
 var layout;
 
+// Stop jqueryui dialogs from focussing first link.
+$.ui.dialog.prototype._focusTabbable = $.noop;
+
+
 // Page initialisation code:
 $(document).ready(function() {
 
@@ -219,6 +223,7 @@ $(document).ready(function() {
         modal: true,
         width: 500,
         height: 400,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Done: function() {
                 treeData = $(this).find("textArea").val();
@@ -238,25 +243,11 @@ $(document).ready(function() {
         loadFile();
     });
 
-    $("#multiSVGDialog").dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400,
-        height: 300,
-        buttons: {
-            Export: function() {
-                exportSVGMulti($("#multiSVGspinner").spinner().spinner("value"));
-                $(this).dialog("close");
-            },
-        Cancel: function() {
-            $(this).dialog("close");
-        }}
-    });
-
     $("#axisOffsetDialog").dialog({
         autoOpen: false,
         modal: true,
         width: 400,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Ok: function() {
                 TreeStyle.axisOffset = Number($("#axisOffsetInput").val());
@@ -272,6 +263,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: false,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Search: function() {
 
@@ -371,6 +363,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Ok: function() {
                 $(this).dialog("close");
@@ -381,6 +374,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Ok: function() {
                 $(this).dialog("close");
@@ -392,6 +386,7 @@ $(document).ready(function() {
         modal: false,
         width: 500,
         height: 500,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Close: function() {
                 $(this).dialog("close");
@@ -405,6 +400,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Ok: function() {
                 $(this).dialog("close");
@@ -415,6 +411,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             "I understand": function() {
                 $(this).dialog("close");
@@ -425,6 +422,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             "Continue anyway": function() {
                 $(this).dialog("close");

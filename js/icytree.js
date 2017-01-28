@@ -200,9 +200,6 @@ $(document).ready(function() {
 
     $("#helpMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
-            case "helpTreeNav":
-                $("#navHelp").dialog("open");
-                break;
             case "helpShortcuts":
                 $("#shortcutHelp").dialog("open");
                 break;
@@ -360,17 +357,6 @@ $(document).ready(function() {
 
 
     $("#shortcutHelp").dialog({
-        autoOpen: false,
-        modal: true,
-        width: 450,
-        open: function(){$(this).parent().focus();},
-        buttons: {
-            Ok: function() {
-                $(this).dialog("close");
-            }}
-    });
-
-    $("#navHelp").dialog({
         autoOpen: false,
         modal: true,
         width: 450,

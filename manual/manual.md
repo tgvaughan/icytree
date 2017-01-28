@@ -137,7 +137,31 @@ exported.
 Exploring trees
 ===============
 
+Once a tree is loaded, it can be explored in a variety of ways.
 
+Panning and Zooming
+-------------------
+
+The principle method of exploration is via panning and zooming the view of the
+displayed tree.  To zoom in or out, simply hover the mouse cursor over a
+position of interest and scroll "up" or "down" respectively on your mouse's
+scroll wheel.  To pan, simply click and drag.
+
+Horizontal/Vertical Zooming
+---------------------------
+
+To zoom in or out in the horizontal or vertical directions only, hold down CTRL
+or SHIFT while moving the scroll wheel.
+
+Viewing Tree Edge Statistics
+----------------------------
+
+Hovering over a tree edge will cause a table to appear describing the edge.
+The table will vanish when your mouse leaves he edge, but not if you hover over
+the table itself.
+
+**Note that you cannot pan or zoom if your mouse cursor is hovering over the
+edge description table.**
 
 Visualization style
 ===================
@@ -147,6 +171,12 @@ Node sorting
 
 Tree layouts
 ------------
+
+Edge colouring
+--------------
+
+Axes
+----
 
 Searching taxa
 ==============

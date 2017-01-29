@@ -871,10 +871,13 @@ var Display = (function() {
 
         // Add white background rectangle:
         var rect = document.createElementNS(NS, "rect");
-        rect.setAttribute("x", 0);
+        rect.setAttribute("id", "backgroundRect");
+
+        rect.setAttribute("x", 0);  // Fill these in before exporting
         rect.setAttribute("y", 0);
-        rect.setAttribute("width", TreeStyle.width);
-        rect.setAttribute("height", TreeStyle.height);
+        rect.setAttribute("width", 0);
+        rect.setAttribute("height", 0);
+
         rect.setAttribute("fill", "white");
         svg.appendChild(rect);
 

@@ -318,7 +318,7 @@ ga('send', 'pageview');
         </div>
 
         <!-- Keyboard shortcut help -->
-        <div id="shortcutHelp" title="Keyboard shortcuts">
+        <div id="shortcutHelp" class="dialog" title="Keyboard shortcuts">
             <table>
                 <tr><th>Key</th> <th>Action</th></tr>
                 <tr><td>e</td> <td>Enter trees directly</td></tr>
@@ -351,7 +351,7 @@ ga('send', 'pageview');
 
 
         <!-- About box -->
-        <div id="about" title="About IcyTree">
+        <div id="about" class="dialog" title="About IcyTree">
             <img src="images/icytree.png"/>
             <p>This is a browser-based phylogenetic tree viewer. It is
             intended for rapid visualisation of phylogenetic tree files such as
@@ -378,7 +378,7 @@ ga('send', 'pageview');
         </div>
 
         <!-- Browser warning -->
-        <div class="warning" id="warning" title="Warning">
+        <div class="warning dialog" id="warning" title="Warning">
             <img src="images/alert.png"/>
             <p>This browser does not support all of the features IcyTree
             requires.  While we are working to improve cross-browser
@@ -391,7 +391,7 @@ ga('send', 'pageview');
         </div>
 
         <!-- Firefox warning -->
-        <div class="warning" id="FFwarning" title="Warning">
+        <div class="warning dialog" id="FFwarning" title="Warning">
             <img src="images/alert.png"/>
             <p>The latest version of Firefox introduces a change in the
             JavaScript API that breaks IcyTree's ability to reload tree
@@ -405,7 +405,7 @@ ga('send', 'pageview');
         </div>
 
         <!-- Manual -->
-        <div class="manual" id="manual" title="Online Manual" tabindex="-1">
+        <div class="dialog" id="manual" title="Online Manual" tabindex="-1">
             {% capture x %}{% include manual.md %}{% endcapture %}
             {{x | markdownify}}
         </div>

@@ -370,7 +370,7 @@ $(document).ready(function() {
     $("#manual").dialog({
         autoOpen: false,
         modal: false,
-        width: 500,
+        width: 450,
         height: 500,
         open: function(){$(this).parent().focus();},
         buttons: {

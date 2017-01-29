@@ -167,9 +167,9 @@ body {
     list-style-type: none;
 }
 
-/* Help and About */
+/* Dialogs */
 
-#shortcutHelp {
+.dialog {
     font: 14px sans-serif;
 }
 
@@ -187,7 +187,6 @@ body {
 }
 
 #about {
-    font: 14px sans-serif;
     text-align: left;
 }
 
@@ -197,7 +196,6 @@ body {
 }
 
 .warning {
-    font: 14px sans-serif;
     text-align: justify;
 }
 

@@ -232,6 +232,13 @@ IcyTree provides the following three tree layouts:
 Edge colouring
 --------------
 
+IcyTree allows tree edges to be coloured according to the value of any of the
+labels or attributes defined on the nodes. Choose the specific attribute using
+the File-&gt;"Colour edges by" sub-menu.  When an item other than "None" is
+selected, edges are coloured automatically by applying a distinct colour to
+each set of edges having a distinct value for the chosen attribute.  Edges for
+which the chosen attribute is undefined remain coloured black.
+
 Edge opacity
 ------------
 

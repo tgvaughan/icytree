@@ -264,6 +264,22 @@ IcyTree provides the following three tree layouts:
     the ordering of child nodes provided by the input file is assumed to be
     significant.
 
+Text labels
+-----------
+
+IcyTree displays Newick labels or NEXUS taxon names for leaf nodes by default.
+This selection can be modified using the Style-&gt;"Tip text" menu, either by
+selecting "None" to turn off tip labels entirely or by selecting one of the
+other available node attributes to use in labelling the leaf nodes.
+
+Labelling of internal nodes is off by default but can be turned on by selecting
+from the available attributes listed in the Style-&gt;"Internal node text" menu.
+
+Particularly when labelled singleton nodes (i.e. internal nodes with a single
+child node) exist, internal node labels can be difficult to read.  To improve
+visibility in such cases, select the Style-&gt;"Angle node label text" menu
+item, which causes all text labels to be drawn at a 45 degree angle.
+
 Edge colouring
 --------------
 
@@ -271,7 +287,7 @@ IcyTree allows tree edges to be coloured according to the value of any of the
 labels or attributes defined on the nodes. In this case, attributes are understood
 to apply to the edge immediately ancestral to the node.
 
-To use edge colouring, choose the specific attribute using the File-&gt;"Colour
+To use edge colouring, choose the specific attribute using the Style-&gt;"Colour
 edges by" sub-menu.  When an item other than "None" is selected, edges are
 coloured automatically by applying a distinct colour to each set of edges
 having a distinct value for the chosen attribute.  Edges for which the chosen
@@ -290,11 +306,8 @@ attribute that has numeric values that range between 0 and 1.  Just as for edge
 colouring, node attributes determine the opacity of the edge immediately
 ancestral to each node.
 
-The attribute used for edge opacity can be chosen via the File-&gt;"Edge
+The attribute used for edge opacity can be chosen via the Style-&gt;"Edge
 opacity" sub-menu. (Only compatible attributes are shown.)
-
-Text labels
------------
 
 Error bars
 ----------

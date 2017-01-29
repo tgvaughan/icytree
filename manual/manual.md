@@ -191,7 +191,7 @@ selected edge.
 
 Be aware that **re-rooting trees with node annotations that actually apply to immediately ancestral edges
 can produce meaningless annotations**. See
-[this preprint](http://biorxiv.org/content/early/2016/09/07/035360)
+[this article](http://biorxiv.org/content/early/2016/09/07/035360)
 for more details.
 
 The re-rooting can also be applied to networks.  However, in the case of timed
@@ -309,8 +309,20 @@ ancestral to each node.
 The attribute used for edge opacity can be chosen via the Style-&gt;"Edge
 opacity" sub-menu. (Only compatible attributes are shown.)
 
+Marking singleton nodes
+-----------------------
+
+IcyTree defines "singletons" as those nodes which have exactly one child.  Such
+nodes may be used to represent a variety of events including ancestral
+migrations or sampled ancestors.  Unless the adjacent edges are differently
+coloured due to a change in some attribute value, these nodes are by default
+invisible.  IcyTree thus allows such nodes to be explicitly marked with solid black
+circles.  This marking can be toggled using the Style-&gt;"Mark singleton nodes" option.
+
 Error bars
 ----------
+
+
 
 Axes
 ----

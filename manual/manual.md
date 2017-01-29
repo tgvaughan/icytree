@@ -166,14 +166,46 @@ edge description table.**
 Visualization style
 ===================
 
+IcyTree provides a number of options for adjusting the style of visualization
+presented.  These are all accessible via the Style menu, which is available once
+a tree has been loaded. Each of the items in that menu are described in the
+subsections below.
+
 Node sorting
 ------------
+
+The order in which child nodes appear under each parent node in the displayed
+tree can be modified using the Style-&gt;"Node Sorting" menu. The default
+behaviour is for child nodes to be sorted so that children possessing larger
+subtrees are always positioned below (in the vertical axis of the
+visualization) children with smaller subtrees.  For serially-sampled
+time-trees, this gives rise to a tree that descends down the screen from left
+to right. We thus refer to this kind of sorting as **descending**.
+
+Alternatively, child nodes can be sorted in so that those possessing larger
+subtrees are *above* those with smaller subtrees. This referred to in the
+sorting options list as **ascending**.
+
+Finally, child nodes can be left **unsorted**.  This leaves the ordering of the
+nodes completely up to the input format.  Note that only the Newick, NEXUS and
+PhyloXML formats implicitly specify an ordering, while the NeXML format does
+not, so be aware that "unsorted" will always lead to an arbitrary ordering of
+child nodes for NeXML trees.
 
 Tree layouts
 ------------
 
 Edge colouring
 --------------
+
+Edge opacity
+------------
+
+Text labels
+-----------
+
+Error bars
+----------
 
 Axes
 ----

@@ -189,6 +189,11 @@ To re-root a tree, simply hover the mouse cursor over an edge, and click the lef
 while holding down the SHIFT key.  This produces a new root node exactly in the middle of the
 selected edge.
 
+Be aware that **re-rooting trees with node annotations that actually apply to immediately ancestral edges
+can produce meaningless annotations**. See
+[this preprint](http://biorxiv.org/content/early/2016/09/07/035360)
+for more details.
+
 The re-rooting can also be applied to networks.  However, in the case of timed
 networks the lengths of the recombinant edges cannot in general be preserved
 and in some circumstances may produce negative edge lengths.

@@ -335,11 +335,74 @@ node age.  These intervals can be displayed by IcyTree as node age error bars
 by selecting the appropriate attribute from the Style-&gt;"Node height error
 bars" sub-menu.
 
+Recombinant edges
+-----------------
+
+IcyTree uses the term "recombinant edge" to refer to any *additional edges*
+immediately ancestral to a node. These existence of these edges mean that the
+displayed genealogy is a *network* rather than a simple tree.
+
+The only format in which IcyTree accepts descriptions of phylogenetic networks
+is the [Extended Newick format](http://dx.doi.org/10.1186/1471-2105-9-532).  In
+this format, there is a distinction made between the first parental edge and
+these additional edges.  Whether or not this distinction is meaningful is up to
+the author of the extended Newick file.
+
+In IcyTree, the additional "recombinant" edges are drawn using dashed lines.
+This is done simply as a strategy to make it easier for networks to be
+understood: drawing rooted networks often requires lines representing edges to
+cross, and using dashed lines for these "recombinant" edges makes it easier to
+distinguish between line joinings that represent lineage
+coalescences/bifurcations and those that are simply a result of a busy network.
+
+In addition, the dashed/solid distinction can be used to encode useful
+information, as it is in the output of
+[Bacter](https://tgvaughan.github.io/bacter) which uses the primary parental
+edge as the one representing the clonal ancestry of a bacterial sample and the
+recombinant edges to represent ancestry due to gene conversion.
+
+The following style menu options apply specifically to "recombinant edges" and networks:
+
+### Display recombinant edges
+
+This option is selected by default but can be turned off to completely hide
+recombinant edges.  This is only useful if the distinction between the primary
+ancestral edge and the additional "recombinant" ancestral edges holds semantic
+value.
+
+### Recombinant edge text
+
+This option can be used to apply additional text, if available, directly to
+recombinant edges.  This text is taken from the Newick label (or NEXUS node
+annotation) on the "hybrid" leaf node in the extended Newick file. (See [the
+paper](http://dx.doi.org/10.1186/1471-2105-9-532) describing the extended
+Newick format for details on hybrid nodes.)
+
+### Recombinant edge opacity
+
+This option uses a numeric trait value (which must lie between 0 and 1) on each
+"hybrid" leaf node to determine the opacity of the dashed line representing the
+corresponding recombinant edge.
+
+### Inline recombinant edges
+
+Enabling this option causes an alteration in the layout so that nodes
+representing coalescences between a recombinant edge and a non-recombinant edge
+are positioned directly in line with the non-recombinant descendent node of the
+coalescence node. This option is off by default.
+
+### Recombinant edge length minimize
+
+This option toggles whether recombinant edges are positioned in such a way that they
+minimize the length of the dashed line used to represent the edge.  This option
+is on by default.
+
+
 Time Axis
 ---------
 
-Recombinant edges
------------------
+General Style Options
+---------------------
 
 Searching taxa
 ==============

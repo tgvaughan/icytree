@@ -263,14 +263,30 @@ Edge colouring
 --------------
 
 IcyTree allows tree edges to be coloured according to the value of any of the
-labels or attributes defined on the nodes. Choose the specific attribute using
-the File-&gt;"Colour edges by" sub-menu.  When an item other than "None" is
-selected, edges are coloured automatically by applying a distinct colour to
-each set of edges having a distinct value for the chosen attribute.  Edges for
-which the chosen attribute is undefined remain coloured black.
+labels or attributes defined on the nodes. In this case, attributes are understood
+to apply to the edge immediately ancestral to the node.
+
+To use edge colouring, choose the specific attribute using the File-&gt;"Colour
+edges by" sub-menu.  When an item other than "None" is selected, edges are
+coloured automatically by applying a distinct colour to each set of edges
+having a distinct value for the chosen attribute.  Edges for which the chosen
+attribute is undefined remain coloured black.
+
+The specific colours used are selected by sorting the unique attribute values
+(numerically if all values are numeric, lexographically otherwise) and assigned
+unique colours with maximally-separated hues to make distinct attribute values
+as easy to discern as possible.
 
 Edge opacity
 ------------
+
+IcyTree also allows the opacity of edges to be influenced by any label or
+attribute that has numeric values that range between 0 and 1.  Just as for edge
+colouring, node attributes determine the opacity of the edge immediately
+ancestral to each node.
+
+The attribute used for edge opacity can be chosen via the File-&gt;"Edge
+opacity" sub-menu. (Only compatible attributes are shown.)
 
 Text labels
 -----------

@@ -363,46 +363,76 @@ recombinant edges to represent ancestry due to gene conversion.
 
 The following style menu options apply specifically to "recombinant edges" and networks:
 
-### Display recombinant edges
+* **Display recombinant edges**
 
-This option is selected by default but can be turned off to completely hide
-recombinant edges.  This is only useful if the distinction between the primary
-ancestral edge and the additional "recombinant" ancestral edges holds semantic
-value.
+    This option is selected by default but can be turned off to completely hide
+    recombinant edges.  This is only useful if the distinction between the primary
+    ancestral edge and the additional "recombinant" ancestral edges holds semantic
+    value.
 
-### Recombinant edge text
+* **Recombinant edge text**
 
-This option can be used to apply additional text, if available, directly to
-recombinant edges.  This text is taken from the Newick label (or NEXUS node
-annotation) on the "hybrid" leaf node in the extended Newick file. (See [the
-paper](http://dx.doi.org/10.1186/1471-2105-9-532) describing the extended
-Newick format for details on hybrid nodes.)
+    This option can be used to apply additional text, if available, directly to
+    recombinant edges.  This text is taken from the Newick label (or NEXUS node
+    annotation) on the "hybrid" leaf node in the extended Newick file. (See [the
+    paper](http://dx.doi.org/10.1186/1471-2105-9-532) describing the extended
+    Newick format for details on hybrid nodes.)
 
-### Recombinant edge opacity
+* **Recombinant edge opacity**
 
-This option uses a numeric trait value (which must lie between 0 and 1) on each
-"hybrid" leaf node to determine the opacity of the dashed line representing the
-corresponding recombinant edge.
+    This option uses a numeric trait value (which must lie between 0 and 1) on each
+    "hybrid" leaf node to determine the opacity of the dashed line representing the
+    corresponding recombinant edge.
 
-### Inline recombinant edges
+*  **Inline recombinant edges**
 
-Enabling this option causes an alteration in the layout so that nodes
-representing coalescences between a recombinant edge and a non-recombinant edge
-are positioned directly in line with the non-recombinant descendent node of the
-coalescence node. This option is off by default.
+    Enabling this option causes an alteration in the layout so that nodes
+    representing coalescences between a recombinant edge and a non-recombinant edge
+    are positioned directly in line with the non-recombinant descendent node of the
+    coalescence node. This option is off by default.
 
-### Recombinant edge length minimize
+* **Recombinant edge length minimize**
 
-This option toggles whether recombinant edges are positioned in such a way that they
-minimize the length of the dashed line used to represent the edge.  This option
-is on by default.
-
+    This option toggles whether recombinant edges are positioned in such a way that they
+    minimize the length of the dashed line used to represent the edge.  This option
+    is on by default.
 
 Time Axis
 ---------
 
 General Style Options
 ---------------------
+
+The final set of Style options apply more generally. It includes the following options:
+
+* **Edge Width**
+
+    This is a sub-menu containing options to uniformly increase or decrease the
+    width of all lines used to represent tree and network edges.
+
+* **Font Size**
+
+    Likewise, this is a sub-menu containing options to increase or decrease the
+    size of the font used to display all text in the visualization.
+
+* **Label precision limit**
+
+    This is a sub-menu which allows users to select the number of significant
+    figures used when displaying numeric text labels.  By default an arbitray
+    number of significant figures is permitted.
+
+* **Angle node label text**
+
+    As described previously, toggling this option causes all node labels to be
+    angled 45 degrees upward.  This can make it easier to read internal node
+    labels, particularly those corresponding to singleton nodes.
+
+* **Anti-alias**
+
+    By default, lines representing tree edges are drawn without anti-aliasing, as this
+    yields a crisper image.  However, when the number of leaves approaches or exceeds
+    the number of pixels in the vertical portion of the display occupied by IcyTree,
+    this can lead to artifacts.  Enabling this option can make such images clearer.
 
 Searching taxa
 ==============

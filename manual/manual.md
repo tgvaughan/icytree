@@ -298,13 +298,16 @@ The specific colours used are selected by sorting the unique attribute values
 unique colours with maximally-separated hues to make distinct attribute values
 as easy to discern as possible.
 
+A legend showing the mapping from trait values to colours can be toggled on and
+off using Style-&gt;"Display legend".
+
 Edge opacity
 ------------
 
-IcyTree also allows the opacity of edges to be influenced by any label or
-attribute that has numeric values that range between 0 and 1.  Just as for edge
-colouring, node attributes determine the opacity of the edge immediately
-ancestral to each node.
+IcyTree also allows the opacity of the lines used to draw tree edges to be
+influenced by any label or attribute that has numeric values that range between
+0 and 1.  Just as for edge colouring, node attributes determine the opacity of
+the edge immediately ancestral to each node.
 
 The attribute used for edge opacity can be chosen via the Style-&gt;"Edge
 opacity" sub-menu. (Only compatible attributes are shown.)
@@ -316,16 +319,24 @@ IcyTree defines "singletons" as those nodes which have exactly one child.  Such
 nodes may be used to represent a variety of events including ancestral
 migrations or sampled ancestors.  Unless the adjacent edges are differently
 coloured due to a change in some attribute value, these nodes are by default
-invisible.  IcyTree thus allows such nodes to be explicitly marked with solid black
-circles.  This marking can be toggled using the Style-&gt;"Mark singleton nodes" option.
+invisible.  IcyTree thus allows such nodes to be explicitly marked with solid
+black circles.  This marking can be toggled using the Style-&gt;"Mark singleton
+nodes" option.
 
 Error bars
 ----------
 
+Some phylogenetics inference packages (including both
+[BEAST](http://beast.bio.ed.ac.uk) and [BEAST 2](http://beast2.org)) produce
+phylogenetic trees that include information about node age uncertainty.  In the
+case of BEAST and BEAST 2, this is indicated using vector-valued node
+attributes that contain the 95% highest posterior density interval for each
+node age.  These intervals can be displayed by IcyTree as node age error bars
+by selecting the appropriate attribute from the Style-&gt;"Node height error
+bars" sub-menu.
 
-
-Axes
-----
+Time Axis
+---------
 
 Recombinant edges
 -----------------

@@ -195,6 +195,40 @@ child nodes for NeXML trees.
 Tree layouts
 ------------
 
+IcyTree provides the following three tree layouts:
+
+1. **Standard Time Tree**
+
+    This is the layout used to draw traditional time trees and is used by default
+    whenever all edge lengths are defined. Child nodes
+    are evenly spaced on the vertical axis, and the vertical position of
+    each parent is exactly mid-way between each child.  The horizontal
+    position of each node corresponds to the time that the corresponding event
+    (e.g. coalescence, speciation, sampling) occurred. 
+
+2. **Cladogram**
+
+    This layout uses the same vertical positioning of nodes as the time tree
+    layout but positions nodes so that the distance from the left indicates the
+    *rank* of each node.  The rank of any internal node is simply one more than the
+    maximum rank of any of its children, while the rank of a leaf node is always
+    zero.
+
+    The cladogram layout is the only layout available to trees that do not
+    have lengths defined for every edge and is automatically selected in this case.
+
+3. **Transmission tree**
+
+    This layout yields exactly the same horizontal node positions as as the
+    standard time tree layout, but sets the vertical position of each parent to be
+    identical to that of the left-most child. This allows pathogen transmission
+    trees in which distinct vertical positions correspond to distinct hosts to be
+    drawn.
+
+    Note that selection of this layout disables node sorting, as in this case
+    the ordering of child nodes provided by the input file is assumed to be
+    significant.
+
 Edge colouring
 --------------
 
@@ -209,6 +243,9 @@ Error bars
 
 Axes
 ----
+
+Recombinant edges
+-----------------
 
 Searching taxa
 ==============

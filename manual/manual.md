@@ -400,6 +400,33 @@ The following style menu options apply specifically to "recombinant edges" and n
 Time Axis
 ---------
 
+When a tree layout other than "Cladogram" is selected (i.e. Standard Time Tree
+or Transmission Tree), the horizontal position of nodes corresponds to the time
+at which the corresponding event occurred. These times are visible in the edge
+statistics box that appears when the mouse cursor is moved over individual
+edges. IcyTree can addiionally display a horizontal axis to make it easier to
+see at a glance when these events occurred. 
+
+To turn the axis on, select either "Age" or "Forwards Time" from the
+Style-&gt;Axis sub-menu. "Age" causes the numerical labels on the axis to
+increase from right to left (i.e. representing age *before* some chosen time)
+while "Forwards Time" causes the numbers to increase from left to right (i.e.
+representing time *after* some chosen time).
+
+In either case, the age/time of the most recent leaf on the tree (i.e. the node
+furthest to the right) defaults to zero.  This means that ages will by default
+represent ages before the most recent sample (which is often the present) but
+that selecting "Forward Time" will initially result in negative numbers increasing
+from the left and reaching zero at the most recent sample.
+
+IcyTree allows users to select a different time/age for the most recent sample by
+choosing Style-&gt;"Set axis offset".  This brings up a dialog box through which
+users can modify this value.
+
+### Log Scale
+
+
+
 General Style Options
 ---------------------
 

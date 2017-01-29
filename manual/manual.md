@@ -163,6 +163,36 @@ the table itself.
 **Note that you cannot pan or zoom if your mouse cursor is hovering over the
 edge description table.**
 
+Collapsing Clades
+-----------------
+
+Hovering over a tree edge and clicking the left mouse button will cause the
+clade/sub-tree descending from that edge to be "collapsed" - i.e., drawn as
+a triangle that occupies the same vertical space as a single leaf node.  This
+can be useful for large trees as a means to focus attention on the bulk structure
+of the tree.
+
+The clade collapse mechanism is also applicable to networks.  However, the
+concept of clade is not so easily defined in this case.  The present behaviour
+is to collapse only those descendants that do not descend from recombinant
+edges.
+
+Re-rooting Trees
+----------------
+
+While for the most part IcyTree is only intended for *viewing* rather than editing
+trees, it does allow users to select a new root position for the tree.  This is useful
+in situations where an inference procedure has produced an unrooted tree but where the presence
+of an outgroup allows the user to be certain of the true location of the root.
+
+To re-root a tree, simply hover the mouse cursor over an edge, and click the left mouse button
+while holding down the SHIFT key.  This produces a new root node exactly in the middle of the
+selected edge.
+
+The re-rooting can also be applied to networks.  However, in the case of timed
+networks the lengths of the recombinant edges cannot in general be preserved
+and in some circumstances may produce negative edge lengths.
+
 Visualization style
 ===================
 

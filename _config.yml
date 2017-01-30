@@ -1,0 +1,18 @@
+# Don't need Jekyll at all for IcyTree, but it makes it possible for me to
+# write the manual in Markdown, which is nice.  Liquid also lets me render
+# the manual both as a standalone web page and as a div to be shown in a
+# jqueryui dialog.
+
+title: IcyTree
+email: tgvaughan@gmail.com
+description: description
+
+# Generally a bad idea, but manual.md is the only file we include.
+includes_dir: ./manual
+
+# Build settings
+markdown: kramdown
+
+exclude:
+  - Gemfile
+  - Gemfile.lock

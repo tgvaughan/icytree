@@ -32,6 +32,10 @@ var controlsHidden = false;
 
 var layout;
 
+// Stop jqueryui dialogs from focussing first link.
+$.ui.dialog.prototype._focusTabbable = $.noop;
+
+
 // Page initialisation code:
 $(document).ready(function() {
 
@@ -196,11 +200,11 @@ $(document).ready(function() {
 
     $("#helpMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
-            case "helpTreeNav":
-                $("#navHelp").dialog("open");
-                break;
             case "helpShortcuts":
                 $("#shortcutHelp").dialog("open");
+                break;
+            case "helpManual":
+                $("#manual").dialog("open");
                 break;
             case "helpAbout":
                 $("#about").dialog("open");
@@ -216,6 +220,7 @@ $(document).ready(function() {
         modal: true,
         width: 500,
         height: 400,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Done: function() {
                 treeData = $(this).find("textArea").val();
@@ -235,25 +240,11 @@ $(document).ready(function() {
         loadFile();
     });
 
-    $("#multiSVGDialog").dialog({
-        autoOpen: false,
-        modal: true,
-        width: 400,
-        height: 300,
-        buttons: {
-            Export: function() {
-                exportSVGMulti($("#multiSVGspinner").spinner().spinner("value"));
-                $(this).dialog("close");
-            },
-        Cancel: function() {
-            $(this).dialog("close");
-        }}
-    });
-
     $("#axisOffsetDialog").dialog({
         autoOpen: false,
         modal: true,
         width: 400,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Ok: function() {
                 TreeStyle.axisOffset = Number($("#axisOffsetInput").val());
@@ -269,6 +260,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: false,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Search: function() {
 
@@ -368,19 +360,26 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        height: 500,
+        open: function() { $(this).parent().focus(); },
         buttons: {
             Ok: function() {
                 $(this).dialog("close");
             }}
     });
 
-    $("#navHelp").dialog({
+    $("#manual").dialog({
         autoOpen: false,
-        modal: true,
+        modal: false,
         width: 450,
+        height: 500,
+        open: function(){$(this).parent().focus();},
         buttons: {
-            Ok: function() {
+            Close: function() {
                 $(this).dialog("close");
+            },
+            "Open in new window": function () {
+                window.open("manual/", "new");
             }}
     });
 
@@ -388,6 +387,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             Ok: function() {
                 $(this).dialog("close");
@@ -398,6 +398,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             "I understand": function() {
                 $(this).dialog("close");
@@ -408,6 +409,7 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
+        open: function(){$(this).parent().focus();},
         buttons: {
             "Continue anyway": function() {
                 $(this).dialog("close");
@@ -945,63 +947,20 @@ function exportSVG() {
     if (currentTreeIdx>=trees.length || currentTreeIdx<0)
         return false;
 
-    var blob = new Blob([$("#output").html()], {type: "image/svg+xml"});
-    saveAs(blob, "tree.svg");
-}
-
-function exportSVGMulti(pages) {
-    if (currentTreeIdx>=trees.length || currentTreeIdx<0)
-        return false;
-
     var svgEl = $("#output > svg")[0];
 
-    // Get full width and height
-    var width = svgEl.getAttribute("width");
-    var height = svgEl.getAttribute("height");
+    $("#output #backgroundRect").attr("x", svgEl.viewBox.baseVal.x);
+    $("#output #backgroundRect").attr("y", svgEl.viewBox.baseVal.y);
+    $("#output #backgroundRect").attr("width", svgEl.viewBox.baseVal.width);
+    $("#output #backgroundRect").attr("height", svgEl.viewBox.baseVal.height);
 
-    // Height to use for each page
-    var imageHeight = height/pages;
+    var blob = new Blob([$("#output").html()], {type: "image/svg+xml"});
+    saveAs(blob, "tree.svg");
 
-    // Record current viewbox
-    var vbx = svgEl.viewBox.baseVal.x;
-    var vby = svgEl.viewBox.baseVal.y;
-    var vbwidth = svgEl.viewBox.baseVal.width;
-    var vbheight = svgEl.viewBox.baseVal.height;
-
-    // Record current zoom:
-    var zoomFactorX = ZoomControl.zoomFactorX;
-    var zoomFactorY = ZoomControl.zoomFactorY;
-
-    // Initialise viewbox and zoom for images
-    var newvbx = 0;
-    var newvbwidth = width;
-    var newvbheight = imageHeight;
-    ZoomControl.zoomFactorX = 1;
-    ZoomControl.zoomFactorY = pages;
-
-    for (var i=0; i<pages; i++) {
-
-        // Set viewbox location
-        var newvby = i*imageHeight;
-
-        // Update viewbox
-        svgEl.setAttribute("viewBox", newvbx + " " + newvby + " " +
-                           newvbwidth + " " + newvbheight);
-
-        // Hack to ensure text looks okay
-        ZoomControl.updateTextScaling();
-
-        // Save image
-        var blob = new Blob([$("#output").html()], {type: "image/svg+xml"});
-        saveAs(blob, "tree_part" + i + ".svg");
-    }
-
-    // Revert to original viewbox and zoom
-    svgEl.setAttribute("viewBox", vbx + " " + vby + " " +
-                       vbwidth + " " + vbheight);
-    ZoomControl.zoomFactorX = zoomFactorX;
-    ZoomControl.zoomFactorY = zoomFactorY;
-    ZoomControl.updateTextScaling();
+    $("#output #backgroundRect").attr("x", 0);
+    $("#output #backgroundRect").attr("y", 0);
+    $("#output #backgroundRect").attr("width", 0);
+    $("#output #backgroundRect").attr("height", 0);
 }
 
 // Export trees to file in Newick format

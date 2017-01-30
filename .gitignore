@@ -1,0 +1,6 @@
+# Jekyll stuff
+/_site
+Gemfile.lock
+
+# Ignore examples dir for now
+/examples

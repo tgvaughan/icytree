@@ -1,3 +1,5 @@
+---
+---
 <!doctype html>
 <html>
     <head>
@@ -26,6 +28,9 @@
         <!-- App-specific styling and code -->
         <script src="js/icytree.js"></script>
         <link rel="stylesheet" type="text/css" href="css/icytree.css"></link>
+
+        <!-- MathJax for manual -->
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
 
         <link rel="shortcut icon" href="images/icytree.ico"></link>
 
@@ -72,7 +77,7 @@ ga('send', 'pageview');
 
             <li><button>Style</button>
                 <ul id="styleMenu">
-                    <li title="Alter ordering of child nodes.">Node sorting/layout
+                    <li title="Alter ordering of child nodes.">Node sorting
                         <ul id="styleSort">
                             <li title="Sort nodes in DECREASING order of clade size."><span class="ui-icon ui-icon-check"></span>Sorted (descending)</li>
                             <li title="Sort nodes in INCREASING order of clade size.">Sorted (ascending)</li>
@@ -91,12 +96,6 @@ ga('send', 'pageview');
                         <span class="ks">'</span>
                     </li>
                     <li>--</li>
-                    <li title="Colour edges based on chosen attribute.">Colour edges by
-                        <ul id="styleColourTrait">
-                            <li>None<span class="ui-icon ui-icon-check"></li>
-                        </ul>
-                        <span class="ks">c</span>
-                    </li>
                     <li title="Select attribute used to label leaf nodes.">Tip text
                         <ul id="styleTipTextTrait">
                             <li>None</li>
@@ -111,11 +110,11 @@ ga('send', 'pageview');
                         </ul>
                         <span class="ks">i</span>
                     </li>
-                    <li title="Select attribute containing node height credible interval.">Node height error bars
-                        <ul id="styleNodeBarTrait">
-                            <li>None<span class="ui-icon ui-icon-check"></span></li>
+                    <li title="Colour edges based on chosen attribute.">Colour edges by
+                        <ul id="styleColourTrait">
+                            <li>None<span class="ui-icon ui-icon-check"></li>
                         </ul>
-                        <span class="ks">b</span>
+                        <span class="ks">c</span>
                     </li>
                     <li title="Select attribute determining opacity of tree edges.">Edge opacity
                         <ul id="styleEdgeOpacityTrait">
@@ -126,7 +125,17 @@ ga('send', 'pageview');
                     <li title="Explicitly mark nodes having a single child edge." id="styleMarkSingletons">Mark singletons
                         <span class="ks">m</span>
                     </li>
+                    <li title="Select attribute containing node height credible interval.">Node height error bars
+                        <ul id="styleNodeBarTrait">
+                            <li>None<span class="ui-icon ui-icon-check"></span></li>
+                        </ul>
+                        <span class="ks">b</span>
+                    </li>
                    <li>--</li>
+                    <li title="Display or hide recombinant edges."
+                        id="styleDisplayRecomb"><span class="ui-icon ui-icon-check"></span>Display rec. edges
+                        <span class="ks">d</span>
+                    </li>
                     <li title="Select attribute used to label recombinant edges.">Rec. edge text
                         <ul id="styleRecombTextTrait">
                             <li>None<span class="ui-icon ui-icon-check"></span></li>
@@ -140,10 +149,6 @@ ga('send', 'pageview');
                         </ul>
                         <span class="ks">p</span>
                     </li>
-                    <li title="Display or hide recombinant edges."
-                        id="styleDisplayRecomb"><span class="ui-icon ui-icon-check"></span>Display rec. edges
-                        <span class="ks">d</span>
-                    </li>
                     <li title="Display parents of recombinant edges inline with their non-recombinant descendents."
                         id="styleInlineRecomb">Inline rec. edges
                         <span class="ks">w</span>
@@ -152,7 +157,25 @@ ga('send', 'pageview');
                         id="styleMinRecombLength"><span class="ui-icon ui-icon-check"></span>Rec. length minimize
                         <span class="ks">f</span>
                     </li>
+
                     <li>--</li>
+
+                    <li title="Options determining display of horizontal axis.">Axis
+                        <ul id="styleAxis" class="subsub">
+                            <li title="Don't display an axis."><span class="ui-icon ui-icon-check"></span>None</li>
+                            <li title="Display axis for node ages (times before youngest sample).">Age</li>
+                            <li title="Display forward-time axis">Forwards time</li>
+                        </ul>
+                        <span class="ks">a</span>
+                    </li>
+                    <li title="Select age or time of most recent sample. Affects numeric values displayed on axis."
+                        id="styleSetAxisOffset">Set axis offset...</li>
+                    <li title="Display legend for edge colours."
+                        id="styleDisplayLegend">Display legend<span class="ks">g</span></li>
+                    <li title="Display node heights on offset log scale." id="styleLogScale">Log scale<span class="ks">s</span></li>
+
+                    <li>--</li>
+
                     <li title="Alter width of lines used to represent tree edges.">Edge width
                         <ul id="styleEdgeWidth" class="subsub">
                             <li><span class="ui-icon ui-icon-plus"></span>Increase
@@ -187,20 +210,6 @@ ga('send', 'pageview');
                     </li>
                     <li title="Use anti-aliased lines for drawing tree edges.  (Can make densely-packed tree edges easier to resolve.)"
                         id="styleAntiAlias">Anti-alias</li>
-                    <li>--</li>
-                    <li title="Options determining display of horizontal axis.">Axis
-                        <ul id="styleAxis" class="subsub">
-                            <li title="Don't display an axis."><span class="ui-icon ui-icon-check"></span>None</li>
-                            <li title="Display axis for node ages (times before youngest sample).">Age</li>
-                            <li title="Display forward-time axis">Forwards time</li>
-                        </ul>
-                        <span class="ks">a</span>
-                    </li>
-                    <li title="Select age or time of most recent sample. Affects numeric values displayed on axis."
-                        id="styleSetAxisOffset">Set axis offset...</li>
-                    <li title="Display legend for edge colours."
-                        id="styleDisplayLegend">Display legend<span class="ks">g</span></li>
-                    <li title="Display node heights on offset log scale." id="styleLogScale">Log scale<span class="ks">s</span></li>
                 </ul>
             </li>
 
@@ -217,10 +226,10 @@ ga('send', 'pageview');
 
             <li><button>Help</button>
                 <ul id="helpMenu">
-                    <li title="Information on how to explore trees."
-                        id="helpTreeNav">Tree navigation...</li>
                     <li title="Display full list of keyboard shortcuts."
                         id="helpShortcuts">Keyboard shortcuts...<span class="ks">?</span></li>
+                    <li title="Open IcyTree manual."
+                        id="helpManual">Online Manual...</li>
                     <li title="What is IcyTree?"
                         id="helpAbout">About IcyTree...</li>
                 </ul>
@@ -315,35 +324,8 @@ ga('send', 'pageview');
             Annotation key: <input type="text" id="searchAnnotationKey" value="HIGHLIGHT"></input><br/>
         </div>
 
-        <!-- Panning and zooming help -->
-        <div id="navHelp" title="Tree navigation">
-            <h3>Zooming</h3>
-            <p>To zoom in or out on a section of a tree, simply hover the mouse cursor
-            over the portion you're interested in and scroll "up" or "down"
-            respectively on your mouse's scroll wheel.</p>
-
-            <h3>Horizontal/Vertical Zooming</h3>
-            <p>To zoom in the horizontal or vertical directions only, hold
-            down CTRL or SHIFT while scrolling.</p>
-
-            <h3>Log scale stretching</h3>
-            <p>Hold down ALT while scrolling with the log scale activated to change the
-            offset used at the base of the tree. (Just try it.)</p>
-
-            <h3>Panning</h3>
-            <p>To pan over a zoomed tree, simply click and drag.</p>
-
-            <h3>Tree edge table</h3>
-            <p>Hovering over a tree edge will cause a table to appear
-            describing that edge.  The table will vanish when your mouse
-            leaves the edge, but not if you hover over the table itself.</p>
-
-            <b>Note that you cannot pan or zoom if your mouse cursor is
-                hovering over edge description table.</b>
-        </div>
-
         <!-- Keyboard shortcut help -->
-        <div id="shortcutHelp" title="Keyboard shortcuts">
+        <div id="shortcutHelp" class="dialog" title="Keyboard shortcuts">
             <table>
                 <tr><th>Key</th> <th>Action</th></tr>
                 <tr><td>e</td> <td>Enter trees directly</td></tr>
@@ -376,7 +358,7 @@ ga('send', 'pageview');
 
 
         <!-- About box -->
-        <div id="about" title="About IcyTree">
+        <div id="about" class="dialog" title="About IcyTree">
             <img src="images/icytree.png"/>
             <p>This is a browser-based phylogenetic tree viewer. It is
             intended for rapid visualisation of phylogenetic tree files such as
@@ -403,7 +385,7 @@ ga('send', 'pageview');
         </div>
 
         <!-- Browser warning -->
-        <div class="warning" id="warning" title="Warning">
+        <div class="warning dialog" id="warning" title="Warning">
             <img src="images/alert.png"/>
             <p>This browser does not support all of the features IcyTree
             requires.  While we are working to improve cross-browser
@@ -416,7 +398,7 @@ ga('send', 'pageview');
         </div>
 
         <!-- Firefox warning -->
-        <div class="warning" id="FFwarning" title="Warning">
+        <div class="warning dialog" id="FFwarning" title="Warning">
             <img src="images/alert.png"/>
             <p>The latest version of Firefox introduces a change in the
             JavaScript API that breaks IcyTree's ability to reload tree
@@ -427,6 +409,12 @@ ga('send', 'pageview');
             <p>In the meantime, if one-key file reloading is important for you,
             you might want to consider using IcyTree via an alternative browser
             (e.g. Chrome).</p>
+        </div>
+
+        <!-- Manual -->
+        <div class="dialog" id="manual" title="Online Manual" tabindex="-1">
+            {% capture x %}{% include manual.md %}{% endcapture %}
+            {{x | markdownify}}
         </div>
 
     </body>

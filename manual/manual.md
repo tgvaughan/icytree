@@ -425,7 +425,32 @@ users can modify this value.
 
 ### Log Scale
 
+It is often the case, particularly with gene trees that are drawn from something similar
+to a coalescent distribution, that the vast majority of the internal nodes of the tree
+are in the very recent past and only a handful of nodes are much older.  In such cases,
+placing the tree on a linear time scale can make it difficult to simultaneously see the
+overall structure of the tree in a single window.
 
+To address this problem, IcyTree can use something akin to a logarithmic scale
+to position nodes on time trees, with the horizontal distance between the node
+and the most recent sample being proportional to the logarithm of the sum of
+the time difference and some offset. That is,
+
+$$ \delta x \propto \log(\delta t + \omega) $$
+
+where $$\delta x$$ is the horizontal distance between a point on the tree and the most
+recent sample (youngest leaf), $$\delta t$$ is the corresponding time difference and
+$$\omega$$ is a positive offset.  The offset is included to allow the most recent sample
+to be included in the figure, and its magnitude determines how much the transformation
+affects the tree shape with smaller values of $$\omega$$ resulting in a stronger magnifying
+effect on the recent portions of the tree.
+
+To switch this mode on or off, select Style-&gt;"Log scale".  To adjust the offset
+value, hold down the Alt key while moving the mouse wheel. Moving the scroll wheel
+"up" reduces the offset and increases the strength of the transformation, while
+moving it "down" increases the offset and reduces the strength of the transformation.
+
+By far the best way to get an understanding of this options is to try it out!
 
 General Style Options
 ---------------------
@@ -464,3 +489,32 @@ The final set of Style options apply more generally. It includes the following o
 Searching taxa
 ==============
 
+IcyTree provides a simple mechanism for searching for leaf nodes with
+particular attribute values.
+
+To perform a search, choose "Find nodes" from the "Search" menu.  This will
+display a dialog box that allows you to enter a comma-delimited list of strings
+to search for.  (Leaf nodes with an attribute value matching one or more of
+these strings are interpreted as matching the search criterion.) Then, select a
+specific attribute to search from the drop-down menu.  Finally, choose whether
+the entire attribute value must match the search string and whether the search
+will be case-sensitive.
+
+You can also choose how to represent the search resuls. The default is to
+highlight the edges immediately ancestral to matching nodes. You can also
+choose to higlight all ancestral edges or only those that form monophyletic
+clades.
+
+Pressing the Search button will then perform the search and display the results.
+Note that results are encoded in the tree by adding an annotation to matching nodes and
+edges.  The name of this annotation is HIGHLIGHT by default but can be changed using
+the corresponding text field in the search dialog.
+
+The results of a search can be cleared by clicking the Clear button on the search
+dialog or by selecting "Clear search results" from the Search menu.
+
+Keyboard shortcuts
+==================
+
+Almost all options and commands in IcyTree can be accessed directly via
+keyboard shortcuts.

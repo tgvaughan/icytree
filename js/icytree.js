@@ -360,7 +360,8 @@ $(document).ready(function() {
         autoOpen: false,
         modal: true,
         width: 450,
-        open: function(){$(this).parent().focus();},
+        height: 500,
+        open: function() { $(this).parent().focus(); },
         buttons: {
             Ok: function() {
                 $(this).dialog("close");

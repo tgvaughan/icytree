@@ -1,7 +1,7 @@
 Introduction
 ============
 
-IcyTree is a browser-based phylognetic tree viewer intended for rapid
+IcyTree is a browser-based phylogenetic tree viewer intended for rapid
 visualization of phylogenetic trees and networks. While originally intended for
 the visualization of rooted time trees such as those inferred by Bayesian
 inference packages such as BEAST and MrBayes, IcyTree can be used to visualize
@@ -404,7 +404,7 @@ When a tree layout other than "Cladogram" is selected (i.e. Standard Time Tree
 or Transmission Tree), the horizontal position of nodes corresponds to the time
 at which the corresponding event occurred. These times are visible in the edge
 statistics box that appears when the mouse cursor is moved over individual
-edges. IcyTree can addiionally display a horizontal axis to make it easier to
+edges. IcyTree can additionally display a horizontal axis to make it easier to
 see at a glance when these events occurred. 
 
 To turn the axis on, select either "Age" or "Forwards Time" from the
@@ -500,9 +500,9 @@ specific attribute to search from the drop-down menu.  Finally, choose whether
 the entire attribute value must match the search string and whether the search
 will be case-sensitive.
 
-You can also choose how to represent the search resuls. The default is to
+You can also choose how to represent the search results. The default is to
 highlight the edges immediately ancestral to matching nodes. You can also
-choose to higlight all ancestral edges or only those that form monophyletic
+choose to highlight all ancestral edges or only those that form monophyletic
 clades.
 
 Pressing the Search button will then perform the search and display the results.
@@ -517,4 +517,28 @@ Keyboard shortcuts
 ==================
 
 Almost all options and commands in IcyTree can be accessed directly via
-keyboard shortcuts.
+keyboard shortcuts. These shortcut keys (if available) are displayed to the
+right of each menu item.
+
+There are two types of keyboard shortcut:
+
+1. Those corresponding to menu items **without** a sub-menu.
+
+    Pressing the shortcut key is in this case equivalent to selecting the
+    corresponding item from the menu. For instance, the "g" key toggles
+    the edge colour legend on or off just as selecting "Display legend" from the
+    file menu does.
+
+2. Those corresponding to menu items **with** a sub-menu.
+
+    Pressing the shortcut key in this case causes IcyTree to cycle the
+    selected element in the sub-menu. For instance, the "c" key causes
+    the next attribute in the Style-&gt;"Colour edges by" menu to be used
+    to colour tree edges.
+
+    Additionally, holding down SHIFT while pressing the shortcut causes IcyTree
+    to select the *previous* element in the sub-menu. So pressing SHIFT+c causes
+    the previous attribute in the Style-&gt;"Colour edges by" menu to be selected.
+
+A complete list of keyboard shortcuts can be seen by choosing
+Help-&gt;"Keyboard shortcuts".

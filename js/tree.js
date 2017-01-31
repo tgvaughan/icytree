@@ -163,7 +163,6 @@ Tree.prototype.computeNodeAges = function() {
         this.getNodeList()[i].height -= youngestHeight;
 };
 
-
 // Assign new node IDs (use with care!)
 Tree.prototype.reassignNodeIDs = function() {
     var nodeID = 0;
@@ -171,7 +170,13 @@ Tree.prototype.reassignNodeIDs = function() {
         this.getNodeList()[i].id = nodeID++;
 };
 
-
+// Clear various node caches:
+Tree.prototype.clearCaches = function() {
+    this.nodeList = undefined;
+    this.nodeIDMap = undefined;
+    this.leafList = undefined;
+    this.recombEdgeMap = undefined;
+};
 
 // Retrieve list of nodes in tree.
 // (Should maybe use accessor function for this.)
@@ -183,6 +188,19 @@ Tree.prototype.getNodeList = function() {
     }
 
     return this.nodeList;
+};
+
+// Obtain node having given string representation:
+Tree.prototype.getNode = function(nodeID) {
+    if (this.nodeIDMap === undefined && this.root !== undefined) {
+        this.nodeIDMap = {};
+        for (var i=0; i<this.getNodeList().length; i++) {
+            var node = this.getNodeList()[i];
+            this.nodeIDMap[node] = node;
+        }
+    }
+
+    return this.nodeIDMap[nodeID];
 };
 
 // Retrieve list of leaves in tree, in correct order.
@@ -413,13 +431,12 @@ Tree.prototype.reroot = function(edgeBaseNode) {
     }
 
     // Clear out-of-date leaf and node lists
-    this.leafList = undefined;
-    this.nodeList = undefined;
+    this.clearCaches();
 
     // Recompute node ages
     this.computeNodeAges();
 
-    this.recombEdgeMap = undefined;
+    // Create new node IDs:
     this.reassignNodeIDs();
 
     // Ensure destNode leaf heights match those of corresponding srcNodes
@@ -473,16 +490,6 @@ Tree.prototype.translate = function(tmap) {
         if (tmap.hasOwnProperty(nodeList[i].label))
             nodeList[i].label = tmap[nodeList[i].label];
     }
-};
-
-// Obtain node having given string representation:
-Tree.prototype.getNode = function(nodeId) {
-    var nodeList = this.getNodeList();
-    for (var i=0; i<nodeList.length; i++) {
-        if (nodeList[i].toString() == nodeId)
-            return nodeList[i];
-    }
-    return undefined;
 };
 
 // Obtain (extended) Newick representation of tree (network):

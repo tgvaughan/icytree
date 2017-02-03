@@ -1,11 +1,12 @@
 Introduction
 ============
 
-IcyTree is a browser-based phylogenetic tree viewer intended for rapid
-visualization of phylogenetic trees and networks. While originally intended for
-the visualization of rooted time trees such as those inferred by Bayesian
-inference packages such as BEAST and MrBayes, IcyTree can be used to visualize
-any rooted tree which is provided in a supported format.
+[IcyTree](https://tgvaughan.github.io/icytree) is a browser-based phylogenetic
+tree viewer intended for rapid visualization of phylogenetic trees and
+networks. While originally intended for the visualization of rooted time trees
+such as those inferred by Bayesian inference packages such as BEAST and
+MrBayes, IcyTree can be used to visualize any rooted tree which is provided in
+a supported format.
 
 In addition, IcyTree can be used to produce visualizations of phylogenetic
 networks represented using the Extended Newick format.
@@ -450,7 +451,7 @@ value, hold down the Alt key while moving the mouse wheel. Moving the scroll whe
 "up" reduces the offset and increases the strength of the transformation, while
 moving it "down" increases the offset and reduces the strength of the transformation.
 
-By far the best way to get an understanding of this options is to try it out!
+The best way to get an understanding of these options is to try them out!
 
 General Style Options
 ---------------------

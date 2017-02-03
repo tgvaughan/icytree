@@ -492,64 +492,6 @@ Tree.prototype.translate = function(tmap) {
     }
 };
 
-// Obtain (extended) Newick representation of tree (network):
-Tree.prototype.getNewick = function(annotate) {
-
-    if (annotate === undefined)
-        annotate = false;
-
-    function newickRecurse(node) {
-        var res = "";
-        if (!node.isLeaf()) {
-            res += "(";
-            for (var i=0; i<node.children.length; i++) {
-                if (i>0)
-                    res += ",";
-                res += newickRecurse(node.children[i]);
-            }
-            res += ")";
-        }
-
-        if (node.label !== undefined)
-            res += "\"" + node.label + "\"";
-
-        if (node.hybridID !== undefined)
-            res += "#" + node.hybridID;
-
-        if (annotate) {
-            var keys = Object.keys(node.annotation);
-            if (keys.length>0) {
-                res += "[&";
-                for (var idx=0; idx<keys.length; idx++) {
-                    var key = keys[idx];
-
-                    if (idx>0)
-                        res += ",";
-                    res += "\"" + key + "\"=";
-                    if (node.annotation[key] instanceof Array)
-                        res += "{" + String(node.annotation[key]) + "}";
-                    else
-                        res += "\"" + node.annotation[key] + "\"";
-                }
-                res += "]";
-            }
-        }
-
-        if (node.branchLength !== undefined)
-            res += ":" + node.branchLength;
-        else
-            res += ":0.0";
-
-        return res;
-    }
-
-    var newickStr = "";
-    if (this.root !== undefined)
-        newickStr += newickRecurse(this.root);
-
-    return (newickStr + ";");
-};
-
 // Get total length of all edges in tree
 Tree.prototype.getLength = function() {
     var totalLength = 0.0;

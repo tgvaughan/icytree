@@ -117,11 +117,11 @@ $(document).ready(function() {
                 break;
 
             case "fileExportNewick":
-                exportNewick();
+                exportTreeFile("newick");
                 break;
 
             case "fileExportNEXUS":
-                exportNEXUS();
+                exportTreeFile("nexus");
                 break;
 
             default:
@@ -963,27 +963,41 @@ function exportSVG() {
     $("#output #backgroundRect").attr("height", 0);
 }
 
-// Export trees to file in Newick format
-function exportNewick() {
+function exportTreeFile(format) {
     if (currentTreeIdx>=trees.length || currentTreeIdx<0)
         return false;
 
-    var newickStr = trees[currentTreeIdx].getNewick() + "\n";
-    var blob = new Blob([newickStr], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "tree.newick");
+    var treeString, extension;
+
+    switch (format) {
+        case "newick":
+            treeString = Write.newick(trees[currentTreeIdx]) + "\n";
+            extension = "newick";
+            break;
+
+        case "nexus":
+            treeString = Write.nexus(trees[currentTreeIdx]) + "\n";
+            extension = "nexus";
+            break;
+
+        case "phyloxml":
+            treeString = Write.phyloXML(trees[currentTreeIdx]) + "\n";
+            extension = "xml";
+            break;
+
+        case "nexml":
+            treeString = Write.neXML(trees[currentTreeIdx]) + "\n";
+            extension = "xml";
+            break;
+
+        default:
+            throw "Unknown tree file format for export.";
+    }
+
+    var blob = new Blob([treeString], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "tree." + extension);
 }
 
-// Export trees to file in NEXUS format
-function exportNEXUS() {
-    if (currentTreeIdx>=trees.length || currentTreeIdx<0)
-        return false;
-
-    var nexusStr = "#nexus\n\nbegin trees;\ntree tree_1 = [&R] " +
-        trees[currentTreeIdx].getNewick(true) + "\n" + "end;\n";
-
-    var blob = new Blob([nexusStr], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "tree.nexus");
-}
 
 // Update display according to current tree model and display settings
 function update() {

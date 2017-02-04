@@ -125,15 +125,18 @@ conversion into other formats such as PDF, PNG, etc.
 Saving tree files
 -----------------
 
-In addition to exporting graphics, IcyTree can export trees as Newick or NEXUS
-files using File-&gt;"Export tree as"-&gt;"Newick file" or File-&gt;"Export
-tree as"-&gt;"NEXUS file", respectively. Note that the Newick export conforms
-strictly to the (Extended) Newick format - additional node annotations will not
-be included in the generated file. The NEXUS file export produces a file which
-includes BEAST-style node annotations.
+In addition to exporting graphics, IcyTree can export trees as Newick, NEXUS,
+PhyloXML or NeXML using the remaining items in the File-&gt;"Export tree as"
+menu.  Note that the Newick export conforms strictly to the (Extended) Newick
+format - additional node annotations will not be included in the generated
+file. All other formats support annoations. (NEXUS file export produces a file
+which includes BEAST-style node annotations).
+
+Note that networks can only be exported using the Newick/NEXUS formats.
 
 In the case that multiple trees are loaded, only the tree currently visible is
 exported.
+
 
 Exploring trees
 ===============

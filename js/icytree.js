@@ -975,26 +975,35 @@ function exportTreeFile(format) {
     if (currentTreeIdx>=trees.length || currentTreeIdx<0)
         return false;
 
+    var tree = trees[currentTreeIdx];
+
+    format = format.toLowerCase();
+
+    if (tree.isNetwork && format !== "newick" && format !== "nexus") {
+        displayError("Can only export networks using Newick or NEXUS");
+        return false;
+    }
+
     var treeString, extension;
 
     switch (format) {
         case "newick":
-            treeString = Write.newick(trees[currentTreeIdx]) + "\n";
+            treeString = Write.newick(tree) + "\n";
             extension = "newick";
             break;
 
         case "nexus":
-            treeString = Write.nexus(trees[currentTreeIdx]) + "\n";
+            treeString = Write.nexus(tree) + "\n";
             extension = "nexus";
             break;
 
         case "phyloxml":
-            treeString = Write.phyloXML(trees[currentTreeIdx]) + "\n";
+            treeString = Write.phyloXML(tree) + "\n";
             extension = "xml";
             break;
 
         case "nexml":
-            treeString = Write.neXML(trees[currentTreeIdx]) + "\n";
+            treeString = Write.neXML(tree) + "\n";
             extension = "xml";
             break;
 

@@ -128,7 +128,7 @@ $(document).ready(function() {
                 exportTreeFile("phyloxml");
                 break;
 
-            case "fileExportNEXUS":
+            case "fileExportNeXML":
                 exportTreeFile("nexml");
                 break;
 

@@ -431,14 +431,18 @@ TreeFromPhyloXML.prototype.constructor = TreeFromPhyloXML;
 
 // TreeFromNeXML constructor
 
+var neXMLNS = "http://www.nexml.org/2009";
+
 function TreeFromNeXML(treeElement) {
 
     var thisNodeID = 0;
 
-    var nodeElements = treeElement.getElementsByTagName("node");
-    var edgeElements = treeElement.getElementsByTagName("edge");
+    var nodeElements = treeElement.getElementsByTagNameNS(neXMLNS, "node");
+    var edgeElements = treeElement.getElementsByTagNameNS(neXMLNS, "edge");
 
     var root;
+
+    var metaElements, metaEl, midx;
 
     var nodesByID = {};
     for (var nidx=0; nidx < nodeElements.length; nidx++) {
@@ -449,6 +453,14 @@ function TreeFromNeXML(treeElement) {
 
         if (nodeEl.getAttribute("root") === "true")
             root = node;
+
+        metaElements = nodeEl.getElementsByTagNameNS(neXMLNS, "meta");
+        for (midx=0; midx < metaElements.length; midx++) {
+            metaEl = metaElements[midx];
+
+            if (metaEl.hasAttribute("property") && metaEl.hasAttribute("content"))
+                node.annotation[metaEl.getAttribute("property")] = metaEl.getAttribute("content");
+        }
     }
 
     if (root === undefined)
@@ -460,12 +472,21 @@ function TreeFromNeXML(treeElement) {
         var child = nodesByID[edgeEl.getAttribute("target")];
 
         parent.addChild(child);
-        child.branchLength = edgeEl.getAttribute("length");
+        if (edgeEl.hasAttribute("length"))
+            child.branchLength = edgeEl.getAttribute("length");
+
+        metaElements = edgeEl.getElementsByTagNameNS(neXMLNS, "meta");
+        for (midx=0; midx < metaElements.length; midx++) {
+            metaEl = metaElements[midx];
+
+            if (metaEl.hasAttribute("property") && metaEl.hasAttribute("content"))
+                node.annotation[metaEl.getAttribute("property")] = metaEl.getAttribute("content");
+        }
     }
 
     TreeBuilder.call(this, root);
 
-    var rootEdgeElements = treeElement.getElementsByTagName("rootedge");
+    var rootEdgeElements = treeElement.getElementsByTagNameNS(neXMLNS, "rootedge");
     if (rootEdgeElements.length>0)
         this.root.branchLength = rootEdgeElements[0].getAttribute("length")*1.0;
 
@@ -484,11 +505,11 @@ TreeFromNeXML.prototype.constructor = TreeFromNeXML;
 function getTreesFromNexML(dom) {
     var trees = [];
 
-    var treesBlocks = dom.getElementsByTagName("trees");
+    var treesBlocks = dom.getElementsByTagNameNS(neXMLNS, "trees");
     if (treesBlocks.length === 0)
         return [];
 
-    var treeElements = treesBlocks[0].getElementsByTagName("tree");
+    var treeElements = treesBlocks[0].getElementsByTagNameNS(neXMLNS, "tree");
 
     for (var i=0; i<treeElements.length; i++) {
         var treeEl = treeElements[i];
@@ -627,6 +648,7 @@ function getTreesFromString(string) {
                 trees = getTreesFromPhyloXML(dom);
                 break;
 
+            case "nexml":
             case "nex:nexml":
                 console.log("Parsing file as NeXML.");
                 trees = getTreesFromNexML(dom);

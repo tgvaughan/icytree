@@ -136,7 +136,93 @@ var Write = (function () {
         return new XMLSerializer().serializeToString(doc);
     }
 
+    var neXMLNS = "http://www.nexml.org/2009";
+    var xsiNS = "http://www.w3.org/2001/XMLSchema-instance";
+
+
+    function neXMLRecurse(node, doc, treeEl) {
+        var nodeEl = doc.createElementNS(neXMLNS, "node");
+
+        if (node.isRoot())
+            nodeEl.setAttribute("root", "true");
+
+        nodeEl.setAttribute("otu", "t" + node.id);
+        nodeEl.setAttribute("id", "n" + node.id);
+
+        if (node.label !== undefined && node.label !== "")
+            nodeEl.setAttribute("label", node.label);
+
+        if (Object.keys(node.annotation).length>0) {
+            nodeEl.setAttribute("about", "#n" + node.id);
+
+            var metaID = 0;
+            for (var key in node.annotation) {
+                var meta = doc.createElementNS(neXMLNS, "meta");
+                meta.setAttribute("datatype", "string");
+                meta.setAttribute("xsi:type", "nex:LiteralMeta");
+                meta.setAttribute("id", "n" + node.id + "_m" + metaID);
+                meta.setAttribute("property", key);
+                meta.setAttribute("content", node.annotation[key]);
+                metaID += 1;
+
+                nodeEl.appendChild(meta);
+            }
+        }
+
+        treeEl.appendChild(nodeEl);
+
+        for (var i=0; i<node.children.length; i++) {
+            var child = node.children[i];
+
+
+
+            var edgeEl = doc.createElementNS(neXMLNS, "edge");
+            edgeEl.setAttribute("id", "e" + child.id + "_" + node.id);
+            edgeEl.setAttribute("source", "n" + node.id);
+            edgeEl.setAttribute("target", "n" + child.id);
+
+            if (child.branchLength !== undefined)
+                edgeEl.setAttribute("length", child.branchLength);
+
+            treeEl.appendChild(edgeEl);
+            
+            neXMLRecurse(child, doc, treeEl);
+        }
+
+    }
+
     function neXMLWriter(tree) {
+        var doc = document.implementation.createDocument(neXMLNS, "nexml");
+
+        doc.documentElement.setAttribute("version", "0.9");
+        doc.documentElement.setAttribute("xmlns:nex", neXMLNS);
+        doc.documentElement.setAttribute("xmlns:xsi", xsiNS);
+
+        if (tree.root !== undefined) {
+
+            var otus = doc.createElementNS(neXMLNS, "otus");
+            otus.setAttribute("id", "taxa");
+            otus.setAttribute("label", "RootTaxaBlock");
+            for (var i=0; i<tree.getLeafList().length; i++) {
+                var otu = doc.createElementNS(neXMLNS, "otu");
+                otu.setAttribute("id", "t" + tree.getLeafList()[i].id);
+                otus.appendChild(otu);
+            }
+            doc.documentElement.appendChild(otus);
+
+            var trees = doc.createElementNS(neXMLNS, "trees");
+            trees.setAttribute("id", "trees");
+            trees.setAttribute("otus", "taxa");
+            doc.documentElement.appendChild(trees);
+
+            var treeEl = doc.createElementNS(neXMLNS, "tree");
+            treeEl.setAttribute("id", "tree1");
+            treeEl.setAttribute("xsi:type", "nex:FloatTree");
+            neXMLRecurse(tree.root, doc, treeEl);
+            trees.appendChild(treeEl);
+        }
+
+        return new XMLSerializer().serializeToString(doc);
     }
 
     return {

@@ -178,9 +178,9 @@ can be useful for large trees as a means to focus attention on the bulk structur
 of the tree.
 
 Holding down the Alt key while clicking on an edge produces a similar effect,
-but causes the clade to be replaced by a triangle that occupies the same
-vertical space as a *single* leaf node.  Again, this is useful for exploring
-the structure of large trees.
+but causes the clade to be "collapsed" - i.e. replaced by a triangle that
+occupies the same vertical space as a *single* leaf node.  Again, this is
+useful for exploring the structure of large trees.
 
 The clade collapse mechanism is also applicable to networks.  However, the
 concept of clade is not so easily defined in this case.  The present behaviour

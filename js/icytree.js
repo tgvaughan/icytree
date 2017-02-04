@@ -983,8 +983,8 @@ function exportTreeFile(format) {
     format = format.toLowerCase();
 
     if (tree.isNetwork && format !== "newick" && format !== "nexus") {
-        displayError("Can only export networks using Newick or NEXUS",
-                    "Could not export phylogeny!");
+        displayError("Use Newick or NEXUS",
+                    "Can't export network to " + format + "!");
         return false;
     }
 

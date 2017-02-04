@@ -1299,8 +1299,12 @@ var TreeModControl = {
         }).length === 0)
             return;
 
-        node.collapsed = !node.collapsed;
-        node.cartoon = useCartoon;
+        if (node.collapsed && !useCartoon) {
+            node.cartoon = !node.cartoon;
+        } else {
+            node.collapsed = !node.collapsed;
+            node.cartoon = useCartoon;
+        }
 
         update();
     },

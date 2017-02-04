@@ -182,10 +182,14 @@ but causes the clade to be "collapsed" - i.e. replaced by a triangle that
 occupies the same vertical space as a *single* leaf node.  Again, this is
 useful for exploring the structure of large trees.
 
+Clicking on an outlined/collapsed clade will restore the original representation
+of that clade.
+
 The clade collapse mechanism is also applicable to networks.  However, the
 concept of clade is not so easily defined in this case.  The present behaviour
 is to collapse only those descendants that do not descend from recombinant
-edges.
+edges. (See the Recombinant Edges section of the manual for a information on
+what is meant by "recombinant edge".)
 
 Re-rooting Trees
 ----------------

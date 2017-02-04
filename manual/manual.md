@@ -120,7 +120,11 @@ graphics can be easily exported using File-&gt;"Export tree as"-&gt;"SVG
 image".  Once exported, the graphic can be loaded into vector graphics editing
 programs such as [Inkscape](http://inkscape.org) or [Adobe
 Illustrator](http://adobe.com/products/illustrator) for modification and
-conversion into other formats such as PDF, PNG, etc.
+conversion into other vector graphics formats such as PDF and EPS.
+
+In addition, File-&gt;"Export tree as"-&gt;PNG/JPEG can be used to produce
+a bitmap image of the currently-displayed tree. Note that the resolution
+of the produced image is dependent on the current size of the browser window.
 
 Saving tree files
 -----------------

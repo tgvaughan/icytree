@@ -234,6 +234,18 @@ TreeLayout.prototype.getYoungestScaledHeight = function(descendents) {
     return youngest;
 };
 
+TreeLayout.prototype.getNLeafDescendents = function(descendents) {
+    var n = 0;
+
+    for (var i=0; i<descendents.length; i++) {
+        var descendent = descendents[i];
+        if (descendent.isLeaf() && !this.tree.isRecombDestNode(descendent))
+            n += 1;
+    }
+
+    return n;
+}
+
 // Standard tree layout
 
 function StandardTreeLayout(tree) {
@@ -254,37 +266,76 @@ StandardTreeLayout.prototype = Object.create(TreeLayout.prototype);
 StandardTreeLayout.prototype.constructor = StandardTreeLayout;
 
 StandardTreeLayout.prototype.positionLeaves = function() {
+
     var nLeafGroups = this.leafGroups.length;
+    var totalTreeWidth = 0;
+
     var leafGroupRoot;
+    var i,j;
+    var entry;
 
-    var delta = nLeafGroups>1 ? 0.24/(nLeafGroups-1) : 0.24;
-
-    for (var i=0; i<nLeafGroups; i++) {
+    for (i=0; i<nLeafGroups; i++) {
         leafGroupRoot = this.leafGroups[i][0];
 
-        var xpos = nLeafGroups>1 ? i/(nLeafGroups-1) : 0.5;
-
-        var entry = [xpos, this.getScaledNodeHeight(leafGroupRoot)];
+        entry = [totalTreeWidth, this.getScaledNodeHeight(leafGroupRoot)];
 
         if (this.leafGroups[i].length>1) {
             var descendents = this.leafGroups[i][1];
             var youngest = this.getYoungestScaledHeight(descendents);
 
-            entry.push(xpos-delta);
-            entry.push(youngest);
-            entry.push(xpos+delta);
-            entry.push(youngest);
+            if (leafGroupRoot.cartoon) {
+                nLeafDescendents = this.getNLeafDescendents(descendents);
+                entry.push(totalTreeWidth-0.24);
+                entry.push(youngest);
+                entry.push(totalTreeWidth + nLeafDescendents-1+0.24);
+                entry.push(youngest);
 
-            for (var j=0; j<descendents.length; j++) {
+                entry[0] = totalTreeWidth + (nLeafDescendents-1)/2;
+
+                totalTreeWidth += nLeafDescendents;
+            } else {
+                entry.push(totalTreeWidth-0.24);
+                entry.push(youngest);
+                entry.push(totalTreeWidth+0.24);
+                entry.push(youngest);
+
+                totalTreeWidth += 1;
+            }
+
+            for (j=0; j<descendents.length; j++) {
                 var descendent = descendents[j];
 
                 if (!this.tree.isRecombDestNode(descendent))
-                    this.nodePositions[descendent] = [xpos, this.getScaledNodeHeight(descendent)];
+                    this.nodePositions[descendent] = [entry[0], this.getScaledNodeHeight(descendent)];
             }
+        } else {
+            totalTreeWidth += 1;
         }
 
         this.nodePositions[leafGroupRoot] = entry;
     }
+
+    var xform;
+    if (totalTreeWidth > 1) {
+        xform = function(x) {
+            return x/(totalTreeWidth - 1);
+        };
+    } else  {
+        xform = function(x) {
+            return x + 0.5;
+        };
+    }
+
+    for (var nodeID in this.nodePositions) {
+        entry = this.nodePositions[nodeID];
+
+        entry[0] = xform(entry[0]);
+        if (entry.length>2) {
+            entry[2] = xform(entry[2]);
+            entry[4] = xform(entry[4]);
+        }
+    }
+
 };
 
 StandardTreeLayout.prototype.positionInternals = function(node) {
@@ -1148,7 +1199,7 @@ var TreeModControl = {
         this.svg = svg;
         this.layout = layout;
 
-        var handler = function(event) {
+        var clickHandler = function(event) {
             var nodeID = event.target.getAttribute("id");
             var node = layout.origTree.getNode(nodeID);
 
@@ -1157,18 +1208,18 @@ var TreeModControl = {
 
                 TreeModControl.reroot(node);
             } else {
-                // Collapse clade
+                // Toggle collapse
 
-                TreeModControl.collapse(node);
+                TreeModControl.collapse(node, !event.altKey);
             }
         };
 
         Array.from(svg.getElementsByClassName("treeEdge")).forEach(function(el) {
-            el.addEventListener("click", handler);
+            el.addEventListener("click", clickHandler);
         });
 
         Array.from(svg.getElementsByClassName("collapsedClade")).forEach(function(el) {
-            el.addEventListener("click", handler);
+            el.addEventListener("click", clickHandler);
         });
     },
 
@@ -1237,7 +1288,7 @@ var TreeModControl = {
         }
     },
 
-    collapse: function(node) {
+    collapse: function(node, useCartoon) {
         // Abort on leaf nodes
         if (node.isLeaf())
             return;
@@ -1249,6 +1300,7 @@ var TreeModControl = {
             return;
 
         node.collapsed = !node.collapsed;
+        node.cartoon = useCartoon;
 
         update();
     },

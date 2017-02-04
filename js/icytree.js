@@ -483,10 +483,12 @@ function updateMenuItems() {
             $("#styleAxis").closest("li").addClass("ui-state-disabled");
             $("#styleSetAxisOffset").addClass("ui-state-disabled");
             $("#styleLogScale").addClass("ui-state-disabled");
+            $("#styleNodeBarTrait").closest("li").addClass("ui-state-disabled");
         } else {
             $("#styleAxis").closest("li").removeClass("ui-state-disabled");
             $("#styleSetAxisOffset").removeClass("ui-state-disabled");
             $("#styleLogScale").removeClass("ui-state-disabled");
+            $("#styleNodeBarTrait").closest("li").removeClass("ui-state-disabled");
         }
 
         if (!trees[currentTreeIdx].isTimeTree) {
@@ -1096,13 +1098,8 @@ function update() {
 
     // Determine whether node bars are required:
     TreeStyle.nodeBarTrait = $("#styleNodeBarTrait span").parent().text();
-    switch (TreeStyle.nodeBarTrait) {
-        case "None":
-            TreeStyle.nodeBarTrait = undefined;
-            break;
-        default:
-            break;
-    }
+    if (TreeStyle.nodeBarTrait === "None" || itemToggledOn($("#styleLayoutCladogram")))
+        TreeStyle.nodeBarTrait = undefined;
 
     // Determine whether recombinant edge labels are required:
     TreeStyle.recombTextTrait = $("#styleRecombTextTrait span").parent().text();

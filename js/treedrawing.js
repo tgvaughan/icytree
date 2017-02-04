@@ -1313,11 +1313,8 @@ var EdgeStatsControl = {
 
         if (this.highlightedEdge === undefined) {
             this.highlightedEdge = event.target;
-            var curStrokeWidth = Number(this.svg.style.strokeWidth.split("px")[0]);
 
-            // Choose new stroke width
-            var f = this.svg.width.baseVal.value/this.svg.viewBox.baseVal.width;
-            var newStrokeWidth = Math.max(curStrokeWidth*1.5, 8/f);
+            var newStrokeWidth = TreeStyle.lineWidth*3;
 
             this.highlightedEdge.setAttribute("stroke-width", newStrokeWidth+"px");
             this.displayStatsBox(event.target.getAttribute("id"), event.pageX, event.pageY);

@@ -276,7 +276,7 @@ Tree.prototype.isRecombDestNode = function(node) {
     return node.isHybrid() && this.getRecombEdgeMap()[node.hybridID][0] != node;
 };
 
-Tree.prototype.isNetwork() = function() {
+Tree.prototype.isNetwork = function() {
     return Object.keys(this.getRecombEdgeMap()).length > 0;
 };
 

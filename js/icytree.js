@@ -576,15 +576,18 @@ function displayLoading() {
     output.css("paddingRight", "0px");
 }
 
-function displayError(string) {
+function displayError(minorString, majorString) {
 
     var output = $("#output");
 
+    if (majorString == undefined)
+        majorString = "Could not load tree file!";
+
     output.removeClass();
     output.addClass("error");
-    var divMainStr = "<div class='main'>Could not load tree!</div>";
-    var divMinorStr = "<div class='minor'>" + string + "</div>";
-    output.html(divMainStr + divMinorStr);
+    var divMajorStr = "<div class='main'>" + majorString + "</div>";
+    var divMinorStr = "<div class='minor'>" + minorString + "</div>";
+    output.html(divMajorStr + divMinorStr);
 
     // Pad to centre of page. (Wish I could do this with CSS!)
     output.css("width", Math.max(Math.floor(window.innerWidth-50), 0) + "px");
@@ -980,7 +983,8 @@ function exportTreeFile(format) {
     format = format.toLowerCase();
 
     if (tree.isNetwork && format !== "newick" && format !== "nexus") {
-        displayError("Can only export networks using Newick or NEXUS");
+        displayError("Can only export networks using Newick or NEXUS",
+                    "Could not export phylogeny!");
         return false;
     }
 

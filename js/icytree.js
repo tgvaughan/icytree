@@ -111,9 +111,12 @@ $(document).ready(function() {
                 exportSVG();
                 break;
 
-            case "fileExportMultiSVG":
-                $("#multiSVGspinner").spinner().spinner("value",2);
-                $("#multiSVGDialog").dialog("open");
+            case "fileExportPNG":
+                exportRaster("png");
+                break;
+
+            case "fileExportJPEG":
+                exportRaster("jpeg");
                 break;
 
             case "fileExportNewick":
@@ -974,6 +977,64 @@ function exportSVG() {
     $("#output #backgroundRect").attr("y", 0);
     $("#output #backgroundRect").attr("width", 0);
     $("#output #backgroundRect").attr("height", 0);
+}
+
+function triggerRasterDownload(imgURI, format) {
+    var evt = new MouseEvent('click', {
+        view: window,
+        bubbles: false,
+        cancelable: true
+    });
+
+    var a = document.createElement('a');
+    a.setAttribute('download', 'tree.' + format);
+    a.setAttribute('href', imgURI);
+    a.setAttribute('target', '_blank');
+
+    a.dispatchEvent(evt);
+};
+
+function exportRaster(format) {
+    if (currentTreeIdx>=trees.length || currentTreeIdx<0)
+        return false;
+
+    var canvas = $("<canvas/>")[0];
+    canvas.width = $("#output").width();
+    canvas.height = $("#output").height();
+
+    var ctx = canvas.getContext('2d');
+
+    var svgEl = $("#output > svg")[0];
+
+    $("#output #backgroundRect").attr("x", svgEl.viewBox.baseVal.x);
+    $("#output #backgroundRect").attr("y", svgEl.viewBox.baseVal.y);
+    $("#output #backgroundRect").attr("width", svgEl.viewBox.baseVal.width);
+    $("#output #backgroundRect").attr("height", svgEl.viewBox.baseVal.height);
+
+    var data = (new XMLSerializer()).serializeToString(svgEl);
+    var DOMURL = window.URL || window.webkitURL || window;
+
+    $("#output #backgroundRect").attr("x", 0);
+    $("#output #backgroundRect").attr("y", 0);
+    $("#output #backgroundRect").attr("width", 0);
+    $("#output #backgroundRect").attr("height", 0);
+
+    var img = new Image();
+    var svgBlob = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
+    var url = DOMURL.createObjectURL(svgBlob);
+
+    img.onload = function () {
+        ctx.drawImage(img, 0, 0);
+        DOMURL.revokeObjectURL(url);
+
+        var imgURI = canvas
+        .toDataURL('image/' + format)
+        .replace('image/' + format, 'image/octet-stream');
+
+        triggerRasterDownload(imgURI, format);
+    };
+
+    img.src = url;
 }
 
 function exportTreeFile(format) {

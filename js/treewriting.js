@@ -90,7 +90,50 @@ var Write = (function () {
         return nexusStr;
     }
 
+
+    var phyloXMLNS = "http://www.phyloxml.org";
+
+    function phyloXMLRecurse(node, doc) {
+
+        var clade = doc.createElementNS(phyloXMLNS, "clade");
+
+        if (node.label !== undefined && node.label !== "") {
+            var name = doc.createElementNS(phyloXMLNS, "name");
+            name.textContent = node.label;
+            clade.appendChild(name);
+        }
+
+        for (key in node.annotation) {
+            var property = doc.createElementNS(phyloXMLNS, "property");
+            property.setAttribute("applies_to", "node");
+            property.setAttribute("datatype", "xsd:string");
+            property.setAttribute("ref", key);
+            property.textContent = node.annotation[key];
+            clade.appendChild(property);
+        }
+
+        if (node.branchLength !== undefined)
+            clade.setAttribute("branch_length", node.branchLength);
+
+        for (var i=0; i<node.children.length; i++)
+            clade.appendChild(phyloXMLRecurse(node.children[i], doc));
+
+        return clade;
+    }
+
     function phyloXMLWriter(tree) {
+        var doc = document.implementation.createDocument(phyloXMLNS, "phyloxml");
+
+        if (tree.root !== undefined) {
+            var phylogeny = doc.createElementNS(phyloXMLNS, "phylogeny");
+            phylogeny.setAttribute("rooted", "true");
+
+            phylogeny.appendChild(phyloXMLRecurse(tree.root, doc));
+
+            doc.documentElement.appendChild(phylogeny);
+        }
+
+        return new XMLSerializer().serializeToString(doc);
     }
 
     function neXMLWriter(tree) {

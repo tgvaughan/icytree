@@ -124,6 +124,14 @@ $(document).ready(function() {
                 exportTreeFile("nexus");
                 break;
 
+            case "fileExportPhyloXML":
+                exportTreeFile("phyloxml");
+                break;
+
+            case "fileExportNEXUS":
+                exportTreeFile("nexml");
+                break;
+
             default:
                 break;
         }

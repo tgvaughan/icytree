@@ -391,6 +391,10 @@ function TreeFromPhyloXML (phylogenyElement) {
                     node.branchLength = Number(childEl.textContent);
                     break;
 
+                case "property":
+                    node.annotation[childEl.getAttribute("ref")] = childEl.textContent;
+                    break;
+
                 default:
                     break;
             }

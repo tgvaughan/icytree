@@ -1118,14 +1118,6 @@ var Display = (function() {
             if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
                 svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
             }
-            // else {
-            //     if (thisNode.isHybrid()) {
-            //         if (thisNode.children.length == 1)
-            //             svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
-            //         else if (TreeStyle.inlineRecomb && thisNode.isLeaf())
-            //             svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode.parent])));
-            //     }
-            // }
         }
 
         // Attach event handlers for pan and zoom:

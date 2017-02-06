@@ -192,7 +192,7 @@ of that clade.
 The clade collapse mechanism is also applicable to networks.  However, the
 concept of clade is not so easily defined in this case.  The present behaviour
 is to collapse only those descendants that do not descend from recombinant
-edges. (See the Recombinant Edges section of the manual for a information on
+edges. (See the Recombinant Edges section of the manual for information on
 what is meant by "recombinant edge".)
 
 Re-rooting Trees

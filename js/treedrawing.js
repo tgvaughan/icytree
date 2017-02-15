@@ -666,11 +666,15 @@ var Display = (function() {
 
             var axisStart, axisEnd, delta;
             if (!TreeStyle.logScale) {
-                axisStart = treeHeight*Math.max(0.0, bottomRight[1]);
+                axisStart = treeHeight*bottomRight[1];
                 axisEnd = treeHeight*topLeft[1];
                 var minDelta = (axisEnd-axisStart)/(TreeStyle.maxAxisTicks-1);
                 delta = Math.pow(10,Math.ceil(Math.log(minDelta)/Math.log(10)));
-                axisStart = delta*Math.ceil(axisStart/delta);
+
+                if (TreeStyle.axisForwards)
+                    axisStart = TreeStyle.axisOffset - delta*Math.floor((TreeStyle.axisOffset - axisStart)/delta);
+                else
+                    axisStart = delta*Math.ceil((axisStart + TreeStyle.axisOffset)/delta) - TreeStyle.axisOffset;
             } else {
                 axisStart = Math.max(0.0, bottomRight[1]);
                 axisEnd = topLeft[1];

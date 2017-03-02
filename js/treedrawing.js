@@ -688,9 +688,9 @@ var Display = (function() {
                 var label = "";
                 if (!TreeStyle.logScale) {
                     if (TreeStyle.axisForwards)
-                        label = parseFloat((TreeStyle.axisOffset - h).toPrecision(5));
+                        label = parseFloat((TreeStyle.axisOffset - h).toPrecision(10));
                     else
-                        label = parseFloat((h + TreeStyle.axisOffset).toPrecision(5));
+                        label = parseFloat((h + TreeStyle.axisOffset).toPrecision(10));
                     axisLine(svg, h/treeHeight, label, bottomRight[0], topLeft[0]);
                 } else {
                     var trueHeight = lso*Math.pow(treeHeight/lso + 1, h) - lso;

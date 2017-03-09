@@ -217,6 +217,9 @@ $(document).ready(function() {
             case "helpManual":
                 $("#manual").dialog("open");
                 break;
+            case "helpExamples":
+                window.open("manual/index.html#examples", "new");
+                break;
             case "helpAbout":
                 $("#about").dialog("open");
                 break;
@@ -1047,7 +1050,7 @@ function exportTreeFile(format) {
 
     if (tree.isNetwork() && format !== "newick" && format !== "nexus") {
         displayError("Use Newick or NEXUS",
-                    "Can't export network to " + format + "!");
+                    "Can't yet export network to " + format + "!");
         return false;
     }
 

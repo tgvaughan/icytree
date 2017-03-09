@@ -141,8 +141,31 @@ Note that networks can only be exported using the Newick/NEXUS formats.
 In the case that multiple trees are loaded, only the tree currently visible is
 exported.
 
+<a name="examples"></a>
 
-Exploring trees
+Example tree files
+------------------
+
+The following list contains tree files of various formats that can be displayed
+using IcyTree. To display these examples you will need to download them first
+(for example by right-clicking on the link and selecting "Save link as").
+
+* [primates.newick](../examples/primates.newick): example primate phylogeny in
+  Newick format.
+* [SIRTree.newick](../examples/SIRTree.newick): example simulated SIR
+  transmission tree in Newick format.
+* [SEISTree.nexus](../examples/SEISTree.nexus): example simulated SEIR
+  transmission tree in Nexus format (which permits annotations).
+* [h3n2.nexus](../examples/h3n2.nexus): inferred Influenza tree in Nexus format
+including internal nodes and annotations representing ancestral spatial dynamics.
+* [ARG.newick](../examples/ARG.newick): Simulated ancestral recombination graph in Extended Newick format.
+* [ARG.nexus](../examples/ARG.nexus): The same ARG as in the previous example but in Nexus format (to support
+additional node/edge annotations).
+* [PhyloXML_example](../examples/PhyloXML_example.xml): Example PhyloXML time tree.
+* [NeXML_example](../examples/NeXML_example.xml): Example NeXML time tree.
+
+
+Explorin trees
 ===============
 
 Once a tree is loaded, it can be explored in a variety of ways.

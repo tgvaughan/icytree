@@ -1,3 +1,8 @@
 # Jekyll stuff
 /_site
 Gemfile.lock
+
+# Rough example files used for testing.
+# (Some of these are obtained via private correspondence
+# and I do not have permission to distribute them.)
+/testing

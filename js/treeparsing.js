@@ -637,6 +637,8 @@ function getTreesFromString(string) {
         var parser = new DOMParser();
         var dom = parser.parseFromString(string, "text/xml");
 
+        console.log("Attempting to parse as XML.");
+
         var parserError = dom.getElementsByTagName("parsererror").length > 0;
 
         if (!parserError) {
@@ -659,6 +661,7 @@ function getTreesFromString(string) {
             }
 
         } else {
+            console.log("Parsing as plain/extended Newick.");
             trees =  getTreesFromNewick(string);
         }
     }

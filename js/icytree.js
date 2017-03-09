@@ -1045,7 +1045,7 @@ function exportTreeFile(format) {
 
     format = format.toLowerCase();
 
-    if (tree.isNetwork && format !== "newick" && format !== "nexus") {
+    if (tree.isNetwork() && format !== "newick" && format !== "nexus") {
         displayError("Use Newick or NEXUS",
                     "Can't export network to " + format + "!");
         return false;

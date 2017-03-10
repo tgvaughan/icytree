@@ -150,13 +150,13 @@ The following list contains tree files of various formats that can be displayed
 using IcyTree. To display these examples you will need to download them first
 (for example by right-clicking on the link and selecting "Save link as").
 
-* [primates.newick](../examples/primates.newick): example primate phylogeny in
+* [primates.newick](../examples/primates.newick): Primate phylogeny in
   Newick format.
-* [SIRTree.newick](../examples/SIRTree.newick): example simulated SIR
+* [SIRTree.newick](../examples/SIRTree.newick): Collection of simulated SIR
   transmission tree in Newick format.
-* [SEISTree.nexus](../examples/SEISTree.nexus): example simulated SEIR
+* [SEISTree.nexus](../examples/SEISTree.nexus): Simulated SEIS
   transmission tree in Nexus format (which permits annotations).
-* [h3n2.nexus](../examples/h3n2.nexus): inferred Influenza tree in Nexus format
+* [h3n2.nexus](../examples/h3n2.nexus): Inferred Influenza tree in Nexus format
 including internal nodes and annotations representing ancestral spatial dynamics.
 * [ARG.newick](../examples/ARG.newick): Simulated ancestral recombination graph in Extended Newick format.
 * [ARG.nexus](../examples/ARG.nexus): The same ARG as in the previous example but in Nexus format (to support

@@ -165,7 +165,7 @@ additional node/edge annotations).
 * [NeXML_example](../examples/NeXML_example.xml): Example NeXML time tree.
 
 
-Explorin trees
+Exploring trees
 ===============
 
 Once a tree is loaded, it can be explored in a variety of ways.

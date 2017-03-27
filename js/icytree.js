@@ -544,12 +544,29 @@ function displayStartOutput() {
     output.addClass("start");
     output.html("");
 
+    var marginX = 25;
+    var marginY = 30;
+
     var imgHeight = 220;
     var imgWidth = 414;
+
+    // Resize image if page very small
+    if (window.innerWidth-imgWidth<2*marginX) {
+        var newImgWidth = window.innerWidth-2*marginX;
+        imgHeight = imgHeight*newImgWidth/imgWidth;
+        imgWidth = newImgWidth;
+    }
+
+    if (window.innerHeight-imgHeight<2*marginY) {
+        var newImgHeight = window.innerHeight-2*marginY;
+        imgWidth = imgWidth*newImgHeight/imgHeight;
+        imgHeight = newImgHeight;
+    }
+
     output.append(
             $("<img/>")
             .attr("src", "images/icytree_start_flattened.svg")
-            .attr("height", imgHeight)
+            .attr("width", imgWidth)
             );
 
     // Pad to centre of page.

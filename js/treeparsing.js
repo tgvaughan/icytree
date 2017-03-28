@@ -195,8 +195,12 @@ TreeFromNewick.prototype.doParse = function(tokenList) {
             return true;
         } else {
             if (mandatory)
-                throw new ParseException("Error: Expected token " + token + " but found " + tokenList[idx][0] +
-                    " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".");
+                if (idx<tokenList.length) {
+                    throw new ParseException("Error: Expected token " + token + " but found " + tokenList[idx][0] +
+                        " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".");
+                } else {
+                    throw new ParseException("Error: Newick string terminated early. Expected token " + token + ".");
+                }
             else
                 return false;
         }
@@ -548,8 +552,7 @@ function getTreesFromPhyloXML(dom) {
 
 function getTreesFromNewick(string) {
     var trees = [];
-
-    var lines = string.split('\n');
+    var lines = string.split(/;\s*\n/);
 
     for (var i=0; i<lines.length; i++) {
         var thisLine = lines[i].trim();

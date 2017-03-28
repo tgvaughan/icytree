@@ -43,6 +43,8 @@ IcyTree supports the following input file formats:
     [Newick tree format](https://en.wikipedia.org/wiki/Newick_format) strings.
     In this format, each edge may have a length and each node may have a single
     label. Multiple Newick tree format strings are separated by newlines.
+    **Note that when multiple trees are specified, each Newick string must
+    be terminated by a semicolon ';'.**
 
 2. NEXUS files with a trees block
 

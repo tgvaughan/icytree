@@ -25,6 +25,14 @@ IcyTree should work well on the latest desktop versions of
 report success with web browsers such as Apple's Safari, we can't guarantee
 that all features of IcyTree will work on other browsers.
 
+Citation
+--------
+
+If you use IcyTree as part of research that leads to a publication, please
+cite the following article:
+
+Vaughan, T. G., *IcyTree: Rapid browser-based visualization for phlogenetic trees and networks.*
+Bioinformatics 2017.  DOI: [10.1093/bioinformatics/btx155](http://dx.doi.org/10.1093/bioinformatics/btx155)
 
 Input/Output
 ============

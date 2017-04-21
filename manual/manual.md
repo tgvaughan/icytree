@@ -162,8 +162,8 @@ using IcyTree. To display these examples you will need to download them first
 
 * [primates.newick](../examples/primates.newick): Primate phylogeny in
   Newick format.
-* [SIRTree.newick](../examples/SIRTree.newick): Collection of simulated SIR
-  transmission tree in Newick format.
+* [SIRTree.newick](../examples/SIRTrees.newick): Collection of simulated SIR
+  transmission trees in Newick format.
 * [SEISTree.nexus](../examples/SEISTree.nexus): Simulated SEIS
   transmission tree in Nexus format (which permits annotations).
 * [h3n2.nexus](../examples/h3n2.nexus): Inferred Influenza tree in Nexus format

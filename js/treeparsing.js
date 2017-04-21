@@ -209,7 +209,9 @@ TreeFromNewick.prototype.doParse = function(tokenList) {
     // T -> N;
     function ruleT() {
         var node = ruleN(undefined);
-        acceptToken("SEMI", false);
+
+        if (!acceptToken("SEMI", false) && acceptToken("COMMA", false))
+            throw new ParseException("Error: Tree/network with multiple roots found.");
 
         return node;
     }

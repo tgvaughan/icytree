@@ -16,7 +16,7 @@
 }
 
 #phyloStat tr {
-    vertical-align: center;
+    vertical-align: middle;
 }
 #phyloStat td {
     width: auto;

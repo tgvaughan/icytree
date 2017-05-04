@@ -487,10 +487,10 @@ to position nodes on time trees, with the horizontal distance between the node
 and the most recent sample being proportional to the logarithm of the sum of
 the time difference and some offset. That is,
 
-$$ \delta x \propto \log(\delta t + \omega) $$
+&delta;x &prop; log(&delta;t + &omega;)
 
-where $$\delta x$$ is the horizontal distance between a point on the tree and the most
-recent sample (youngest leaf), $$\delta t$$ is the corresponding time difference and
+where &delta;x is the horizontal distance between a point on the tree and the most
+recent sample (youngest leaf), &delta;t is the corresponding time difference and
 $$\omega$$ is a positive offset.  The offset is included to allow the most recent sample
 to be included in the figure, and its magnitude determines how much the transformation
 affects the tree shape with smaller values of $$\omega$$ resulting in a stronger magnifying

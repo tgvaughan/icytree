@@ -141,7 +141,7 @@ body {
 
 /* File input */
 
-#fileInput {
+#fileInput,#styleFileInput {
     /* display: none; (Causes problems in Safari.) */
     position: absolute;
     left: -9999px;  /* So ugly! */

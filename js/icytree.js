@@ -30,6 +30,8 @@ var trees = [];
 var currentTreeIdx = 0;
 var controlsHidden = false;
 
+var styleFile;
+
 var layout;
 
 // Stop jqueryui dialogs from focussing first link.
@@ -133,6 +135,22 @@ $(document).ready(function() {
 
             case "fileExportNeXML":
                 exportTreeFile("nexml");
+                break;
+
+            case "fileExportStyle":
+                exportStyle();
+                break;
+
+            case "fileImportStyle":
+                importStyle();
+                // Clear file input (otherwise can't reload same file)
+                $("#styleFileInput").replaceWith($("#styleFileInput").clone(true));
+
+                // Trigger click on file input
+                if (!$(this).parent().hasClass("ui-state-disabled")) {
+                    $("#styleFileInput").trigger("click");
+                }
+
                 break;
 
             default:
@@ -252,6 +270,11 @@ $(document).ready(function() {
     $("#fileInput").change(function() {
         treeFile = $("#fileInput").prop("files")[0];
         loadFile();
+    });
+
+    $("#styleFileInput").change(function() {
+        styleFile = $("#styleFileInput").prop("files")[0];
+        importStyle();
     });
 
     $("#axisOffsetDialog").dialog({
@@ -1100,6 +1123,25 @@ function exportTreeFile(format) {
 
     var blob = new Blob([treeString], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "tree." + extension);
+}
+
+// Export TreeStyle object to JSON text file.
+function exportStyle() {
+    var json = JSON.stringify(TreeStyle);
+    var blob = new Blob([json], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "tree_style.json");
+}
+
+// Import TreeStyle object from JSON text file.
+function importStyle() {
+    var reader = new FileReader();
+    reader.onload = fileLoaded;
+    reader.readAsText(styleFile);
+
+    function fileLoaded(evt) {
+        styleString = evt.target.result;
+        console.log(styleString);
+    }
 }
 
 

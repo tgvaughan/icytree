@@ -142,7 +142,6 @@ $(document).ready(function() {
                 break;
 
             case "fileImportStyle":
-                importStyle();
                 // Clear file input (otherwise can't reload same file)
                 $("#styleFileInput").replaceWith($("#styleFileInput").clone(true));
 
@@ -1140,7 +1139,16 @@ function importStyle() {
 
     function fileLoaded(evt) {
         styleString = evt.target.result;
-        console.log(styleString);
+
+        loadedTreeStyle = JSON.parse(styleString);
+        console.log(loadedTreeStyle);
+
+        for (var key in loadedTreeStyle) {
+            TreeStyle[key] = loadedTreeStyle[key];
+            console.log(key + " = " + loadedTreeStyle[key]);
+        }
+
+        update();
     }
 }
 

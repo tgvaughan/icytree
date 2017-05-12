@@ -238,6 +238,7 @@ $(document).ready(function() {
         buttons: {
             Done: function() {
                 treeData = $(this).find("textArea").val();
+                treeFile = null;
                 reloadTreeData();
                 $(this).dialog("close");
             },
@@ -1105,6 +1106,16 @@ function exportTreeFile(format) {
 
 // Update display according to current tree model and display settings
 function update() {
+
+    // Make sure current tree file name is displayed in title
+    if (trees.length === 0) {
+            document.title = "IcyTree";
+    } else {
+        if (treeFile !== null)
+            document.title = "IcyTree: " + treeFile.name;
+        else
+            document.title = "IcyTree";
+    }
 
     updateCurrentTreeControl();
 

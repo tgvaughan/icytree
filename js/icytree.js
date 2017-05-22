@@ -28,7 +28,6 @@ var treeFile;
 var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
-var controlsHidden = false;
 
 var layout;
 
@@ -196,8 +195,6 @@ $(document).ready(function() {
     });
 
     $("#searchMenu").on("menuselect", function(event, ui) {
-        var tree = trees[currentTreeIdx];
-
         switch(ui.item.attr("id")) {
             case "searchNodes":
                 $("#nodeSearchDialog").dialog("open");
@@ -351,7 +348,7 @@ $(document).ready(function() {
 
                 // Colour tree using highlighting trait
                 var hlElement;
-                $("#styleColourTrait").children().each(function(eidx) {
+                $("#styleColourTrait").children().each(function() {
                     if ($(this).text() === akey) {
                         hlElement = $(this);
                     }
@@ -803,7 +800,7 @@ function updateTraitSelectors() {
                 break;
 
             default:
-                filter = function(node) {return true;};
+                filter = function() {return true;};
                 traitList = ["None", "Label"];
         }
         traitList = traitList.concat(tree.getTraitList(filter));
@@ -821,7 +818,7 @@ function updateTraitSelectors() {
 
         selectedTrait = $("#searchAttribute").val();
 
-        traitList = ["Label"].concat(tree.getTraitList(function(node, trait) {
+        traitList = ["Label"].concat(tree.getTraitList(function(node) {
             return node.isLeaf() && !node.isHybrid();
         }));
 
@@ -1013,7 +1010,7 @@ function triggerRasterDownload(imgURI, format) {
     a.setAttribute('target', '_blank');
 
     a.dispatchEvent(evt);
-};
+}
 
 function exportRaster(format) {
     if (currentTreeIdx>=trees.length || currentTreeIdx<0)

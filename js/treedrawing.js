@@ -569,20 +569,20 @@ var Display = (function() {
 
         // Taken from https://gist.github.com/mjackson/5311256
         function hslToRgb(h, s, l) {
+            function hue2rgb(p, q, t) {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+            }
+
             var r, g, b;
 
             if (s === 0) {
                 r = g = b = l; // achromatic
             } else {
-                function hue2rgb(p, q, t) {
-                    if (t < 0) t += 1;
-                    if (t > 1) t -= 1;
-                    if (t < 1/6) return p + (q - p) * 6 * t;
-                    if (t < 1/2) return q;
-                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                    return p;
-                }
-
                 var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
                 var p = 2 * l - q;
 
@@ -647,6 +647,8 @@ var Display = (function() {
             svg.removeChild(svg.getElementsByClassName("axisComponent")[0]);
         }
 
+        var label, title, coord, dot;
+
         if (TreeStyle.axis) {
 
             // Select tick number and spacing
@@ -685,7 +687,7 @@ var Display = (function() {
             // Draw ticks:
             var h = axisStart;
             while (h <= axisEnd) {
-                var label = "";
+                label = "";
                 if (!TreeStyle.logScale) {
                     if (TreeStyle.axisForwards)
                         label = parseFloat((TreeStyle.axisOffset - h).toPrecision(10));
@@ -707,12 +709,12 @@ var Display = (function() {
         if (TreeStyle.legend && seenColourTraitValues !== null) {
 
             if (seenColourTraitValues.length>0) {
-                var coord = svg.createSVGPoint();
+                coord = svg.createSVGPoint();
                 coord.x = 10;
                 coord.y = TreeStyle.height - seenColourTraitValues.length*20 - 30 - 15;
                 transformToSVG(svg, coord);
 
-                var title = document.createElementNS(NS, "text");
+                title = document.createElementNS(NS, "text");
                 title.setAttribute("class", "axisComponent");
                 title.setAttribute("x",  coord.x);
                 title.setAttribute("y",  coord.y);
@@ -724,12 +726,12 @@ var Display = (function() {
 
             for (var i=0; i<seenColourTraitValues.length; i++) {
 
-                var coord = svg.createSVGPoint();
+                coord = svg.createSVGPoint();
                 coord.x = 20;
                 coord.y = TreeStyle.height - seenColourTraitValues.length*20 - 30 + i*20;
                 transformToSVG(svg, coord);
 
-                var dot = document.createElementNS(NS, "rect");
+                dot = document.createElementNS(NS, "rect");
                 dot.setAttribute("x", coord.x - getSVGWidth(svg, 5));
                 dot.setAttribute("y", coord.y - getSVGHeight(svg, 5));
                 dot.setAttribute("width", getSVGWidth(svg, 10));
@@ -738,7 +740,7 @@ var Display = (function() {
                 dot.setAttribute("class", "axisComponent");
                 svg.appendChild(dot);
 
-                var label = document.createElementNS(NS, "text");
+                label = document.createElementNS(NS, "text");
                 label.setAttribute("class", "axisComponent");
                 label.setAttribute("x", coord.x + getSVGWidth(svg, 15));
                 label.setAttribute("y", coord.y + getSVGHeight(svg, 5));
@@ -943,11 +945,13 @@ var Display = (function() {
 
         // Draw node bars:
 
+        var traitValue;
+
         if (TreeStyle.nodeBarTrait !== undefined) {
             for (nodeID in layout.nodePositions) {
                 thisNode = layout.tree.getNode(nodeID);
 
-                var traitValue = thisNode.annotation[TreeStyle.nodeBarTrait];
+                traitValue = thisNode.annotation[TreeStyle.nodeBarTrait];
                 if (traitValue !== undefined && traitValue.length === 2) {
                     var nodePos = layout.nodePositions[thisNode];
                     var minPos = posXform([nodePos[0], layout.getScaledHeight(Number(traitValue[0]))]);
@@ -963,6 +967,8 @@ var Display = (function() {
 
         // Draw tree edges:
 
+        var parentPos, branch;
+
         for (nodeID in layout.nodePositions) {
             thisNode = layout.tree.getNode(nodeID);
 
@@ -976,7 +982,6 @@ var Display = (function() {
 
             var thisPos = posXform(layout.nodePositions[thisNode]);
 
-            var parentPos;
             if (!thisNode.isRoot())
                 parentPos = posXform(layout.nodePositions[thisNode.parent]);
             else
@@ -988,14 +993,16 @@ var Display = (function() {
             else
                 edgeOpacityFactor = 1.0;
 
-            var branch = newBranch(thisPos, parentPos, getColourTraitValue(thisNode), edgeOpacityFactor);
+            branch = newBranch(thisPos, parentPos, getColourTraitValue(thisNode), edgeOpacityFactor);
             branch.id = thisNode;
             svg.appendChild(branch);
         }
 
         // Draw collapsed clades:
+        var pos;
+
         for (nodeID in layout.collapsedCladeRoots) {
-            var pos = layout.nodePositions[nodeID];
+            pos = layout.nodePositions[nodeID];
             var posRoot = posXform(pos.slice(0,2));
             var posLeft = posXform(pos.slice(2,4));
             var posRight = posXform(pos.slice(4,6));
@@ -1006,6 +1013,8 @@ var Display = (function() {
         }
 
         // Draw recombinant edges
+        
+        var childPos, childPrimePos;
 
         if (TreeStyle.displayRecomb) {
             for (var recombID in layout.tree.getRecombEdgeMap()) {
@@ -1019,9 +1028,9 @@ var Display = (function() {
                         layout.collapsedCladeNodes[recombSrc] === layout.collapsedCladeNodes[recombDest])
                         continue;
 
-                    var childPos = posXform(layout.nodePositions[recombSrc]);
-                    var childPrimePos = posXform(layout.nodePositions[recombDest]);
-                    var parentPos = posXform(layout.nodePositions[recombDest.parent]);
+                    childPos = posXform(layout.nodePositions[recombSrc]);
+                    childPrimePos = posXform(layout.nodePositions[recombDest]);
+                    parentPos = posXform(layout.nodePositions[recombDest.parent]);
 
                     var recombOpacityFactor;
                     if (TreeStyle.recombOpacityTrait !== undefined && recombDest.annotation[TreeStyle.recombOpacityTrait] !== undefined)
@@ -1029,7 +1038,7 @@ var Display = (function() {
                     else
                         recombOpacityFactor = 1.0;
 
-                    var branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
+                    branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
                         getColourTraitValue(recombDest), recombOpacityFactor);
                     branch.id = recombDest;
                     svg.appendChild(branch);
@@ -1075,16 +1084,16 @@ var Display = (function() {
 
         // Draw tip and recombinant edge labels:
 
+        var i, trait;
         if (TreeStyle.tipTextTrait !== undefined) {
-            for (var i=0; i<layout.leafGroups.length; i++) {
+            for (i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
                 if (thisNode in layout.collapsedCladeRoots || (thisNode.isHybrid() && !layout.tree.isRecombSrcNode(thisNode)))
                     continue;
 
-                var trait = TreeStyle.tipTextTrait;
+                trait = TreeStyle.tipTextTrait;
 
-                var traitValue;
                 if (trait === "label")
                     traitValue = thisNode.label;
                 else {
@@ -1094,13 +1103,13 @@ var Display = (function() {
                         traitValue = "";
                 }
 
-                var pos = posXform(layout.nodePositions[thisNode]);
+                pos = posXform(layout.nodePositions[thisNode]);
                 svg.appendChild(newNodeText(pos, traitValue));
             }
         }
 
         if (TreeStyle.displayRecomb && TreeStyle.recombTextTrait !== undefined) {
-            for (var i=0; i<layout.leafGroups.length; i++) {
+            for (i=0; i<layout.leafGroups.length; i++) {
                 thisNode = layout.leafGroups[i][0];
 
                 if (thisNode in layout.collapsedCladeRoots ||
@@ -1108,9 +1117,8 @@ var Display = (function() {
                         (thisNode.isHybrid() && layout.tree.isRecombSrcNode(thisNode)))
                     continue;
 
-                var trait = TreeStyle.recombTextTrait;
+                trait = TreeStyle.recombTextTrait;
 
-                var traitValue;
                 if (trait === "label")
                     traitValue = thisNode.label;
                 else {
@@ -1120,7 +1128,7 @@ var Display = (function() {
                         traitValue = "";
                 }
 
-                var pos = posXform(layout.nodePositions[thisNode]);
+                pos = posXform(layout.nodePositions[thisNode]);
 
                 svg.appendChild(newNodeText(pos, traitValue));
             }
@@ -1136,7 +1144,6 @@ var Display = (function() {
                 if (thisNode.isLeaf() || thisNode in layout.collapsedCladeRoots || thisNode in layout.collapsedCladeNodes)
                     continue;
 
-                var traitValue;
                 if (TreeStyle.nodeTextTrait === "label")
                     traitValue = thisNode.label;
                 else {
@@ -1147,7 +1154,7 @@ var Display = (function() {
                 }
 
                 if (traitValue !== "") {
-                    var pos = posXform(layout.nodePositions[thisNode]);
+                    pos = posXform(layout.nodePositions[thisNode]);
                     var offset = [0,0];
                     if (thisNode.children.length === 1)
                         offset[1] = -2.5;
@@ -1385,7 +1392,6 @@ var EdgeStatsControl = {
 
     displayStatsBox: function(nodeId, x, y) {
 
-        var prec = 6;
         var pixelOffset = 10;
 
         if (x>window.innerWidth/2) {
@@ -1698,9 +1704,6 @@ var ZoomControl = {
             if (horizontalZoom)
                 zoomFactorXP = Math.max(1, zoomFactorXP/1.1);
         }
-
-        var width = this.svg.getAttribute("width");
-        var height = this.svg.getAttribute("height");
 
         // Get SVG coordinates of mouse pointer:
         var point = this.svg.createSVGPoint();

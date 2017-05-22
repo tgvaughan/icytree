@@ -518,8 +518,6 @@ function getTreesFromNexML(dom) {
     var treeElements = treesBlocks[0].getElementsByTagNameNS(neXMLNS, "tree");
 
     for (var i=0; i<treeElements.length; i++) {
-        var treeEl = treeElements[i];
-
         try {
             trees.push(new TreeFromNeXML(treeElements[i]));
         } catch (e) {
@@ -610,7 +608,7 @@ function getTreesFromNexus(string) {
                 var tkey = tvec[0];
                 var tval = tvec.slice(1).join(" ");
                 tval = tval.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
-                tmap[tvec[0]] = tval;
+                tmap[tkey] = tval;
             }
             fullLine = "";
             continue;

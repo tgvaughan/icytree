@@ -392,6 +392,7 @@ $(document).ready(function() {
             },
             "Open in new window": function () {
                 window.open("manual/", "new");
+                $(this).dialog("close");
             }}
     });
 

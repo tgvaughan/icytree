@@ -45,10 +45,12 @@ var TreePlots = (function () {
 
 	    accumulator += dt*k*(k-1)/2;
 
-	    var isCoal = (data.lineages[i]<data.lineages[i-1]);
+	    var dk = data.lineages[i-1] - data.lineages[i];
+
+	    var isCoal = (dk > 0);
 
 	    if (isCoal)
-		nCoals += 1;
+		nCoals += dk;
 
 	    if (isCoal && data.ages[i]-intervalStartTime>=epsT) {
 		// Coalescence event

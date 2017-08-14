@@ -68,6 +68,7 @@ $(document).ready(function() {
     $("#fileMenu").menu().hide();
     $("#styleMenu").menu().hide();
     $("#searchMenu").menu().hide();
+    $("#statsMenu").menu().hide();
     $("#helpMenu").menu().hide();
 
     $("#menu > li").mouseover(function() {
@@ -204,6 +205,18 @@ $(document).ready(function() {
                 clearSearchHighlight();
                 break;
         }
+    });
+
+    $("#statsMenu").on("menuselect", function(event, ui) {
+	switch(ui.item.attr("id")) {
+	case "statsLTT":
+	    $("#lttDialog").dialog("open");
+	    break;
+	case "statsSkyline":
+	    $("#skylineDialog").dialog("open");
+	    break;
+
+	}
     });
 
     $("#helpMenu").on("menuselect", function(event, ui) {
@@ -368,6 +381,59 @@ $(document).ready(function() {
     $("#searchCaseSensitive").prop("checked", true);
 
 
+    $("#lttDialog").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 500,
+	height: 500,
+	open: function() {
+	    TreePlots.drawLTT("lttPlotOutput");
+	    $(this).parent().focus();
+	},
+	resize: function(event, ui) {
+	    TreePlots.drawLTT("lttPlotOutput");
+	},
+	buttons: {
+	    Ok: function() {
+		$(this).dialog("close");
+	    }
+	}
+    });
+
+    $("#skylineDialog").dialog({
+	autoOpen: false,
+	modal: true,
+	width: 500,
+	height: 500,
+	open: function() {
+	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+	    $(this).parent().focus();
+	},
+	resize: function(event, ui) {
+	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+	},
+	buttons: {
+	    Ok: function() {
+		$(this).dialog("close");
+	    }
+	}
+    });
+    $("#epsSpinner").spinner({
+	start: 0.0,
+	min: 0.0,
+	max: 1.0,
+	step: 0.01,
+	stop: function(event, ui) {
+	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+	},
+	change: function(event, ui) {
+	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+	}
+    });
+    $("#epsSpinner").width(60);
+
+
+
     $("#shortcutHelp").dialog({
         autoOpen: false,
         modal: true,
@@ -476,6 +542,7 @@ function updateMenuItems() {
     if (trees.length>0) {
         $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
+        $("#statsMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
         $("#fileExport").removeClass("ui-state-disabled");
 
         if ($("#styleLayout span").parent().text() === "Transmission Tree") {
@@ -489,11 +556,15 @@ function updateMenuItems() {
             $("#styleSetAxisOffset").addClass("ui-state-disabled");
             $("#styleLogScale").addClass("ui-state-disabled");
             $("#styleNodeBarTrait").closest("li").addClass("ui-state-disabled");
+	    $("#statsLTT").addClass("ui-state-disabled");
+	    $("#statsSkyline").addClass("ui-state-disabled");
         } else {
             $("#styleAxis").closest("li").removeClass("ui-state-disabled");
             $("#styleSetAxisOffset").removeClass("ui-state-disabled");
             $("#styleLogScale").removeClass("ui-state-disabled");
             $("#styleNodeBarTrait").closest("li").removeClass("ui-state-disabled");
+	    $("#statsLTT").removeClass("ui-state-disabled");
+	    $("#statsSkyline").removeClass("ui-state-disabled");
         }
 
         if (!trees[currentTreeIdx].isTimeTree) {
@@ -505,6 +576,7 @@ function updateMenuItems() {
         $("#fileExport").addClass("ui-state-disabled");
         $("#styleMenu").closest("li").find("button").first().addClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
+        $("#statsMenu").closest("li").find("button").first().addClass("ui-state-disabled");
     }
 }
 

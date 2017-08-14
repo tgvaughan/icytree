@@ -204,6 +204,16 @@ body {
     margin-left: 15px;
 }
 
+#lttPlotOutput {
+    width: 100%;
+    height: 100%;
+}
+
+#skylinePlotOutput {
+    width: 100%;
+    height: calc(100% - 2em);
+}
+
 /* Notifications */
 
 #notify {

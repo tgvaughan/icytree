@@ -559,3 +559,23 @@ Tree.prototype.getAncestralNodes = function(nodes) {
 
     return getAncestors(this.root, nodes);
 };
+
+Tree.prototype.getLineagesThroughTime = function() {
+    var nodeList = this.getNodeList().slice(0);
+
+    nodeList.sort(function(nodeA, nodeB) {return nodeA.height - nodeB.height})
+
+    res = {lineages: [], ages: []};
+
+    var k = 0;
+    for (var i=0; i<nodeList.length; i++) {
+	var node = nodeList[i];
+
+	k += 1 - node.children.length;
+
+	res.lineages.push(k);
+	res.ages.push(node.height);
+    }
+
+    return(res);
+}

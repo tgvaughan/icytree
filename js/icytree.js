@@ -380,7 +380,6 @@ $(document).ready(function() {
     });
     $("#searchCaseSensitive").prop("checked", true);
 
-
     $("#lttDialog").dialog({
 	autoOpen: false,
 	modal: true,
@@ -394,6 +393,9 @@ $(document).ready(function() {
 	    TreePlots.drawLTT("lttPlotOutput");
 	},
 	buttons: {
+		Info: function() {
+			window.open("manual/index.html#stats", "new");
+		},
 	    Ok: function() {
 		$(this).dialog("close");
 	    }
@@ -413,6 +415,9 @@ $(document).ready(function() {
 	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
 	},
 	buttons: {
+		Info: function() {
+			window.open("manual/index.html#stats", "new");
+		},
 	    Ok: function() {
 		$(this).dialog("close");
 	    }

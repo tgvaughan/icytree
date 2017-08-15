@@ -578,7 +578,7 @@ from time trees.
 produces a graph showing how the number of extant lineages depends on the age above
 the most recent leaf in the tree.
 
-2. The **Skyline plot** (see [Pybus et al., 2000](http://www.genetics.org/content/155/3/1429)
+2. The **Skyline plot** (Statistics-&gt;Skyline plot, see [Pybus et al., 2000](http://www.genetics.org/content/155/3/1429)
 and [Strimmer and Pybus, 2001](https://doi.org/10.1093/oxfordjournals.molbev.a003776))
 provides a maximum likelihood estimate of population history from a single time tree,
 assuming that the tree was produced by a coalescent process under a

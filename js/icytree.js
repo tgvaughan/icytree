@@ -389,7 +389,7 @@ $(document).ready(function() {
 	    TreePlots.drawLTT("lttPlotOutput");
 	    $(this).parent().focus();
 	},
-	resize: function(event, ui) {
+	resize: function() {
 	    TreePlots.drawLTT("lttPlotOutput");
 	},
 	buttons: {
@@ -411,7 +411,7 @@ $(document).ready(function() {
 	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
 	    $(this).parent().focus();
 	},
-	resize: function(event, ui) {
+	resize: function() {
 	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
 	},
 	buttons: {
@@ -428,10 +428,10 @@ $(document).ready(function() {
 	min: 0.0,
 	max: 1.0,
 	step: 0.01,
-	stop: function(event, ui) {
+	stop: function() {
 	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
 	},
-	change: function(event, ui) {
+	change: function() {
 	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
 	}
     });

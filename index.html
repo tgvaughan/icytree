@@ -19,11 +19,15 @@
         <!-- FileSaver -->
         <script src="js/FileSaver.js"></script>
 
+	<!-- PlotLy -->
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
         <!-- JS for parsing and viewing trees -->
         <script src="js/tree.js"></script>
         <script src="js/treeparsing.js"></script>
         <script src="js/treewriting.js"></script>
         <script src="js/treedrawing.js"></script>
+        <script src="js/treeplots.js"></script>
         <link rel="stylesheet" type="text/css" href="css/treedrawing.css"></link>
 
         <!-- App-specific styling and code -->
@@ -227,7 +231,16 @@
                 </ul>
             </li>
 
-            <li><button>Help</button>
+	    <li><button>Statistics</button>
+	      <ul id="statsMenu">
+		<li title="Display lineages-through-time plot for current tree."
+		    id="statsLTT">Lineages-through-time plot...</li>
+		<li title="Display classic skyline population function estimate from current tree."
+		    id="statsSkyline">Skyline plot...</li>
+	      </ul>
+	    </li>
+
+	    <li><button>Help</button>
                 <ul id="helpMenu">
                     <li title="Display full list of keyboard shortcuts."
                         id="helpShortcuts">Keyboard shortcuts...<span class="ks">?</span></li>
@@ -329,7 +342,19 @@
             Annotation key: <input type="text" id="searchAnnotationKey" value="HIGHLIGHT"></input><br/>
         </div>
 
-        <!-- Keyboard shortcut help -->
+        <!-- Tree plot dialogs -->
+
+	<div id="lttDialog" class="dialog" title="Lineages-through-time plot">
+	  <div id="lttPlotOutput"></div>
+	</div>
+
+	<div id="skylineDialog" class="dialog" title="Skyline plot (EXPERIMENTAL!)">
+	  <div id="skylinePlotOutput"></div>
+	  <label for="epsSpinner">Min. interval size (relative to tree height):</label>
+	  <input id="epsSpinner" name="epsSpinner" value="0.0">
+	</div>
+
+	<!-- Keyboard shortcut help -->
         <div id="shortcutHelp" class="dialog" title="Keyboard shortcuts">
             <table>
                 <tr><th>Key</th> <th>Action</th></tr>

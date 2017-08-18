@@ -536,7 +536,7 @@ The final set of Style options apply more generally. It includes the following o
     yields a crisper image.  However, when the number of leaves approaches or exceeds
     the number of pixels in the vertical portion of the display occupied by IcyTree,
     this can lead to artifacts.  Enabling this option can make such images clearer.
-
+	
 Searching taxa
 ==============
 
@@ -563,6 +563,26 @@ the corresponding text field in the search dialog.
 
 The results of a search can be cleared by clicking the Clear button on the search
 dialog or by selecting "Clear search results" from the Search menu.
+
+<a name="stats"></a>
+
+Simple statistical functions
+============================
+
+IcyTree also provides a couple of very simple and **very
+experimental** statistical analysis features, including the
+ability to produce lineage-through-time plots and skyline plots
+from time trees.
+
+1. The **lineages-through-time plot** (Statistics-&gt;Lineages-through-time plot) function
+produces a graph showing how the number of extant lineages depends on the age above
+the most recent leaf in the tree.
+
+2. The **Skyline plot** (Statistics-&gt;Skyline plot, see [Pybus et al., 2000](http://www.genetics.org/content/155/3/1429)
+and [Strimmer and Pybus, 2001](https://doi.org/10.1093/oxfordjournals.molbev.a003776))
+provides a maximum likelihood estimate of population history from a single time tree,
+assuming that the tree was produced by a coalescent process under a
+piecewise constant population function.
 
 Keyboard shortcuts
 ==================

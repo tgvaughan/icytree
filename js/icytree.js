@@ -1395,7 +1395,7 @@ function keyPressHandler(event) {
     if (event.target !== document.body)
         return;
 
-    if (event.altKey || event.ctrlKey)
+    if (event.altKey || event.ctrlKey || event.metaKey)
         return;
 
     var eventChar = String.fromCharCode(event.charCode);

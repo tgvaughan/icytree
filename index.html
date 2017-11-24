@@ -28,6 +28,7 @@
         <script src="js/treewriting.js"></script>
         <script src="js/treedrawing.js"></script>
         <script src="js/treeplots.js"></script>
+        <script src="js/treestats.js"></script>
         <link rel="stylesheet" type="text/css" href="css/treedrawing.css"></link>
 
         <!-- App-specific styling and code -->
@@ -237,6 +238,8 @@
                     id="statsLTT">Lineages-through-time plot...</li>
                 <li title="Display classic skyline population function estimate from current tree."
                     id="statsSkyline">Skyline plot...</li>
+                <li title="Display information and summary statistics for the current tree."
+                    id="statsTree">Tree statistics...</li>
               </ul>
             </li>
 
@@ -342,7 +345,7 @@
             Annotation key: <input type="text" id="searchAnnotationKey" value="HIGHLIGHT"></input><br/>
         </div>
 
-        <!-- Tree plot dialogs -->
+        <!-- Statistics dialogs -->
 
         <div id="lttDialog" class="dialog" title="Lineages-through-time plot">
           <div id="lttPlotOutput"></div>
@@ -352,6 +355,18 @@
           <div id="skylinePlotOutput"></div>
           <label for="epsSpinner">Min. interval size (relative to tree height):</label>
           <input id="epsSpinner" name="epsSpinner" value="0.0">
+        </div>
+
+        <div id="treeStatsDialog" class="dialog" title="Tree Statistics">
+          <table>
+            <tr><th>Statistic</th> <th>Value</th></tr>
+            <tr><td>Leaf Count</td> <td id="leafCountValue"></td></tr>
+            <tr><td>tMRCA</td> <td id="rootHeightValue"></td></tr>
+            <tr><td>Tree Length</td> <td id="treeLengthValue"></td></tr>
+            <tr><td>Cherry Count</td> <td id="cherryCountValue"></td></tr>
+            <tr><td>Colless's Imbalance</td> <td id="collessImbalanceValue"></td></tr>
+            <tr><td>Scaled Imbalance</td> <td id="scaledImbalanceValue"></td></tr>
+          </table>
         </div>
 
         <!-- Keyboard shortcut help -->

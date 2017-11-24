@@ -216,6 +216,9 @@ $(document).ready(function() {
 	    $("#skylineDialog").dialog("open");
 	    break;
 
+        case "statsTree":
+            $("#treeStatsDialog").dialog("open");
+            break;
 	}
     });
 
@@ -437,7 +440,25 @@ $(document).ready(function() {
     });
     $("#epsSpinner").width(60);
 
-
+    $("#treeStatsDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 400,
+        open: function() {
+            var tree = trees[currentTreeIdx];
+            $("#leafCountValue").text(pretty(TreeStats.nLeaves(tree)));
+            $("#rootHeightValue").text(pretty(TreeStats.rootHeight(tree)));
+            $("#treeLengthValue").text(pretty(TreeStats.treeLength(tree)));
+            $("#cherryCountValue").text(pretty(TreeStats.cherryCount(tree)));
+            $("#collessImbalanceValue").text(pretty(TreeStats.collessImbalance(tree)));
+            $("#scaledImbalanceValue").text(pretty(TreeStats.scaledImbalance(tree)));
+        },
+        buttons: {
+            Ok: function() {
+                $(this).dialog("close");
+            }
+        }
+    });
 
     $("#shortcutHelp").dialog({
         autoOpen: false,

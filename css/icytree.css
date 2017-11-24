@@ -215,6 +215,18 @@ body {
     height: calc(100% - 2em);
 }
 
+#treeStatsDialog table {
+    width: 100%;
+} 
+
+#treeStatsDialog th {
+    text-align: left;
+}
+
+#treeStatsDialog tr:nth-of-type(even) {
+    background-color: #eaeaea;
+}
+
 /* Notifications */
 
 #notify {

@@ -64,8 +64,8 @@ var TreePlots = (function () {
         }
 
         var trace = {
-            x: Array.concat([0], intervalEndTimes),
-            y: Array.concat(effectiveN, [effectiveN[effectiveN.length-1]]),
+            x: [0].concat(intervalEndTimes),
+            y: effectiveN.concat([effectiveN[effectiveN.length-1]]),
             mode: 'lines',
             line: {shape: 'hv'},
             type: 'scatter',

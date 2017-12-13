@@ -131,8 +131,6 @@ var TreePlots = (function () {
                     maxLogL = thisLogL;
                     maxLogLidx = i;
                 }
-
-                console.log("epsT = " + epsT + " logL = " + thisLogL);
             }
 
             skyline = skylines[maxLogLidx];
@@ -143,9 +141,6 @@ var TreePlots = (function () {
             skyline = generateSkyline(data, epsT);
 
         }
-
-
-        console.log("logL = " + getSkylineCorrectedLogL(data, skyline));
 
         var trace = {
             x: [0].concat(skyline.intervalEndTimes),

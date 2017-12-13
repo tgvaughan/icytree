@@ -23,7 +23,7 @@ var TreePlots = (function () {
         Plotly.newPlot(divName, [trace], layout);
     }
 
-    function getSkylineLogL(data, effectiveN, intervalEndTimes) {
+    function getSkylineCorrectedLogL(data, effectiveN, intervalEndTimes) {
         var logL = 0.0;
 
         var dt, k, dk, coalRate;
@@ -39,27 +39,28 @@ var TreePlots = (function () {
 
             while (data.ages[treeIntervalIdx]<=intervalEndTimes[i]) {
                 dt = data.ages[treeIntervalIdx] - treeIntervalStartTime;
-                k = data.lineages[i];
+                k = data.lineages[treeIntervalIdx];
 
                 if (dt>0)
                     S += 1;
 
                 treeIntervalStartTime = data.ages[treeIntervalIdx];
-                treeIntervalIdx += 1;
 
                 coalRate = k*(k-1)/2/N;
                 logL += -dt*coalRate;
 
-                dk = data.lineages[i+1] - data.lineages[i];
+                dk = data.lineages[treeIntervalIdx+1] - data.lineages[treeIntervalIdx];
                 if (dk<0) {
                     logL += Math.log(coalRate); 
                 }
+
+                treeIntervalIdx += 1;
             }
         }
 
         var K = effectiveN.length;
 
-        return logL - K  + K*(K+1)/(S-K-1);
+        return logL - K - K*(K + 1)/(S - K - 1);
     }
 
     function drawSkyline(divName, epsilon) {

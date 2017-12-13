@@ -23,7 +23,7 @@ var TreePlots = (function () {
         Plotly.newPlot(divName, [trace], layout);
     }
 
-    function getSkylineCorrectedLogL(data, effectiveN, intervalEndTimes) {
+    function getSkylineCorrectedLogL(data, skyline) {
         var logL = 0.0;
 
         var dt, k, dk, coalRate;
@@ -33,11 +33,11 @@ var TreePlots = (function () {
 
         var S = 0;
 
-        for (var i=0; i<intervalEndTimes.length; i++) {
+        for (var i=0; i<skyline.intervalEndTimes.length; i++) {
 
-            N = effectiveN[i];
+            N = skyline.effectiveN[i];
 
-            while (data.ages[treeIntervalIdx]<=intervalEndTimes[i]) {
+            while (data.ages[treeIntervalIdx]<=skyline.intervalEndTimes[i]) {
                 dt = data.ages[treeIntervalIdx] - treeIntervalStartTime;
                 k = data.lineages[treeIntervalIdx];
 
@@ -58,21 +58,12 @@ var TreePlots = (function () {
             }
         }
 
-        var K = effectiveN.length;
+        var K = skyline.effectiveN.length;
 
         return logL - K - K*(K + 1)/(S - K - 1);
     }
 
-    function drawSkyline(divName, epsilon) {
-        var data = trees[currentTreeIdx].getLineagesThroughTime();
-
-        // Coalescent trees have 1 lineage remaining above root node
-        data.lineages.push(1);
-
-        if (epsilon === undefined)
-            epsilon = 0.0;
-
-        var epsT = trees[currentTreeIdx].root.height*epsilon;
+    function generateSkyline(data, epsT) {
 
         var effectiveN = [];
         var intervalEndTimes = [];
@@ -81,6 +72,8 @@ var TreePlots = (function () {
         var prevTime = 0.0;
         var accumulator = 0.0;
         var nCoals = 0;
+
+        var nextEpsT = data.ages[data.ages.length-1];
 
         for (var i=0; i<data.lineages.length; i++) {
             dt = data.ages[i]-prevTime;
@@ -108,11 +101,55 @@ var TreePlots = (function () {
             }
         }
 
-        console.log("logL = " + getSkylineLogL(data, effectiveN, intervalEndTimes));
+        return {effectiveN: effectiveN,
+                intervalEndTimes: intervalEndTimes};
+    }
+
+    function drawSkyline(divName, epsilon) {
+
+        var tree = trees[currentTreeIdx];
+        var data = tree.getLineagesThroughTime();
+
+        // Coalescent trees have 1 lineage remaining above root node
+        data.lineages.push(1);
+
+        var skyline, epsT, i;
+
+        if (epsilon === undefined) {
+
+            var skylines = [];
+            var maxLogL = -Infinity;
+            var maxLogLidx = 0;
+            var thisLogL;
+            for (i=0; i<100; i++) {
+                epsT = tree.root.height/100*i;
+
+                skyline = generateSkyline(data, epsT);
+                skylines.push(skyline);
+                thisLogL = getSkylineCorrectedLogL(data, skyline);
+                if (thisLogL > maxLogL) {
+                    maxLogL = thisLogL;
+                    maxLogLidx = i;
+                }
+
+                console.log("epsT = " + epsT + " logL = " + thisLogL);
+            }
+
+            skyline = skylines[maxLogLidx];
+
+        } else {
+
+            epsT = tree.root.height*epsilon;
+            skyline = generateSkyline(data, epsT);
+
+        }
+
+
+        console.log("logL = " + getSkylineCorrectedLogL(data, skyline));
 
         var trace = {
-            x: [0].concat(intervalEndTimes),
-            y: effectiveN.concat([effectiveN[effectiveN.length-1]]),
+            x: [0].concat(skyline.intervalEndTimes),
+            y: skyline.effectiveN.concat([skyline.effectiveN[skyline.effectiveN.length-1]]),
             mode: 'lines',
             line: {shape: 'hv'},
             type: 'scatter',

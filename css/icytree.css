@@ -212,7 +212,7 @@ body {
 
 #skylinePlotOutput {
     width: 100%;
-    height: calc(100% - 2em);
+    height: calc(100% - 3em);
 }
 
 #treeStatsDialog table {

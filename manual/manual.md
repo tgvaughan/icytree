@@ -582,7 +582,11 @@ the most recent leaf in the tree.
 and [Strimmer and Pybus, 2001](https://doi.org/10.1093/oxfordjournals.molbev.a003776))
 provides a maximum likelihood estimate of population history from a single time tree,
 assuming that the tree was produced by a coalescent process under a
-piecewise constant population function.
+piecewise constant population function. With the minimum interval length set to 0, this
+is the classic skyline plot of Pybus et al. (2000), but extended to handle non-ultrametric trees.  With non-zero values for the
+minimum interval length, the result is *similar* to the generalized skyline plot of Stimmer and Pybus (2001), but employs maximum likelihood rather than the method of moments to estimate the interval population sizes.
+
+These features are highly experimental and should not yet be trusted for serious analyses.
 
 Keyboard shortcuts
 ==================

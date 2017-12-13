@@ -405,24 +405,31 @@ $(document).ready(function() {
 	}
     });
 
+    function updateSkyline() {
+        if ($("#optimizeEpsCheckbox").prop("checked"))
+            TreePlots.drawSkyline("skylinePlotOutput");
+        else
+            TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+    }
+
     $("#skylineDialog").dialog({
 	autoOpen: false,
 	modal: true,
 	width: 500,
 	height: 500,
 	open: function() {
-	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+            updateSkyline();
 	    $(this).parent().focus();
 	},
 	resize: function() {
-	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+            updateSkyline();
 	},
-	buttons: {
-		Info: function() {
-			window.open("manual/index.html#stats", "new");
-		},
-	    Ok: function() {
-		$(this).dialog("close");
+        buttons: {
+            Info: function() {
+                window.open("manual/index.html#stats", "new");
+            },
+            Ok: function() {
+                $(this).dialog("close");
 	    }
 	}
     });
@@ -432,13 +439,22 @@ $(document).ready(function() {
 	max: 1.0,
 	step: 0.01,
 	stop: function() {
-	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+	    updateSkyline();
 	},
 	change: function() {
-	    TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+	    updateSkyline();
 	}
     });
     $("#epsSpinner").width(60);
+
+    $("#optimizeEpsCheckbox").on("change", function() {
+        if ($("#optimizeEpsCheckbox").prop("checked"))
+            $("#epsSpinner").spinner().spinner("disable");
+        else
+            $("#epsSpinner").spinner().spinner("enable");
+                                 
+        updateSkyline();
+    });
 
     $("#treeStatsDialog").dialog({
         autoOpen: false,

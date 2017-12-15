@@ -463,11 +463,14 @@ $(document).ready(function() {
         open: function() {
             var tree = trees[currentTreeIdx];
             $("#leafCountValue").text(pretty(TreeStats.nLeaves(tree)));
+            $("#internalCountValue").text(pretty(TreeStats.nInternalNodes(tree)));
+            $("#outDeg1CountValue").text(pretty(TreeStats.nOutDegreeNodes(tree,1)));
+            $("#outDeg2CountValue").text(pretty(TreeStats.nOutDegreeNodes(tree,2)));
+            $("#outDeg2PlusCountValue").text(pretty(TreeStats.nOutDegreeNodes(tree,3,true)));
             $("#rootHeightValue").text(pretty(TreeStats.rootHeight(tree)));
             $("#treeLengthValue").text(pretty(TreeStats.treeLength(tree)));
             $("#cherryCountValue").text(pretty(TreeStats.cherryCount(tree)));
             $("#collessImbalanceValue").text(pretty(TreeStats.collessImbalance(tree)));
-            $("#scaledImbalanceValue").text(pretty(TreeStats.scaledImbalance(tree)));
         },
         buttons: {
             Ok: function() {

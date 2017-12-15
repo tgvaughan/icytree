@@ -32,6 +32,24 @@ var TreeStats = (function () {
         return tree.getLeafList().length;
     }
 
+    stats.nInternalNodes = function(tree) {
+        return tree.getNodeList().length - tree.getLeafList().length;
+    }
+
+    stats.nOutDegreeNodes = function(tree, outDegree, orMore=false) {
+        var n = 0;
+
+        for (var i=0; i<tree.getNodeList().length; i++) {
+            var node = tree.getNodeList()[i];
+
+            if (node.children.length == outDegree
+                || (orMore && node.children.length > outDegree))
+                n += 1;
+        }
+
+        return n;
+    }
+
     stats.rootHeight = function(tree) {
         if (!tree.isTimeTree)
             return undefined;
@@ -100,31 +118,7 @@ var TreeStats = (function () {
             }
         }
 
-        console.log(cladeSizes)
-
         return imbalance;
-    }
-
-    stats.scaledImbalance = function(tree) {
-
-        var cladeSizes = {};
-        computeCladeSizes(tree.root, cladeSizes);
-
-        var imbalance = 0;
-        var nNodesIncluded = 0;
-        
-        for (var i=0; i<tree.getNodeList().length; i++) {
-            var node = tree.getNodeList()[i];
-
-            if (node.children.length == 2) {
-                var n0 = cladeSizes[node.children[0]];
-                var n1 = cladeSizes[node.children[1]];
-                imbalance += Math.abs(n1 - n0)/(n1 + n0);
-                nNodesIncluded += 1;
-            }
-        }
-
-        return imbalance/nNodesIncluded;
     }
 
     return stats;

@@ -63,7 +63,7 @@ var TreePlots = (function () {
         return logL - K - K*(K + 1)/(S - K - 1);
     }
 
-    function generateSkyline(data, epsT) {
+    function getSkyline(data, epsT) {
 
         var effectiveN = [];
         var intervalEndTimes = [];
@@ -105,6 +105,30 @@ var TreePlots = (function () {
                 intervalEndTimes: intervalEndTimes};
     }
 
+    function getGeneralizedSkyline(data, treeHeight) {
+
+        var skylines = [];
+
+        var maxLogL = -Infinity;
+        var maxLogLidx = 0;
+
+        var thisSkyline, thisLogL;
+
+        for (i=0; i<100; i++) {
+            epsT = treeHeight/100*i;
+
+            thisSkyline = getSkyline(data, epsT);
+            skylines.push(thisSkyline);
+            thisLogL = getSkylineCorrectedLogL(data, thisSkyline);
+            if (thisLogL > maxLogL) {
+                maxLogL = thisLogL;
+                maxLogLidx = i;
+            }
+        }
+
+        return skylines[maxLogLidx];
+    }
+
     function drawSkyline(divName, epsilon) {
 
         var tree = trees[currentTreeIdx];
@@ -115,32 +139,10 @@ var TreePlots = (function () {
 
         var skyline, epsT, i;
 
-        if (epsilon === undefined) {
-
-            var skylines = [];
-            var maxLogL = -Infinity;
-            var maxLogLidx = 0;
-            var thisLogL;
-            for (i=0; i<100; i++) {
-                epsT = tree.root.height/100*i;
-
-                skyline = generateSkyline(data, epsT);
-                skylines.push(skyline);
-                thisLogL = getSkylineCorrectedLogL(data, skyline);
-                if (thisLogL > maxLogL) {
-                    maxLogL = thisLogL;
-                    maxLogLidx = i;
-                }
-            }
-
-            skyline = skylines[maxLogLidx];
-
-        } else {
-
-            epsT = tree.root.height*epsilon;
-            skyline = generateSkyline(data, epsT);
-
-        }
+        if (epsilon === undefined)
+            skyline = getGeneralizedSkyline(data, tree.root.height);
+        else
+            skyline = getSkyline(data, tree.root.height*epsilon);
 
         var trace = {
             x: [0].concat(skyline.intervalEndTimes),

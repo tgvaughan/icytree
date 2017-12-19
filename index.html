@@ -66,6 +66,9 @@
                     <li title="Open a dialog box where trees can be entered directly in Newick format or any of the other supported formats."
                         id="fileEnter"><span class="ui-icon ui-icon-pencil"></span>Enter tree directly...
                         <span class="ks">e</span></li>
+                    <li title="Load a file from a specified URL."
+                        id="fileURLLoad"><span class="ui-icon ui-icon-link"></span>Load from URL...
+                      <span class="ks">u</span></li>
                     <li>---</li>
                     <li title="Export currently-displayed tree."
                         id="fileExport" class="ui-state-disabled"><span class="ui-icon ui-icon-disk"></span>Export tree as...
@@ -294,6 +297,12 @@
             <textarea placeholder="newick string..."></textarea>
         </div>
 
+        <!-- Load from URL -->
+        <div id="loadURL" title="Load file from URL">
+          <input type="text" id="urlToLoad"
+                 placeholder="URL of tree file"></input>
+        </div>
+
         <!-- File input element -->
         <input id="fileInput" type="file"/>
 
@@ -382,6 +391,7 @@
                 <tr><td>e</td> <td>Enter trees directly</td></tr>
                 <tr><td>l</td> <td>Load trees from file</td></tr>
                 <tr><td>r</td> <td>Reload current file</td></tr>
+                <tr><td>u</td> <td>Load trees from URL</td></tr>
                 <tr><td>' "</td> <td>Cycle tree layout</td></tr>
                 <tr><td>t T</td> <td>Cycle tip labels</td></tr>
                 <tr><td>i I</td> <td>Cycle internal node labels</td></tr>

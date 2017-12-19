@@ -85,58 +85,62 @@ $(document).ready(function() {
 
     $("#fileMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
-            case "fileEnter":
-                $("#directEntry").dialog("open");
-                var textBox = $("#directEntry").find("textArea");
-                textBox.focus();
-                textBox.select();
-                break;
+        case "fileEnter":
+            $("#directEntry").dialog("open");
+            var textBox = $("#directEntry").find("textArea");
+            textBox.focus();
+            textBox.select();
+            break;
 
-            case "fileLoad":
-                // Clear file input (otherwise can't reload same file)
-                $("#fileInput").replaceWith($("#fileInput").clone(true));
+        case "fileLoad":
+            // Clear file input (otherwise can't reload same file)
+            $("#fileInput").replaceWith($("#fileInput").clone(true));
 
-                // Trigger click on file input
-                if (!$(this).parent().hasClass("ui-state-disabled")) {
-                    $("#fileInput").trigger("click");
-                }
-                break;
+            // Trigger click on file input
+            if (!$(this).parent().hasClass("ui-state-disabled")) {
+                $("#fileInput").trigger("click");
+            }
+            break;
 
-            case "fileReload":
-                reloadWarning();
-                loadFile();
-                break;
+        case "fileURLLoad":
+            $("#loadURL").dialog("open");
+            break;
 
-            case "fileExportSVG":
-                exportSVG();
-                break;
+        case "fileReload":
+            reloadWarning();
+            loadFile();
+            break;
 
-            case "fileExportPNG":
-                exportRaster("png");
-                break;
+        case "fileExportSVG":
+            exportSVG();
+            break;
 
-            case "fileExportJPEG":
-                exportRaster("jpeg");
-                break;
+        case "fileExportPNG":
+            exportRaster("png");
+            break;
 
-            case "fileExportNewick":
-                exportTreeFile("newick");
-                break;
+        case "fileExportJPEG":
+            exportRaster("jpeg");
+            break;
 
-            case "fileExportNEXUS":
-                exportTreeFile("nexus");
-                break;
+        case "fileExportNewick":
+            exportTreeFile("newick");
+            break;
 
-            case "fileExportPhyloXML":
-                exportTreeFile("phyloxml");
-                break;
+        case "fileExportNEXUS":
+            exportTreeFile("nexus");
+            break;
 
-            case "fileExportNeXML":
-                exportTreeFile("nexml");
-                break;
+        case "fileExportPhyloXML":
+            exportTreeFile("phyloxml");
+            break;
 
-            default:
-                break;
+        case "fileExportNeXML":
+            exportTreeFile("nexml");
+            break;
+
+        default:
+            break;
         }
     });
 
@@ -255,18 +259,32 @@ $(document).ready(function() {
                 reloadTreeData();
                 $(this).dialog("close");
             },
-        Clear: function() {
-            $(this).find("textArea").val("");
-        },
-        Cancel: function() {
-            $(this).dialog("close");
-        }}
+            Clear: function() {
+                $(this).find("textArea").val("");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }}
     });
 
     $("#fileInput").change(function() {
         treeFile = $("#fileInput").prop("files")[0];
         loadFile();
     });
+
+    $("#loadURL").dialog({
+        autoOpen: false,
+        modal: true,
+        buttons: {
+            Load: function() {
+                loadURL($("#urlToLoad").val());
+                $(this).dialog("close");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }}
+    });
+            
 
     $("#axisOffsetDialog").dialog({
         autoOpen: false,
@@ -649,6 +667,22 @@ function loadFile() {
         reloadTreeData();
     }
 
+}
+
+//Load tree data from URL
+function loadURL(url) {
+    $.get(url, null, function(data) {
+        treeData = data;
+        reloadTreeData();
+    }, "text").fail(function() {
+        proxyurl = "https://cors.io/?" + url;
+        $.get(proxyurl, null, function(data) {
+            treeData = data;
+            reloadTreeData();
+        }, "text").fail(function() {
+            displayError("","Error loading from URL.");
+        });
+    });
 }
 
 // Display space-filling frame with big text
@@ -1226,7 +1260,7 @@ function update() {
     if (trees.length === 0) {
             document.title = "IcyTree";
     } else {
-        if (treeFile !== null)
+        if (treeFile !== undefined && treeFile !== null)
             document.title = "IcyTree: " + treeFile.name;
         else
             document.title = "IcyTree";
@@ -1443,29 +1477,35 @@ function keyPressHandler(event) {
     // Presses valid at all times:
 
     switch (eventChar) {
-        case "?":
-            // Keyboard shortcut help
-            $("#shortcutHelp").dialog("open");
-            event.preventDefault();
-            return;
+    case "?":
+        // Keyboard shortcut help
+        $("#shortcutHelp").dialog("open");
+        event.preventDefault();
+        return;
 
-        case "e":
-            // Enter trees directly
-            $("#fileEnter").trigger("click");
-            event.preventDefault();
-            return;
+    case "e":
+        // Enter trees directly
+        $("#fileEnter").trigger("click");
+        event.preventDefault();
+        return;
 
-        case "l":
-            // Load trees from file
-            $("#fileLoad").trigger("click");
-            event.preventDefault();
-            return;
+    case "l":
+        // Load trees from file
+        $("#fileLoad").trigger("click");
+        event.preventDefault();
+        return;
 
-        case "r":
-            // Reload:
-            reloadWarning();
-            loadFile();
-            return;
+    case "r":
+        // Reload:
+        reloadWarning();
+        loadFile();
+        return;
+
+    case "u":
+        // Load from URL
+        $("#loadURL").dialog("open");
+        event.preventDefault();
+        return;
     }
 
     if (trees.length === 0)

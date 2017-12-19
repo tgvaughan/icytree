@@ -122,6 +122,19 @@ can be entered using their Newick representation.  (In fact, it is possible to
 enter trees using any of the supported formats, although this feature is
 probably most useful for simple Newick descriptions.)
 
+Loading trees from a URL
+------------------------
+
+To load one or more trees from a file identified using a URL, open the
+File menu and select "Load from URL".  This will display a dialog box
+where you can enter a URL.  Pressing the Load button will then attempt
+to load the file at this URL.
+
+Technical note: this facility requires the server on which the file is
+hosted allow cross-origin access. In the case that the request fails,
+IcyTree attempts to use a CORS proxy to access the file, but this may
+fail if the availability of the proxy changes.
+
 Saving images
 -------------
 

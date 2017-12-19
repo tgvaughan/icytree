@@ -138,6 +138,10 @@ browser at the following address will load IcyTree and open the file:
 
     http://icytree.org/?http://example.edu/tree.newick
 
+This also means that it is possible to embed links in web pages which
+cause browsers to view trees in IcyTree.  For instance, clicking on the
+[this link](https://icytree.org/?https://icytree.org/examples/primates.newick) opens an IcyTree visualisation of a primate tree.
+
 Technical note: the URL loading facility requires the server on which
 the file is hosted allow cross-origin access. In the case that the
 request fails, IcyTree attempts to use a CORS proxy to access the

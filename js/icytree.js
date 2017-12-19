@@ -558,7 +558,9 @@ $(document).ready(function() {
             }}
     });
 
-    update();
+    // Check for and process URL GET parameters
+    if (!maybeLoadFromHrefURL())
+        update();
 
     // Display warning if required functions unavailable.
     if (!browserValid()) {
@@ -570,6 +572,20 @@ $(document).ready(function() {
 // Test for use of FF
 function browserIsFF() {
     return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
+}
+
+// Checks for URL as parameter in HREF and, if present, loads tree file from URL
+// and returns true.  Otherwise returns false.
+function maybeLoadFromHrefURL() {
+
+    var href = window.location.href;
+    var idx = href.indexOf("?");
+    if (idx<0)
+        return false;
+    else {
+        loadURL(href.substring(idx+1));
+        return true;
+    }
 }
 
 function reloadWarning() {

@@ -130,10 +130,18 @@ File menu and select "Load from URL".  This will display a dialog box
 where you can enter a URL.  Pressing the Load button will then attempt
 to load the file at this URL.
 
-Technical note: this facility requires the server on which the file is
-hosted allow cross-origin access. In the case that the request fails,
-IcyTree attempts to use a CORS proxy to access the file, but this may
-fail if the availability of the proxy changes.
+You can also load files from a URL by appending the URL pointing to
+the tree file to IcyTree's URL, with a "?" separating the two.  For
+instance, suppose a tree file is hosted at
+http://example.edu/tree.newick. Pointing your (IcyTree-compatible) web
+browser at the following address will load IcyTree and open the file:
+
+    http://icytree.org/?http://example.edu/tree.newick
+
+Technical note: the URL loading facility requires the server on which
+the file is hosted allow cross-origin access. In the case that the
+request fails, IcyTree attempts to use a CORS proxy to access the
+file, but this may fail if the availability of the proxy changes.
 
 Saving images
 -------------

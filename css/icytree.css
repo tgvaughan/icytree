@@ -148,6 +148,11 @@ body {
     left: -9999px;  /* So ugly! */
 }
 
+/* Load URL */
+#urlToLoad {
+    width: 95%;
+}
+
 /* Axis offset */
 #axisOffsetDialog {
     font: 14px sans-serif;

@@ -170,6 +170,7 @@ $(document).ready(function() {
                     case "styleSort":
                     case "styleLayout":
                     case "styleColourTrait":
+                    case "styleColourNodeTrait":
                     case "styleTipTextTrait":
                     case "styleNodeTextTrait":
                     case "styleRecombTextTrait":
@@ -1322,10 +1323,15 @@ function update() {
     // Update trait selectors:
     updateTraitSelectors();
 
-    // Determine whether colouring is required:
+    // Determine whether edge colouring is required:
     TreeStyle.colourTrait = $("#styleColourTrait span").parent().text();
     if (TreeStyle.colourTrait === "None")
         TreeStyle.colourTrait = undefined;
+
+    // Determine whether node colouring is required:
+    TreeStyle.colourTrait = $("#styleColourNodeTrait span").parent().text();
+    if (TreeStyle.colourNodeTrait === "None")
+        TreeStyle.colourNodeTrait = undefined;
 
     // Determine whether tip labels are required:
     TreeStyle.tipTextTrait = $("#styleTipTextTrait span").parent().text();

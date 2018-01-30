@@ -53,6 +53,7 @@ var TreeStyle = {
     marginRight: 40,
 
     colourTrait: undefined,
+    colourNodeTrait: undefined,
 
     tipTextTrait: "label",
     nodeTextTrait: undefined,

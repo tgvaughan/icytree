@@ -1150,6 +1150,33 @@ var Display = (function() {
 
         assignColours(svg, edgeColourAssignment);
 
+        // Mark additional nodes:
+
+        for (nodeID in layout.nodePositions) {
+            thisNode = layout.tree.getNode(nodeID);
+
+            if (thisNode in layout.collapsedCladeRoots
+                || thisNode in layout.collapsedCladeNodes
+                || thisNode.isHybrid())
+                continue;
+
+            if (nodeColourAssignment !== undefined) {
+                // Mark all nodes when colouring:
+                
+                svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode]),
+                                            getColourTraitValue(thisNode, nodeColourAssignment)));
+            } else {
+                // Mark singleton nodes only if requested:
+
+                if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
+                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
+                }
+            }
+        }
+
+        // Assign colours to node trait classes:
+
+        assignColours(svg, nodeColourAssignment);
 
         // Draw tip and recombinant edge labels:
 
@@ -1237,33 +1264,6 @@ var Display = (function() {
                 }
             }
         }
-
-        // Mark additional nodes:
-
-        for (nodeID in layout.nodePositions) {
-            thisNode = layout.tree.getNode(nodeID);
-
-            if (thisNode in layout.collapsedCladeRoots
-                || thisNode in layout.collapsedCladeNodes
-                || thisNode.isHybrid())
-                continue;
-
-            if (nodeColourAssignment !== undefined) {
-                // Mark all nodes when colouring:
-                
-                svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode]),
-                                            getColourTraitValue(thisNode, nodeColourAssignment)));
-            } else {
-                // Mark singleton nodes only if requested:
-
-                if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
-                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
-                }
-            }
-        }
-
-        // Assign colours to node trait classes:
-        assignColours(svg, nodeColourAssignment);
 
         // Attach event handlers for pan and zoom:
         ZoomControl.init(svg, layout);

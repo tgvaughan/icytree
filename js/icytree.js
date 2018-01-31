@@ -1597,6 +1597,18 @@ function keyPressHandler(event) {
             event.preventDefault();
             return;
 
+        case "k":
+            // Cycle branch colour:
+            cycleListItem($("#styleNodeColourTrait"));
+            event.preventDefault();
+            return;
+
+        case "K":
+            // Reverse cycle branch colour:
+            reverseCycleListItem($("#styleNodeColourTrait"));
+            event.preventDefault();
+            return;
+
         case "b":
             // Cycle node bars:
             cycleListItem($("#styleNodeBarTrait"));

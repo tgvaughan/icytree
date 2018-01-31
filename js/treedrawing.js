@@ -739,7 +739,7 @@ var Display = (function() {
             }
         }
 
-        if (TreeStyle.legend && edgeColourAssignment !== null) {
+        if (TreeStyle.legend && edgeColourAssignment !== undefined) {
 
             if (edgeColourAssignment.seenColourTraitValues.length>0) {
                 coord = svg.createSVGPoint();
@@ -1202,7 +1202,7 @@ var Display = (function() {
             }
         }
 
-        // Mark internal nodes:
+        // Mark additional nodes:
 
         for (nodeID in layout.nodePositions) {
             thisNode = layout.tree.getNode(nodeID);
@@ -1213,9 +1213,12 @@ var Display = (function() {
                 continue;
 
             if (nodeColourAssignment !== undefined) {
+                // Mark all nodes when colouring:
+                
                 svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode]),
                                             getColourTraitValue(thisNode, nodeColourAssignment)));
             } else {
+                // Mark singleton nodes only if requested:
 
                 if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
                     svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));

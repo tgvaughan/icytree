@@ -673,6 +673,78 @@ var Display = (function() {
         svg.appendChild(axLabel);
     }
 
+    function drawLegend(svg, colourAssignment, offset) {
+        if (colourAssignment.seenColourTraitValues.length == 0)
+            return 0;
+
+        if (offset === undefined)
+            offset = 0;
+        
+        var legendHeight = colourAssignment.seenColourTraitValues.length*20 + 45;
+
+        coord = svg.createSVGPoint();
+        coord.x = 10;
+        coord.y = TreeStyle.height - legendHeight - offset;
+        transformToSVG(svg, coord);
+
+        title = document.createElementNS(NS, "text");
+        title.setAttribute("class", "axisComponent");
+        title.setAttribute("x",  coord.x);
+        title.setAttribute("y",  coord.y);
+
+        var titleText;
+        if (colourAssignment.type == "edge")
+            titleText = "Edge colour: ";
+        else
+            titleText = "Node colour: ";
+
+        var trait = colourAssignment.colourTrait;
+        titleText += trait[0].toUpperCase() + trait.substr(1).toLowerCase();
+
+        title.textContent = titleText;
+        svg.appendChild(title);
+
+
+        for (var i=0; i<colourAssignment.seenColourTraitValues.length; i++) {
+
+            coord = svg.createSVGPoint();
+            coord.x = 20;
+            coord.y = TreeStyle.height - legendHeight + 15 + i*20 - offset;
+
+            transformToSVG(svg, coord);
+
+            var dot;
+            if (colourAssignment.type == "edge") {
+                dot = document.createElementNS(NS, "rect");
+                dot.setAttribute("x", coord.x - getSVGWidth(svg, 5));
+                dot.setAttribute("y", coord.y - getSVGHeight(svg, 2));
+                dot.setAttribute("width", getSVGWidth(svg, 10));
+                dot.setAttribute("height", getSVGHeight(svg, 4));
+                dot.setAttribute("class", "axisComponent");
+            } else {
+                dot = document.createElementNS(NS, "ellipse");
+                dot.setAttribute("cx", coord.x);
+                dot.setAttribute("cy", coord.y);
+                dot.setAttribute("rx", getSVGWidth(svg, 5));
+                dot.setAttribute("ry", getSVGHeight(svg, 5));
+                dot.setAttribute("shape-rendering", "auto");
+            }
+            dot.setAttribute("fill", colourAssignment.colourPallet[i]);
+            dot.setAttribute("class", "axisComponent");
+            svg.appendChild(dot);
+
+            label = document.createElementNS(NS, "text");
+            label.setAttribute("class", "axisComponent");
+            label.setAttribute("x", coord.x + getSVGWidth(svg, 15));
+            label.setAttribute("y", coord.y + getSVGHeight(svg, 5));
+            label.setAttribute("fill", colourAssignment.colourPallet[i]);
+            label.textContent = colourAssignment.seenColourTraitValues[i];
+            svg.appendChild(label);
+        }
+
+        return legendHeight;
+    }
+
     // Add/update axis to tree visualization.
     function updateAxis(svg, layout) {
         // Delete any existing axis components
@@ -739,49 +811,13 @@ var Display = (function() {
             }
         }
 
-        if (TreeStyle.legend && edgeColourAssignment !== undefined) {
+        if (TreeStyle.legend) {
+            var offset = 0;
+            if (edgeColourAssignment !== undefined)
+                offset = drawLegend(svg, edgeColourAssignment);
 
-            if (edgeColourAssignment.seenColourTraitValues.length>0) {
-                coord = svg.createSVGPoint();
-                coord.x = 10;
-                coord.y = TreeStyle.height - edgeColourAssignment.seenColourTraitValues.length*20 - 30 - 15;
-                transformToSVG(svg, coord);
-
-                title = document.createElementNS(NS, "text");
-                title.setAttribute("class", "axisComponent");
-                title.setAttribute("x",  coord.x);
-                title.setAttribute("y",  coord.y);
-                //title.textContent = "Legend:";
-                var trait = TreeStyle.edgeColourTrait;
-                title.textContent = trait[0].toUpperCase() + trait.substr(1).toLowerCase();
-                svg.appendChild(title);
-            }
-
-            for (var i=0; i<edgeColourAssignment.seenColourTraitValues.length; i++) {
-
-                coord = svg.createSVGPoint();
-                coord.x = 20;
-                coord.y = TreeStyle.height - edgeColourAssignment.seenColourTraitValues.length*20 - 30 + i*20;
-                transformToSVG(svg, coord);
-
-                dot = document.createElementNS(NS, "rect");
-                dot.setAttribute("x", coord.x - getSVGWidth(svg, 5));
-                dot.setAttribute("y", coord.y - getSVGHeight(svg, 5));
-                dot.setAttribute("width", getSVGWidth(svg, 10));
-                dot.setAttribute("height", getSVGHeight(svg, 10));
-                dot.setAttribute("fill", edgeColourAssignment.colourPallet[i]);
-                dot.setAttribute("class", "axisComponent");
-                svg.appendChild(dot);
-
-                label = document.createElementNS(NS, "text");
-                label.setAttribute("class", "axisComponent");
-                label.setAttribute("x", coord.x + getSVGWidth(svg, 15));
-                label.setAttribute("y", coord.y + getSVGHeight(svg, 5));
-                label.setAttribute("fill", edgeColourAssignment.colourPallet[i]);
-                label.textContent = edgeColourAssignment.seenColourTraitValues[i];
-                svg.appendChild(label);
-            }
-
+            if (nodeColourAssignment !== undefined)
+                drawLegend(svg, nodeColourAssignment, offset);
         }
     }
 
@@ -1610,7 +1646,7 @@ var ZoomControl = {
 
         // Ensure text positions and node mark sizes are correct
         this.updateNonAxisTextScaling();
-        this.updateInternalNodeMarkScaling();
+        this.updateNodeMarkScaling();
     },
 
     updateView: function() {
@@ -1702,7 +1738,7 @@ var ZoomControl = {
         }
     },
 
-    updateInternalNodeMarkScaling: function() {
+    updateNodeMarkScaling: function() {
         var nodeMarkElements = this.svg.getElementsByClassName("nodeMark");
         for (var i=0; i<nodeMarkElements.length; i++) {
             var dash = nodeMarkElements[i];
@@ -1767,7 +1803,7 @@ var ZoomControl = {
 
         this.updateView();
         this.updateNonAxisTextScaling();
-        this.updateInternalNodeMarkScaling();
+        this.updateNodeMarkScaling();
 
         this.zeroPanOrigin(event.layerX, event.layerY);
     },
@@ -1807,7 +1843,7 @@ var ZoomControl = {
         this.zoomFactorY = 1.0;
         this.updateView();
         this.updateNonAxisTextScaling();
-        this.updateInternalNodeMarkScaling();
+        this.updateNodeMarkScaling();
     }
 };
 

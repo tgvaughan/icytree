@@ -169,8 +169,8 @@ $(document).ready(function() {
                 switch(ui.item.parent().attr("id")) {
                     case "styleSort":
                     case "styleLayout":
-                    case "styleColourTrait":
-                    case "styleColourNodeTrait":
+                    case "styleEdgeColourTrait":
+                    case "styleNodeColourTrait":
                     case "styleTipTextTrait":
                     case "styleNodeTextTrait":
                     case "styleRecombTextTrait":
@@ -383,7 +383,7 @@ $(document).ready(function() {
 
                 // Colour tree using highlighting trait
                 var hlElement;
-                $("#styleColourTrait").children().each(function() {
+                $("#styleEdgeColourTrait").children().each(function() {
                     if ($(this).text() === akey) {
                         hlElement = $(this);
                     }
@@ -669,7 +669,7 @@ function clearSearchHighlight() {
         delete node.annotation[akey];
     });
 
-    var noneElement = $($("#styleColourTrait a")[0]);
+    var noneElement = $($("#styleEdgeColourTrait a")[0]);
     selectListItem(noneElement, true, false);
 }
 
@@ -906,13 +906,14 @@ function itemToggledOn(el) {
 function updateTraitSelectors() {
     var tree = trees[currentTreeIdx];
 
-    var elements = [$("#styleColourTrait"),
-        $("#styleTipTextTrait"),
-        $("#styleRecombTextTrait"),
-        $("#styleNodeTextTrait"),
-        $("#styleNodeBarTrait"),
-        $("#styleEdgeOpacityTrait"),
-        $("#styleRecombOpacityTrait")];
+    var elements = [$("#styleEdgeColourTrait"),
+                    $("#styleNodeColourTrait"),
+                    $("#styleTipTextTrait"),
+                    $("#styleRecombTextTrait"),
+                    $("#styleNodeTextTrait"),
+                    $("#styleNodeBarTrait"),
+                    $("#styleEdgeOpacityTrait"),
+                    $("#styleRecombOpacityTrait")];
 
     $.each(elements, function (eidx, el) {
 
@@ -1324,14 +1325,14 @@ function update() {
     updateTraitSelectors();
 
     // Determine whether edge colouring is required:
-    TreeStyle.colourTrait = $("#styleColourTrait span").parent().text();
-    if (TreeStyle.colourTrait === "None")
-        TreeStyle.colourTrait = undefined;
+    TreeStyle.edgeColourTrait = $("#styleEdgeColourTrait span").parent().text();
+    if (TreeStyle.edgeColourTrait === "None")
+        TreeStyle.edgeColourTrait = undefined;
 
     // Determine whether node colouring is required:
-    TreeStyle.colourTrait = $("#styleColourNodeTrait span").parent().text();
-    if (TreeStyle.colourNodeTrait === "None")
-        TreeStyle.colourNodeTrait = undefined;
+    TreeStyle.nodeColourTrait = $("#styleNodeColourTrait span").parent().text();
+    if (TreeStyle.nodeColourTrait === "None")
+        TreeStyle.nodeColourTrait = undefined;
 
     // Determine whether tip labels are required:
     TreeStyle.tipTextTrait = $("#styleTipTextTrait span").parent().text();
@@ -1586,13 +1587,13 @@ function keyPressHandler(event) {
 
         case "c":
             // Cycle branch colour:
-            cycleListItem($("#styleColourTrait"));
+            cycleListItem($("#styleEdgeColourTrait"));
             event.preventDefault();
             return;
 
         case "C":
             // Reverse cycle branch colour:
-            reverseCycleListItem($("#styleColourTrait"));
+            reverseCycleListItem($("#styleEdgeColourTrait"));
             event.preventDefault();
             return;
 

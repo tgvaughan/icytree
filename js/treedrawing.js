@@ -52,8 +52,8 @@ var TreeStyle = {
     marginLeft: 10,
     marginRight: 40,
 
-    colourTrait: undefined,
-    colourNodeTrait: undefined,
+    edgeColourTrait: undefined,
+    nodeColourTrait: undefined,
 
     tipTextTrait: "label",
     nodeTextTrait: undefined,
@@ -720,7 +720,7 @@ var Display = (function() {
                 title.setAttribute("x",  coord.x);
                 title.setAttribute("y",  coord.y);
                 //title.textContent = "Legend:";
-                var trait = TreeStyle.colourTrait;
+                var trait = TreeStyle.edgeColourTrait;
                 title.textContent = trait[0].toUpperCase() + trait.substr(1).toLowerCase();
                 svg.appendChild(title);
             }
@@ -762,14 +762,14 @@ var Display = (function() {
 
     // Returns value of colour trait for given node:
     function getColourTraitValue(node) {
-        if (TreeStyle.colourTrait === undefined)
+        if (TreeStyle.edgeColourTrait === undefined)
             return undefined;
 
         var traitValue;
-        if (TreeStyle.colourTrait === "Label")
+        if (TreeStyle.edgeColourTrait === "Label")
             traitValue = node.label;
         else
-            traitValue = node.annotation[TreeStyle.colourTrait];
+            traitValue = node.annotation[TreeStyle.edgeColourTrait];
 
         if (traitValue !== undefined && seenColourTraitValues.indexOf(traitValue)<0) {
             seenColourTraitValues = seenColourTraitValues.concat(traitValue);

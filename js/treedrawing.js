@@ -562,11 +562,13 @@ var Display = (function() {
             return screenHeight*svg.viewBox.baseVal.height/TreeStyle.height;
     }
 
-    var seenColourTraitValues = [];
-    var colourPallet = [];
+    var edgeColourAssignment = undefined;
+    var nodeColourAssignment = undefined;
 
     // Generate a colour pallet for N distinct trait values
-    function genColourPallet (N) {
+    function genColourPallet (colourAssignment) {
+        if (colourAssignment === undefined)
+            return;
 
         // Taken from https://gist.github.com/mjackson/5311256
         function hslToRgb(h, s, l) {
@@ -600,12 +602,42 @@ var Display = (function() {
             return "#" + paddedHex(r) + paddedHex(g) + paddedHex(b);
         }
 
-        colourPallet = [];
+        colourAssignment.colourPallet = [];
+        var N = colourAssignment.seenColourTraitValues.length;
         var delta = Math.min(0.33, 1/N);
         for (var idx=0; idx<N; idx++) {
             var hue = 1 - idx*delta;
             var lightness = (hue>0.1 && hue<0.5) ? 0.30 : 0.45;
-            colourPallet[idx] = hslToRgb(hue, 1, lightness);
+            colourAssignment.colourPallet[idx] = hslToRgb(hue, 1, lightness);
+        }
+    }
+
+    // Assign colours to svg elements
+    function assignColours(svg, colourAssignment) {
+        if (colourAssignment === undefined)
+            return;
+        
+        genColourPallet(colourAssignment);
+
+        var traitsAreNumeric = true;
+        for (i=0; i<colourAssignment.seenColourTraitValues.length; i++) {
+            var traitVal = colourAssignment.seenColourTraitValues[i];
+            if (isNaN(traitVal-0)) {
+                traitsAreNumeric = false;
+                break;
+            }
+        }
+        if (traitsAreNumeric) {
+            colourAssignment.seenColourTraitValues.sort(function(a, b) {return a-b;});
+        } else {
+            colourAssignment.seenColourTraitValues.sort();
+        }
+        for (var t=0; t<colourAssignment.seenColourTraitValues.length; t++ ) {
+            var thisVal = colourAssignment.seenColourTraitValues[t];
+            var svgEls = svg.getElementsByClassName(colourAssignment.type + "trait_" + window.btoa(thisVal));
+            for (var l=0; l<svgEls.length; l++) {
+                svgEls[l].setAttribute(colourAssignment.attribute, colourAssignment.colourPallet[t]);
+            }
         }
     }
 
@@ -707,12 +739,12 @@ var Display = (function() {
             }
         }
 
-        if (TreeStyle.legend && seenColourTraitValues !== null) {
+        if (TreeStyle.legend && edgeColourAssignment !== null) {
 
-            if (seenColourTraitValues.length>0) {
+            if (edgeColourAssignment.seenColourTraitValues.length>0) {
                 coord = svg.createSVGPoint();
                 coord.x = 10;
-                coord.y = TreeStyle.height - seenColourTraitValues.length*20 - 30 - 15;
+                coord.y = TreeStyle.height - edgeColourAssignment.seenColourTraitValues.length*20 - 30 - 15;
                 transformToSVG(svg, coord);
 
                 title = document.createElementNS(NS, "text");
@@ -725,11 +757,11 @@ var Display = (function() {
                 svg.appendChild(title);
             }
 
-            for (var i=0; i<seenColourTraitValues.length; i++) {
+            for (var i=0; i<edgeColourAssignment.seenColourTraitValues.length; i++) {
 
                 coord = svg.createSVGPoint();
                 coord.x = 20;
-                coord.y = TreeStyle.height - seenColourTraitValues.length*20 - 30 + i*20;
+                coord.y = TreeStyle.height - edgeColourAssignment.seenColourTraitValues.length*20 - 30 + i*20;
                 transformToSVG(svg, coord);
 
                 dot = document.createElementNS(NS, "rect");
@@ -737,7 +769,7 @@ var Display = (function() {
                 dot.setAttribute("y", coord.y - getSVGHeight(svg, 5));
                 dot.setAttribute("width", getSVGWidth(svg, 10));
                 dot.setAttribute("height", getSVGHeight(svg, 10));
-                dot.setAttribute("fill", colourPallet[i]);
+                dot.setAttribute("fill", edgeColourAssignment.colourPallet[i]);
                 dot.setAttribute("class", "axisComponent");
                 svg.appendChild(dot);
 
@@ -745,8 +777,8 @@ var Display = (function() {
                 label.setAttribute("class", "axisComponent");
                 label.setAttribute("x", coord.x + getSVGWidth(svg, 15));
                 label.setAttribute("y", coord.y + getSVGHeight(svg, 5));
-                label.setAttribute("fill", colourPallet[i]);
-                label.textContent = seenColourTraitValues[i];
+                label.setAttribute("fill", edgeColourAssignment.colourPallet[i]);
+                label.textContent = edgeColourAssignment.seenColourTraitValues[i];
                 svg.appendChild(label);
             }
 
@@ -761,18 +793,18 @@ var Display = (function() {
     // {{{ 
 
     // Returns value of colour trait for given node:
-    function getColourTraitValue(node) {
-        if (TreeStyle.edgeColourTrait === undefined)
+    function getColourTraitValue(node, colourAssignment) {
+        if (colourAssignment === undefined)
             return undefined;
 
         var traitValue;
-        if (TreeStyle.edgeColourTrait === "Label")
+        if (colourAssignment.colourTrait === "Label")
             traitValue = node.label;
         else
-            traitValue = node.annotation[TreeStyle.edgeColourTrait];
+            traitValue = node.annotation[colourAssignment.colourTrait];
 
-        if (traitValue !== undefined && seenColourTraitValues.indexOf(traitValue)<0) {
-            seenColourTraitValues = seenColourTraitValues.concat(traitValue);
+        if (traitValue !== undefined && colourAssignment.seenColourTraitValues.indexOf(traitValue)<0) {
+            colourAssignment.seenColourTraitValues = colourAssignment.seenColourTraitValues.concat(traitValue);
         }
 
         return traitValue;
@@ -806,7 +838,7 @@ var Display = (function() {
         var classes = "treeEdge";
 
         if (colourTrait !== undefined)
-            classes += " trait_" + window.btoa(colourTrait);
+            classes += " edgetrait_" + window.btoa(colourTrait);
         else
             path.setAttribute("stroke", "black");
 
@@ -833,7 +865,7 @@ var Display = (function() {
 
         var classes = "treeEdge";
         if (colourTrait !== undefined)
-            classes += " trait_" + window.btoa(colourTrait);
+            classes += " edgetrait_" + window.btoa(colourTrait);
         else
             path.setAttribute("stroke", "black");
 
@@ -882,15 +914,21 @@ var Display = (function() {
     }
 
     // Draw internal node marker
-    function newNodeMark(pos) {
+    function newNodeMark(pos, colourTrait) {
         var bullet = document.createElementNS(NS, "ellipse");
         bullet.setAttribute("cx", pos[0]);
         bullet.setAttribute("cy", pos[1]);
         bullet.setAttribute("rx", 2*TreeStyle.lineWidth);
         bullet.setAttribute("ry", 2*TreeStyle.lineWidth);
-        bullet.setAttribute("fill", "black");
         bullet.setAttribute("shape-rendering", "auto");
-        bullet.setAttribute("class","internalNodeMark");
+
+        var classes = "nodeMark";
+        if (colourTrait !== undefined)
+            classes += " nodetrait_" + window.btoa(colourTrait);
+        else
+            bullet.setAttribute("fill", "black");
+
+        bullet.setAttribute("class", classes);
         return(bullet);
     }
 
@@ -964,7 +1002,20 @@ var Display = (function() {
         }
 
         // Discard any previously-collected trait information
-        seenColourTraitValues = [];
+
+        edgeColourAssignment = undefined;
+        if (TreeStyle.edgeColourTrait !== undefined)
+            edgeColourAssignment = {type: "edge",
+                                    attribute: "stroke",
+                                    colourTrait: TreeStyle.edgeColourTrait,
+                                    seenColourTraitValues: []};
+
+        nodeColourAssignment = undefined;
+        if (TreeStyle.nodeColourTrait !== undefined)
+            nodeColourAssignment = {type: "node",
+                                    attribute: "fill",
+                                    colourTrait: TreeStyle.nodeColourTrait,
+                                    seenColourTraitValues: []};
 
         // Draw tree edges:
 
@@ -994,7 +1045,7 @@ var Display = (function() {
             else
                 edgeOpacityFactor = 1.0;
 
-            branch = newBranch(thisPos, parentPos, getColourTraitValue(thisNode), edgeOpacityFactor);
+            branch = newBranch(thisPos, parentPos, getColourTraitValue(thisNode, edgeColourAssignment), edgeOpacityFactor);
             branch.id = thisNode;
             svg.appendChild(branch);
         }
@@ -1040,7 +1091,8 @@ var Display = (function() {
                         recombOpacityFactor = 1.0;
 
                     branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
-                        getColourTraitValue(recombDest), recombOpacityFactor);
+                                                  getColourTraitValue(recombDest, edgeColourAssignment),
+                                                  recombOpacityFactor);
                     branch.id = recombDest;
                     svg.appendChild(branch);
 
@@ -1058,30 +1110,10 @@ var Display = (function() {
             }
         }
 
-        // Assign colours to trait classes:
+        // Assign colours to edge trait classes:
 
-        genColourPallet(seenColourTraitValues.length);
+        assignColours(svg, edgeColourAssignment);
 
-        var traitsAreNumeric = true;
-        for (i=0; i<seenColourTraitValues.length; i++) {
-            var traitVal = seenColourTraitValues[i];
-            if (isNaN(traitVal-0)) {
-                traitsAreNumeric = false;
-                break;
-            }
-        }
-        if (traitsAreNumeric) {
-            seenColourTraitValues.sort(function(a, b) {return a-b;});
-        } else {
-            seenColourTraitValues.sort();
-        }
-        for (var t=0; t<seenColourTraitValues.length; t++ ) {
-            var thisVal = seenColourTraitValues[t];
-            var lines = svg.getElementsByClassName("trait_" + window.btoa(thisVal));
-            for (var l=0; l<lines.length; l++) {
-                lines[l].setAttribute("stroke", colourPallet[t]);
-            }
-        }
 
         // Draw tip and recombinant edge labels:
 
@@ -1175,13 +1207,24 @@ var Display = (function() {
         for (nodeID in layout.nodePositions) {
             thisNode = layout.tree.getNode(nodeID);
 
-            if (thisNode in layout.collapsedCladeRoots || thisNode in layout.collapsedCladeNodes)
+            if (thisNode in layout.collapsedCladeRoots
+                || thisNode in layout.collapsedCladeNodes
+                || thisNode.isHybrid())
                 continue;
 
-            if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
-                svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
+            if (nodeColourAssignment !== undefined) {
+                svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode]),
+                                            getColourTraitValue(thisNode, nodeColourAssignment)));
+            } else {
+
+                if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
+                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
+                }
             }
         }
+
+        // Assign colours to node trait classes:
+        assignColours(svg, nodeColourAssignment);
 
         // Attach event handlers for pan and zoom:
         ZoomControl.init(svg, layout);
@@ -1657,7 +1700,7 @@ var ZoomControl = {
     },
 
     updateInternalNodeMarkScaling: function() {
-        var nodeMarkElements = this.svg.getElementsByClassName("internalNodeMark");
+        var nodeMarkElements = this.svg.getElementsByClassName("nodeMark");
         for (var i=0; i<nodeMarkElements.length; i++) {
             var dash = nodeMarkElements[i];
 

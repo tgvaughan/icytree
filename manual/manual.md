@@ -356,26 +356,30 @@ child node) exist, internal node labels can be difficult to read.  To improve
 visibility in such cases, select the Style-&gt;"Angle node label text" menu
 item, which causes all text labels to be drawn at a 45 degree angle.
 
-Edge colouring
---------------
+Node and edge colouring
+-----------------------
 
-IcyTree allows tree edges to be coloured according to the value of any of the
-labels or attributes defined on the nodes. In this case, attributes are understood
-to apply to the edge immediately ancestral to the node.
+IcyTree allows tree nodes and edges to be coloured according to the
+value of any of the labels or attributes defined on the nodes. In the
+case of edges, attributes are understood to apply to the edge
+immediately ancestral to the node with which the attribute is associated
+in the input file.
 
-To use edge colouring, choose the specific attribute using the Style-&gt;"Colour
-edges by" sub-menu.  When an item other than "None" is selected, edges are
-coloured automatically by applying a distinct colour to each set of edges
-having a distinct value for the chosen attribute.  Edges for which the chosen
-attribute is undefined remain coloured black.
+To use edge colouring, choose the specific attribute using the
+Style-&gt;"Colour edges by" sub-menu. Similarly for nodes, choose the
+attribute using the Style-&gt;"Colour nodes by" sub-menu.  In either
+case, when an item other than "None" is selected, objects are coloured
+automatically by applying a distinct colour to each set of objects
+having a distinct value for the chosen attribute.  Edges/nodes for
+which the chosen attribute is undefined remain coloured black.
 
-The specific colours used are selected by sorting the unique attribute values
-(numerically if all values are numeric, lexographically otherwise) and assigned
-unique colours with maximally-separated hues to make distinct attribute values
-as easy to discern as possible.
+The specific colours used are selected by sorting the unique attribute
+values (numerically if all values are numeric, lexographically
+otherwise) and assigned unique colours with maximally-separated hues
+to make distinct attribute values as easy to discern as possible.
 
-A legend showing the mapping from trait values to colours can be toggled on and
-off using Style-&gt;"Display legend".
+A legend showing the mapping from trait values to colours can be
+toggled on and off using Style-&gt;"Display legend".
 
 Edge opacity
 ------------

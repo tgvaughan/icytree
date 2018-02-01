@@ -705,6 +705,7 @@ var Display = (function() {
         svg.appendChild(title);
 
 
+        var svgFragment = document.createDocumentFragment();
         for (var i=0; i<colourAssignment.seenColourTraitValues.length; i++) {
 
             coord = svg.createSVGPoint();
@@ -731,7 +732,7 @@ var Display = (function() {
             }
             dot.setAttribute("fill", colourAssignment.colourPallet[i]);
             dot.setAttribute("class", "axisComponent");
-            svg.appendChild(dot);
+            svgFragment.appendChild(dot);
 
             label = document.createElementNS(NS, "text");
             label.setAttribute("class", "axisComponent");
@@ -739,8 +740,10 @@ var Display = (function() {
             label.setAttribute("y", coord.y + getSVGHeight(svg, 5));
             label.setAttribute("fill", colourAssignment.colourPallet[i]);
             label.textContent = colourAssignment.seenColourTraitValues[i];
-            svg.appendChild(label);
+            svgFragment.appendChild(label);
         }
+
+        svg.appendChild(svgFragment);
 
         return legendHeight;
     }

@@ -1178,6 +1178,10 @@ var Display = (function() {
 
         assignColours(svg, nodeColourAssignment);
 
+        // Set up DOM fragment to which text objects will be appended
+        // (Dramatically improves rendering speed.)
+        var svgFragment = document.createDocumentFragment();
+
         // Draw tip and recombinant edge labels:
 
         var i, trait;
@@ -1200,7 +1204,7 @@ var Display = (function() {
                 }
 
                 pos = posXform(layout.nodePositions[thisNode]);
-                svg.appendChild(newNodeText(pos, traitValue));
+                svgFragment.appendChild(newNodeText(pos, traitValue));
             }
         }
 
@@ -1226,10 +1230,9 @@ var Display = (function() {
 
                 pos = posXform(layout.nodePositions[thisNode]);
 
-                svg.appendChild(newNodeText(pos, traitValue));
+                svgFragment.appendChild(newNodeText(pos, traitValue));
             }
         }
-
 
         // Draw internal node labels:
 
@@ -1260,10 +1263,13 @@ var Display = (function() {
 
                     var text = newNodeText(pos, traitValue, offset);
                     text.setAttribute("class", "internalText");
-                    svg.appendChild(text);
+                    svgFragment.appendChild(text);
                 }
             }
         }
+
+        // Append DOM fragment containing text objects to main SVG.
+        svg.appendChild(svgFragment);
 
         // Attach event handlers for pan and zoom:
         ZoomControl.init(svg, layout);

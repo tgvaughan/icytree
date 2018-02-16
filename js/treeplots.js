@@ -129,7 +129,7 @@ var TreePlots = (function () {
         return skylines[maxLogLidx];
     }
 
-    function drawSkyline(divName, epsilon) {
+    function drawSkyline(divName, smooth, epsilon) {
 
         var tree = trees[currentTreeIdx];
         var data = tree.getLineagesThroughTime();
@@ -148,7 +148,7 @@ var TreePlots = (function () {
             x: [0].concat(skyline.intervalEndTimes),
             y: skyline.effectiveN.concat([skyline.effectiveN[skyline.effectiveN.length-1]]),
             mode: 'lines',
-            line: {shape: 'hv'},
+            line: {shape: smooth ? 'spline' : 'hv'},
             type: 'scatter',
         }
 

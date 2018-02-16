@@ -425,10 +425,11 @@ $(document).ready(function() {
     });
 
     function updateSkyline() {
+        var smooth = $("#smoothCheckbox").prop("checked");
         if ($("#optimizeEpsCheckbox").prop("checked"))
-            TreePlots.drawSkyline("skylinePlotOutput");
+            TreePlots.drawSkyline("skylinePlotOutput", smooth);
         else
-            TreePlots.drawSkyline("skylinePlotOutput", $("#epsSpinner").spinner("value"));
+            TreePlots.drawSkyline("skylinePlotOutput", smooth, $("#epsSpinner").spinner("value"));
     }
 
     $("#skylineDialog").dialog({
@@ -474,6 +475,8 @@ $(document).ready(function() {
                                  
         updateSkyline();
     });
+
+    $("#smoothCheckbox").on("change", updateSkyline);
 
     $("#treeStatsDialog").dialog({
         autoOpen: false,

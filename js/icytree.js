@@ -1023,7 +1023,7 @@ function edgeWidthChange(inc) {
 
 // Alter font size used in visualisation.
 function fontSizeChange(inc) {
-    TreeStyle.fontSize = Math.max(6, TreeStyle.fontSize + inc);
+    TreeStyle.fontSize = Math.max(5, TreeStyle.fontSize + inc);
     displayNotification("Font size: " + TreeStyle.fontSize);
     update();
 }

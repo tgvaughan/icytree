@@ -216,8 +216,8 @@ scroll wheel.  To pan, simply click and drag.
 Horizontal/Vertical Zooming
 ---------------------------
 
-To zoom in or out in the horizontal or vertical directions only, hold down CTRL
-or SHIFT while moving the scroll wheel.
+To zoom in or out in the horizontal or vertical directions only, hold down SHIFT
+or CTRL respectively while moving the scroll wheel.
 
 Viewing Tree Edge Statistics
 ----------------------------

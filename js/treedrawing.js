@@ -1771,15 +1771,8 @@ var ZoomControl = {
         var zoomFactorXP = this.zoomFactorX;
         var zoomFactorYP = this.zoomFactorY;
 
-        var verticalZoom = true;
-        var horizontalZoom = true;
-        if (event.shiftKey) {
-            horizontalZoom = false;
-        } else {
-            if (event.ctrlKey) {
-                verticalZoom = false;
-            }
-        }
+        var verticalZoom = !event.shiftKey;
+        var horizontalZoom = !event.ctrlKey;
 
         if (dir>0) {
             // Zoom in

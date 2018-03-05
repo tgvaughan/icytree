@@ -32,24 +32,6 @@ function TreeBuilder(root) {
 TreeBuilder.prototype = Object.create(Tree.prototype);
 TreeBuilder.prototype.constructor = TreeBuilder;
 
-// TreeBuilder methods
-
-// Strip zero length branches
-TreeBuilder.prototype.stripZeroLengthBranches = function() {
-    var leaves = this.getLeafList().slice();
-
-    for (var i=0; i<leaves.length; i++) {
-        if (leaves[i].parent !== undefined && leaves[i].height == leaves[i].parent.height) {
-            leaves[i].parent.label = leaves[i].label;
-
-            leaves[i].parent.removeChild(leaves[i]);
-        }
-    }
-
-    // Invalidate cached leaf and node lists
-    this.clearCaches();
-};
-
 // Exceptions thrown during parsing
 
 function ParseException(message) {
@@ -74,9 +56,6 @@ function TreeFromNewick(newick) {
     // Zero root edge length means undefined
     if (this.root.branchLength === 0.0)
         this.root.branchLength = undefined;
-
-    // Strip zero-length edges
-    this.stripZeroLengthBranches();
 }
 
 TreeFromNewick.prototype = Object.create(TreeBuilder.prototype);
@@ -426,9 +405,6 @@ function TreeFromPhyloXML (phylogenyElement) {
     // Zero root edge length means undefined
     if (this.root.branchLength === 0.0)
         this.root.branchLength = undefined;
-
-    // Strip zero-length edges
-    this.stripZeroLengthBranches();
 }
 
 TreeFromPhyloXML.prototype = Object.create(TreeBuilder.prototype);
@@ -495,9 +471,6 @@ function TreeFromNeXML(treeElement) {
     var rootEdgeElements = treeElement.getElementsByTagNameNS(neXMLNS, "rootedge");
     if (rootEdgeElements.length>0)
         this.root.branchLength = rootEdgeElements[0].getAttribute("length")*1.0;
-
-    // Strip zero-length edges
-    this.stripZeroLengthBranches();
 
     return this;
 }

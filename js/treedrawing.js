@@ -61,8 +61,8 @@ var TreeStyle = {
     labelPrec: 0,
     angleText: true,
 
-    edgeOpacityTrait: undefined,
-    recombOpacityTrait: undefined,
+    edgeWidthTrait: undefined,
+    recombWidthTrait: undefined,
 
     nodeBarTrait: undefined,
 
@@ -83,6 +83,7 @@ var TreeStyle = {
     minRecombEdgeLength: true,
 
     lineWidth: 2,
+    minLineWidth: 1,
     fontSize: 11,
 
     sortNodes: true,
@@ -867,7 +868,7 @@ var Display = (function() {
     }
 
     // Draw tree edge
-    function newBranch(childPos, parentPos, colourTrait, edgeOpacityFactor) {
+    function newBranch(childPos, parentPos, colourTrait, edgeWidthFactor) {
         var pathStr = "M " + childPos[0] + " " + childPos[1];
         pathStr += " H " + parentPos[0];
         pathStr += " V " + parentPos[1];
@@ -882,7 +883,8 @@ var Display = (function() {
         else
             path.setAttribute("stroke", "black");
 
-        path.setAttribute("stroke-opacity", edgeOpacityFactor);
+        path.setAttribute("stroke-width", Math.max(edgeWidthFactor*TreeStyle.lineWidth,
+                                                   TreeStyle.minLineWidth));
 
         path.setAttribute("class", classes);
 
@@ -892,7 +894,7 @@ var Display = (function() {
     }
 
     // Draw recombination edge
-    function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombOpacityFactor) {
+    function newRecombinantBranch(childPos, childPrimePos, parentPos, colourTrait, recombWidthFactor) {
         var pathStr = "M " + childPos[0] + " " + childPos[1];
         pathStr += " L " + childPrimePos[0] + " " + childPrimePos[1];
 
@@ -909,7 +911,8 @@ var Display = (function() {
         else
             path.setAttribute("stroke", "black");
 
-        path.setAttribute("stroke-opacity", recombOpacityFactor);
+        path.setAttribute("stroke-width", Math.max(recombWidthFactor*TreeStyle.lineWidth,
+                                                   TreeStyle.minLineWidth));
 
         path.setAttribute("class", classes);
 
@@ -1059,6 +1062,18 @@ var Display = (function() {
                                     colourTrait: TreeStyle.nodeColourTrait,
                                     seenColourTraitValues: []};
 
+        // Identify maximum values for edge width traits:
+
+        var edgeWidthTraitMax;
+        if (TreeStyle.edgeWidthTrait !== undefined) {
+            edgeWidthTraitMax = 0;
+            for (nodeID in layout.nodePositions) {
+                thisNode = layout.tree.getNode(nodeID);
+                if (thisNode.annotation[TreeStyle.edgeWidthTrait] !== undefined)
+                    edgeWidthTraitMax = Math.max(edgeWidthTraitMax, thisNode.annotation[TreeStyle.edgeWidthTrait]);
+            }
+        }
+
         // Draw tree edges:
 
         var parentPos, branch;
@@ -1081,13 +1096,13 @@ var Display = (function() {
             else
                 parentPos = posXform([layout.nodePositions[thisNode][0], 1.0]);
 
-            var edgeOpacityFactor;
-            if (TreeStyle.edgeOpacityTrait !== undefined && thisNode.annotation[TreeStyle.edgeOpacityTrait] !== undefined)
-                edgeOpacityFactor = thisNode.annotation[TreeStyle.edgeOpacityTrait];
+            var edgeWidthFactor;
+            if (TreeStyle.edgeWidthTrait !== undefined && thisNode.annotation[TreeStyle.edgeWidthTrait] !== undefined)
+                edgeWidthFactor = Number(thisNode.annotation[TreeStyle.edgeWidthTrait])/edgeWidthTraitMax;
             else
-                edgeOpacityFactor = 1.0;
+                edgeWidthFactor = 1.0;
 
-            branch = newBranch(thisPos, parentPos, getColourTraitValue(thisNode, edgeColourAssignment), edgeOpacityFactor);
+            branch = newBranch(thisPos, parentPos, getColourTraitValue(thisNode, edgeColourAssignment), edgeWidthFactor);
             branch.id = thisNode;
             svg.appendChild(branch);
         }
@@ -1106,15 +1121,32 @@ var Display = (function() {
             svg.appendChild(clade);
         }
 
+        // Identify maximum values for recombinant edge width traits:
+
+        var recombID, recombSrc, recombDestIdx, recombDest, recombWidthTraitMax;
+
+        if (TreeStyle.recombWidthTrait !== undefined) {
+            recombWidthTraitMax = 0;
+            for (recombID in layout.tree.getRecombEdgeMap()) {
+                var recombSrc = layout.tree.getRecombEdgeMap()[recombID][0];
+                for (recombDestIdx=1; recombDestIdx<layout.tree.getRecombEdgeMap()[recombID].length; recombDestIdx++) {
+                    var recombDest = layout.tree.getRecombEdgeMap()[recombID][recombDestIdx];
+                    if (recombDest.annotation[TreeStyle.recombWidthTrait] !== undefined)
+                        recombWidthTraitMax = Math.max(recombWidthTraitMax,
+                                                       recombDest.annotation[TreeStyle.recombWidthTrait]);
+                }
+            }
+        }
+
         // Draw recombinant edges
         
         var childPos, childPrimePos;
 
         if (TreeStyle.displayRecomb) {
-            for (var recombID in layout.tree.getRecombEdgeMap()) {
+            for (recombID in layout.tree.getRecombEdgeMap()) {
                 var recombSrc = layout.tree.getRecombEdgeMap()[recombID][0];
 
-                for (var recombDestIdx=1; recombDestIdx<layout.tree.getRecombEdgeMap()[recombID].length; recombDestIdx++) {
+                for (recombDestIdx=1; recombDestIdx<layout.tree.getRecombEdgeMap()[recombID].length; recombDestIdx++) {
                     var recombDest = layout.tree.getRecombEdgeMap()[recombID][recombDestIdx];
 
                     // Skip recombinations within a single collapsed clade:
@@ -1126,15 +1158,15 @@ var Display = (function() {
                     childPrimePos = posXform(layout.nodePositions[recombDest]);
                     parentPos = posXform(layout.nodePositions[recombDest.parent]);
 
-                    var recombOpacityFactor;
-                    if (TreeStyle.recombOpacityTrait !== undefined && recombDest.annotation[TreeStyle.recombOpacityTrait] !== undefined)
-                        recombOpacityFactor = recombDest.annotation[TreeStyle.recombOpacityTrait];
+                    var recombWidthFactor;
+                    if (TreeStyle.recombWidthTrait !== undefined && recombDest.annotation[TreeStyle.recombWidthTrait] !== undefined)
+                        recombWidthFactor = recombDest.annotation[TreeStyle.recombWidthTrait]/recombWidthTraitMax;
                     else
-                        recombOpacityFactor = 1.0;
+                        recombWidthFactor = 1.0;
 
                     branch = newRecombinantBranch(childPos, childPrimePos, parentPos,
                                                   getColourTraitValue(recombDest, edgeColourAssignment),
-                                                  recombOpacityFactor);
+                                                  recombWidthFactor);
                     branch.id = recombDest;
                     svg.appendChild(branch);
 
@@ -1472,7 +1504,7 @@ var EdgeStatsControl = {
         if (classAttr === null || classAttr.split(" ").indexOf("treeEdge")<0) {
             if (this.highlightedEdge !== undefined) {
                 this.hideStatsBox();
-                this.highlightedEdge.removeAttribute("stroke-width");
+                this.highlightedEdge.setAttribute("stroke-width", this.oldHighlightedEdgeAttr);
                 this.highlightedEdge = undefined;
             }
             return false;
@@ -1483,6 +1515,7 @@ var EdgeStatsControl = {
 
             var newStrokeWidth = TreeStyle.lineWidth*3;
 
+            this.oldHighlightedEdgeAttr = this.highlightedEdge.getAttribute("stroke-width");
             this.highlightedEdge.setAttribute("stroke-width", newStrokeWidth+"px");
             this.displayStatsBox(event.target.getAttribute("id"), event.pageX, event.pageY);
         } else {

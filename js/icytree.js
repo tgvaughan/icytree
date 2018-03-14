@@ -175,8 +175,8 @@ $(document).ready(function() {
                     case "styleNodeTextTrait":
                     case "styleRecombTextTrait":
                     case "styleNodeBarTrait":
-                    case "styleEdgeOpacityTrait":
-                    case "styleRecombOpacityTrait":
+                    case "styleEdgeWidthTrait":
+                    case "styleRecombWidthTrait":
                     case "styleLabelPrec":
                     case "styleAxis":
                         selectListItem(ui.item);
@@ -915,8 +915,8 @@ function updateTraitSelectors() {
                     $("#styleRecombTextTrait"),
                     $("#styleNodeTextTrait"),
                     $("#styleNodeBarTrait"),
-                    $("#styleEdgeOpacityTrait"),
-                    $("#styleRecombOpacityTrait")];
+                    $("#styleEdgeWidthTrait"),
+                    $("#styleRecombWidthTrait")];
 
     $.each(elements, function (eidx, el) {
 
@@ -952,22 +952,22 @@ function updateTraitSelectors() {
                 traitList = ["None"];
                 break;
 
-            case "styleEdgeOpacityTrait":
+            case "styleEdgeWidthTrait":
                 filter = function(node, trait) {
                     if (node.isHybrid() && node.isLeaf())
                         return false;
                     var nVal = Number(node.annotation[trait]);
-                    return !Number.isNaN(nVal) && nVal>=0 && nVal<=1;
+                    return !Number.isNaN(nVal) && nVal>=0;
                 };
                 traitList = ["None"];
                 break;
 
-            case "styleRecombOpacityTrait":
+            case "styleRecombWidthTrait":
                 filter = function(node, trait) {
                     if (!node.isHybrid() || !node.isLeaf())
                         return false;
                     var nVal = Number(node.annotation[trait]);
-                    return !Number.isNaN(nVal) && nVal>=0 && nVal<=1;
+                    return !Number.isNaN(nVal) && nVal>=0;
                 };
                 traitList = ["None"];
                 break;
@@ -1381,22 +1381,22 @@ function update() {
             break;
     }
 
-    // Determine whether edge opacities are required
-    TreeStyle.edgeOpacityTrait = $("#styleEdgeOpacityTrait span").parent().text();
-    switch (TreeStyle.edgeOpacityTrait) {
+    // Determine whether scaled edge widths are required
+    TreeStyle.edgeWidthTrait = $("#styleEdgeWidthTrait span").parent().text();
+    switch (TreeStyle.edgeWidthTrait) {
         case "None":
-            TreeStyle.edgeOpacityTrait = undefined;
+            TreeStyle.edgeWidthTrait = undefined;
             break;
         default:
             break;
     }
 
 
-    // Determine whether recomb edge opacities are required
-    TreeStyle.recombOpacityTrait = $("#styleRecombOpacityTrait span").parent().text();
-    switch (TreeStyle.recombOpacityTrait) {
+    // Determine whether scaled recomb edge widths are required
+    TreeStyle.recombWidthTrait = $("#styleRecombWidthTrait span").parent().text();
+    switch (TreeStyle.recombWidthTrait) {
         case "None":
-            TreeStyle.recombOpacityTrait = undefined;
+            TreeStyle.recombWidthTrait = undefined;
             break;
         default:
             break;
@@ -1625,26 +1625,26 @@ function keyPressHandler(event) {
             return;
 
         case "o":
-            // Cycle edge opacity:
-            cycleListItem($("#styleEdgeOpacityTrait"));
+            // Cycle edge width:
+            cycleListItem($("#styleEdgeWidthTrait"));
             event.preventDefault();
             return;
 
         case "O":
-            // Reverse cycle edge opacity:
-            reverseCycleListItem($("#styleEdgeOpacityTrait"));
+            // Reverse cycle edge width:
+            reverseCycleListItem($("#styleEdgeWidthTrait"));
             event.preventDefault();
             return;
 
         case "p":
-            // Cycle recomb opacity:
-            cycleListItem($("#styleRecombOpacityTrait"));
+            // Cycle recomb edge width:
+            cycleListItem($("#styleRecombWidthTrait"));
             event.preventDefault();
             return;
 
         case "P":
-            // Reverse cycle recomb opacity:
-            reverseCycleListItem($("#styleRecombOpacityTrait"));
+            // Reverse cycle recomb edge width:
+            reverseCycleListItem($("#styleRecombWidthTrait"));
             event.preventDefault();
             return;
 

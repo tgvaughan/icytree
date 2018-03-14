@@ -919,7 +919,7 @@ var Display = (function() {
     }
 
     // Draw node text
-    function newNodeText(pos, string, offset) {
+    function newNodeText(pos, string, baseline, offset) {
         var text = document.createElementNS(NS, "text");
 
         if (offset) {
@@ -935,12 +935,14 @@ var Display = (function() {
             text.setAttribute("transform", "rotate(-45 " + pos[0] + " " + pos[1] + ")");
         }
 
+        // Record offset to allow zoom methods to update position as required
         if (offset) {
             text.setAttribute("pixelOffsetX", offset[0]*TreeStyle.lineWidth);
             text.setAttribute("pixelOffsetY", offset[1]*TreeStyle.lineWidth);
         }
 
-        // text.setAttribute("vector-effect", "non-scaling-text"); // I wish
+        // Choose how to define baseline of text
+        text.setAttribute("dominant-baseline", baseline);
 
         // Limit precision of numeric labels
         if (TreeStyle.labelPrec>0) {
@@ -1207,7 +1209,7 @@ var Display = (function() {
                 }
 
                 pos = posXform(layout.nodePositions[thisNode]);
-                svgFragment.appendChild(newNodeText(pos, traitValue));
+                svgFragment.appendChild(newNodeText(pos, traitValue, "central"));
             }
         }
 
@@ -1233,7 +1235,7 @@ var Display = (function() {
 
                 pos = posXform(layout.nodePositions[thisNode]);
 
-                svgFragment.appendChild(newNodeText(pos, traitValue));
+                svgFragment.appendChild(newNodeText(pos, traitValue, "central"));
             }
         }
 
@@ -1258,13 +1260,18 @@ var Display = (function() {
                 if (traitValue !== "") {
                     pos = posXform(layout.nodePositions[thisNode]);
                     var offset = [0,0];
-                    if (thisNode.children.length === 1)
+                    var baseline;
+                    if (thisNode.children.length === 1) {
                         offset[1] = -2.5;
+                        baseline = "no-change";
+                    }
 
-                    if (thisNode.children.length >1)
+                    if (thisNode.children.length >1) {
                         offset[0] = 2.5;
+                        baseline = "central";
+                    }
 
-                    var text = newNodeText(pos, traitValue, offset);
+                    var text = newNodeText(pos, traitValue, baseline, offset);
                     text.setAttribute("class", "internalText");
                     svgFragment.appendChild(text);
                 }

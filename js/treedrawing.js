@@ -735,9 +735,10 @@ var Display = (function() {
             svgFragment.appendChild(dot);
 
             label = document.createElementNS(NS, "text");
+            label.setAttribute("dominant-baseline", "central");
             label.setAttribute("class", "axisComponent");
             label.setAttribute("x", coord.x + getSVGWidth(svg, 15));
-            label.setAttribute("y", coord.y + getSVGHeight(svg, 5));
+            label.setAttribute("y", coord.y);
             label.setAttribute("fill", colourAssignment.colourPallet[i]);
             label.textContent = colourAssignment.seenColourTraitValues[i];
             svgFragment.appendChild(label);

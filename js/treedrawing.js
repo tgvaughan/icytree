@@ -1166,17 +1166,17 @@ var Display = (function() {
                 || thisNode.isHybrid())
                 continue;
 
+            // Get colour trait value if available
+            var colourTraitValue;
             if (nodeColourAssignment !== undefined) {
-                // Mark all nodes when colouring:
+                colourTraitValue = getColourTraitValue(thisNode, nodeColourAssignment);
+            }
                 
+            // Mark coloured and/or singleton nodes if requested:
+            if (colourTraitValue !== undefined ||
+                (TreeStyle.markSingletonNodes && thisNode.children.length == 1)) {
                 svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode]),
                                             getColourTraitValue(thisNode, nodeColourAssignment)));
-            } else {
-                // Mark singleton nodes only if requested:
-
-                if (TreeStyle.markSingletonNodes && thisNode.children.length == 1) {
-                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode])));
-                }
             }
         }
 

@@ -883,8 +883,8 @@ var Display = (function() {
         else
             path.setAttribute("stroke", "black");
 
-        path.setAttribute("stroke-width", Math.max(edgeWidthFactor*TreeStyle.lineWidth,
-                                                   TreeStyle.minLineWidth));
+        path.setAttribute("stroke-width", TreeStyle.minLineWidth +
+                          edgeWidthFactor*(TreeStyle.lineWidth - TreeStyle.minLineWidth));
 
         path.setAttribute("class", classes);
 
@@ -911,8 +911,8 @@ var Display = (function() {
         else
             path.setAttribute("stroke", "black");
 
-        path.setAttribute("stroke-width", Math.max(recombWidthFactor*TreeStyle.lineWidth,
-                                                   TreeStyle.minLineWidth));
+        path.setAttribute("stroke-width", TreeStyle.minLineWidth +
+                          recombWidthFactor*(TreeStyle.lineWidth - TreeStyle.minLineWidth));
 
         path.setAttribute("class", classes);
 

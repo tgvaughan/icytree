@@ -381,16 +381,16 @@ to make distinct attribute values as easy to discern as possible.
 A legend showing the mapping from trait values to colours can be
 toggled on and off using Style-&gt;"Display legend".
 
-Edge opacity
-------------
+Relative edge width
+-------------------
 
-IcyTree also allows the opacity of the lines used to draw tree edges to be
+IcyTree also allows the relative width of the lines used to draw tree edges to be
 influenced by any label or attribute that has numeric values that range between
-0 and 1.  Just as for edge colouring, node attributes determine the opacity of
+0 and 1.  Just as for edge colouring, node attributes determine the relative width of
 the edge immediately ancestral to each node.
 
-The attribute used for edge opacity can be chosen via the Style-&gt;"Edge
-opacity" sub-menu. (Only compatible attributes are shown.)
+The attribute used for relative edge width can be chosen via the Style-&gt;"Relative
+edge width" sub-menu. (Only compatible attributes are shown.)
 
 Marking singleton nodes
 -----------------------
@@ -458,10 +458,10 @@ The following style menu options apply specifically to "recombinant edges" and n
     paper](http://dx.doi.org/10.1186/1471-2105-9-532) describing the extended
     Newick format for details on hybrid nodes.)
 
-* **Recombinant edge opacity**
+* **Recombinant edge width**
 
     This option uses a numeric trait value (which must lie between 0 and 1) on each
-    "hybrid" leaf node to determine the opacity of the dashed line representing the
+    "hybrid" leaf node to determine the relative width of the dashed line representing the
     corresponding recombinant edge.
 
 *  **Inline recombinant edges**

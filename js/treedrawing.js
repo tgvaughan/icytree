@@ -936,6 +936,8 @@ var TreeModControl = {
             } else if (event.which == 3) {
                 // Rotate children
 
+                event.preventDefault();
+
                 TreeModControl.rotateChildren(node);
             } else {
                 // Toggle collapse

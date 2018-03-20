@@ -927,21 +927,18 @@ var TreeModControl = {
             var nodeID = event.target.getAttribute("id");
             var node = layout.origTree.getNode(nodeID);
 
-            console.log(event);
+            event.preventDefault();
 
             if (event.shiftKey) {
                 // Re-root
-
                 TreeModControl.reroot(node);
+
             } else if (event.which == 3) {
                 // Rotate children
-
-                event.preventDefault();
-
                 TreeModControl.rotateChildren(node);
+
             } else {
                 // Toggle collapse
-
                 TreeModControl.collapse(node, !event.altKey);
             }
         };

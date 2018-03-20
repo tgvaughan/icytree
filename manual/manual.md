@@ -274,6 +274,14 @@ The re-rooting can also be applied to networks.  However, in the case of timed
 networks the lengths of the recombinant edges cannot in general be preserved
 and in some circumstances may produce negative edge lengths.
 
+Changing the order of tree nodes
+--------------------------------
+
+When node sorting is disabled (i.e. Style-&gt;"Node sorting" as discussed in the
+next section is set to "Unsorted"), the order of children below a given internal node
+can be manually rotated by hovering the mouse cursor over the edge immediately
+parental to this node and clicking the RIGHT mouse button.
+
 Visualization style
 ===================
 

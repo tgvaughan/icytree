@@ -927,10 +927,16 @@ var TreeModControl = {
             var nodeID = event.target.getAttribute("id");
             var node = layout.origTree.getNode(nodeID);
 
+            console.log(event);
+
             if (event.shiftKey) {
                 // Re-root
 
                 TreeModControl.reroot(node);
+            } else if (event.which == 3) {
+                // Rotate children
+
+                TreeModControl.rotateChildren(node);
             } else {
                 // Toggle collapse
 
@@ -940,6 +946,7 @@ var TreeModControl = {
 
         Array.from(svg.getElementsByClassName("treeEdge")).forEach(function(el) {
             el.addEventListener("click", clickHandler);
+            el.addEventListener("contextmenu", clickHandler);
         });
 
         Array.from(svg.getElementsByClassName("collapsedClade")).forEach(function(el) {
@@ -1037,6 +1044,17 @@ var TreeModControl = {
         for (var i=0; i<this.layout.tree.getNodeList().length; i++) {
             this.layout.origTree.getNodeList()[i].collapsed = false;
         }
+    },
+
+    rotateChildren: function(node) {
+
+        if (node.children.length>1) {
+            var firstChild = node.children[0];
+            node.children.splice(0,1);
+            node.children.push(firstChild);
+        }
+
+        update();
     }
 };
 

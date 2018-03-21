@@ -583,11 +583,11 @@ function browserIsFF() {
 function maybeLoadFromHrefURL() {
 
     var href = window.location.href;
-    var idx = href.indexOf("?");
+    var idx = href.indexOf("?url=");
     if (idx<0)
         return false;
     else {
-        loadURL(href.substring(idx+1));
+        loadURL(href.substring(idx+5));
         return true;
     }
 }

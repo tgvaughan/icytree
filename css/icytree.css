@@ -181,7 +181,7 @@ body {
 }
 
 .warning {
-    text-align: justify;
+    text-align: left;
 }
 
 .warning img {
@@ -195,12 +195,13 @@ body {
 
 .error > .ui-dialog-titlebar {
     border: none;
-    background: red;
+    background: darkred;
 }
 
-.error .ui-button {
+.error .ui-button,
+.error .ui-button:hover {
     border: none;
-    background: red;
+    background: darkred;
     color: white;
 }
 

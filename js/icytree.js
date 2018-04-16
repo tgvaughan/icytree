@@ -786,9 +786,11 @@ function displayError(title, message) {
         buttons: {
             Continue: function() {
                 $(this).dialog("close");
-                $(this).remove();
-                update();
             }
+        },
+        close: function(event, ui) {
+            $(this).dialog("destroy").remove();
+            update();
         }
     }).html(message);
 }

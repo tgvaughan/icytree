@@ -1009,6 +1009,9 @@ var TreeModControl = {
                         layout.origTree.reroot(node);
                         update();
                     }
+                },
+                close: function(event, ui) {
+                    $(this).dialog("destroy").remove();
                 }
             }).html(warningText);
         } else {

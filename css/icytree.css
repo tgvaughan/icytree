@@ -189,8 +189,9 @@ body {
     margin-left: 15px;
 }
 
-.error {
+.error > .ui-dialog-content {
     text-align: left;
+    font-size: 0.8em;
 }
 
 .error > .ui-dialog-titlebar {
@@ -203,6 +204,11 @@ body {
     border: none;
     background: darkred;
     color: white;
+}
+
+.error span.cursor {
+    border: 2px solid red;
+    font-weight: bold;
 }
 
 #lttPlotOutput {

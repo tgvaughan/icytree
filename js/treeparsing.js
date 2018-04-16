@@ -34,8 +34,15 @@ TreeBuilder.prototype.constructor = TreeBuilder;
 
 // Exceptions thrown during parsing
 
-function ParseException(message) {
+function ParseException(message, context) {
     this.message = message;
+
+    if (context !== undefined) {
+        this.message += "<br><br>" +
+            "Error context:<br> \"... " +
+            context.left + "<span class='cursor'>" +
+            context.at + "</span>" + context.right + " ... \"";
+    }
 }
 
 function SkipTreeException(message) {
@@ -51,7 +58,7 @@ function TreeFromNewick(newick) {
     var tokenList = this.doLex(newick);
 
     // Parse
-    TreeBuilder.call(this, this.doParse(tokenList));
+    TreeBuilder.call(this, this.doParse(tokenList, newick));
 
     // Zero root edge length means undefined
     if (this.root.branchLength === 0.0)
@@ -108,18 +115,16 @@ TreeFromNewick.prototype.doLex = function(newick) {
             var match = newick.slice(idx).match(this.tokens[k][1]);
             if (match !== null && match.index === 0) {
 
+                var value = match[0];
+
                 if (this.tokens[k][2]) {
-                    var value = match[0];
                     if (this.tokens[k][0] === "STRING") {
                         value = value.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/, "$1");
                         value = value.replace("''","'").replace('""','"');
                     }
-                    tokenList.push([this.tokens[k][0], value, idx]);
-                    //console.log(idx + " " + this.tokens[k][0] + ": " + match[0]);
-                } else {
-                    tokenList.push([this.tokens[k][0]]);
-                    //console.log(idx + " " + this.tokens[k][0]);
                 }
+
+                tokenList.push([this.tokens[k][0], value, idx]);
 
                 switch(this.tokens[k][0]) {
                     case "OPENA":
@@ -148,7 +153,7 @@ TreeFromNewick.prototype.doLex = function(newick) {
 };
 
 // Assemble tree from token list
-TreeFromNewick.prototype.doParse = function(tokenList) {
+TreeFromNewick.prototype.doParse = function(tokenList, newick) {
 
     var thisNodeID = 0;
 
@@ -167,6 +172,18 @@ TreeFromNewick.prototype.doParse = function(tokenList) {
             console.log(spaces + string);
         }*/
 
+    function getContext(flank) {
+        var strIdx = tokenList[idx][2];
+        var startIdx = strIdx >= flank ? strIdx-flank : 0;
+        var stopIdx = newick.length - strIdx >= flank ? strIdx + flank : newick.length;
+
+        return {
+            left: newick.slice(startIdx, strIdx),
+            at: newick[strIdx],
+            right: newick.slice(strIdx+1, stopIdx)
+        };
+    }
+
 
     function acceptToken(token, mandatory) {
         if (idx<tokenList.length && tokenList[idx][0] === token) {
@@ -175,8 +192,12 @@ TreeFromNewick.prototype.doParse = function(tokenList) {
         } else {
             if (mandatory)
                 if (idx<tokenList.length) {
-                    throw new ParseException("Expected token " + token + " but found " + tokenList[idx][0] +
-                        " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".");
+                    throw new ParseException("Expected token <b>" + token +
+                                             "</b> but found <b>" + tokenList[idx][0] +
+                                             "</b> (" +
+                                             tokenList[idx][1] + ") at string position <b>" +
+                                             tokenList[idx][2] + "</b>.",
+                                             getContext(15));
                 } else {
                     throw new ParseException("Newick string terminated early. Expected token " + token + ".");
                 }

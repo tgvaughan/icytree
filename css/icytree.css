@@ -76,27 +76,6 @@ body {
     text-align: center;
 }
 
-#output.error {
-    margin: 20px;
-    border: dashed gray 5px;
-    border-radius: 50px;
-
-    left: 0px;
-    top: 10px;
-
-    text-align: center;
-}
-
-#output.error > div.main {
-    color: red;
-    font: 50px sans-serif;
-}
-
-#output.error > div.minor {
-    color: blue;
-    font: 20px sans-serif;
-}
-
 /* Tree selector */
 
 #treeSelect {
@@ -208,6 +187,21 @@ body {
 .warning img {
     float: right;
     margin-left: 15px;
+}
+
+.error {
+    text-align: left;
+}
+
+.error > .ui-dialog-titlebar {
+    border: none;
+    background: red;
+}
+
+.error .ui-button {
+    border: none;
+    background: red;
+    color: white;
 }
 
 #lttPlotOutput {

@@ -700,7 +700,8 @@ function loadURL(url) {
             treeData = data;
             reloadTreeData();
         }, "text").fail(function() {
-            displayError("","Error loading from URL.");
+            displayError("Tree loading error",
+                         "Error loading from URL '" + url + "'");
         });
     });
 }
@@ -771,32 +772,25 @@ function displayLoading() {
     output.css("paddingRight", "0px");
 }
 
-function displayError(minorString, majorString) {
+function displayError(title, message) {
 
-    var output = $("#output");
+    var div = $("<div/>");
 
-    if (majorString == undefined)
-        majorString = "Could not load tree file!";
-
-    output.removeClass();
-    output.addClass("error");
-    var divMajorStr = "<div class='main'>" + majorString + "</div>";
-    var divMinorStr = "<div class='minor'>" + minorString + "</div>";
-    output.html(divMajorStr + divMinorStr);
-
-    // Pad to centre of page. (Wish I could do this with CSS!)
-    output.css("width", Math.max(Math.floor(window.innerWidth-50), 0) + "px");
-    output.css("height", "100px");
-    var pad = Math.max(Math.floor((window.innerHeight-60-100)/2), 0) + "px";
-    output.css("paddingTop", pad);
-    output.css("paddingBottom", pad);
-    output.css("paddingLeft", "0px");
-    output.css("paddingRight", "0px");
-
-    setTimeout(function() {
-        //displayStartOutput();
-        update();
-    }, 4000);
+    div.dialog({
+        dialogClass: 'error',
+        title: title,
+        resizable: true,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+            Continue: function() {
+                $(this).dialog("close");
+                $(this).remove();
+                update();
+            }
+        }
+    }).html(message);
 }
 
 // Display style change notification message
@@ -1124,7 +1118,7 @@ function reloadTreeData() {
             try {
                 trees = getTreesFromString(treeData);
             } catch (e) {
-                displayError(e.message);
+                displayError("Error reading tree file", e.message);
                 console.log(e);
                 return;
             }
@@ -1139,7 +1133,7 @@ function reloadTreeData() {
         try {
             trees = getTreesFromString(treeData);
         } catch (e) {
-            displayError(e.message);
+            displayError("Error reading tree file", e.message);
             console.log(e);
             return;
         }
@@ -1237,8 +1231,8 @@ function exportTreeFile(format) {
     format = format.toLowerCase();
 
     if (tree.isNetwork() && format !== "newick" && format !== "nexus") {
-        displayError("Use Newick or NEXUS",
-                    "Can't yet export network to " + format + "!");
+        displayError("Tree exporting error",
+                    "Can't yet export network to " + format + "!<br>Use Newick or NEXUS.");
         return false;
     }
 

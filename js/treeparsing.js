@@ -175,10 +175,10 @@ TreeFromNewick.prototype.doParse = function(tokenList) {
         } else {
             if (mandatory)
                 if (idx<tokenList.length) {
-                    throw new ParseException("Error: Expected token " + token + " but found " + tokenList[idx][0] +
+                    throw new ParseException("Expected token " + token + " but found " + tokenList[idx][0] +
                         " (" + tokenList[idx][1] + ") at position " + tokenList[idx][2] + ".");
                 } else {
-                    throw new ParseException("Error: Newick string terminated early. Expected token " + token + ".");
+                    throw new ParseException("Newick string terminated early. Expected token " + token + ".");
                 }
             else
                 return false;
@@ -190,7 +190,7 @@ TreeFromNewick.prototype.doParse = function(tokenList) {
         var node = ruleN(undefined);
 
         if (!acceptToken("SEMI", false) && acceptToken("COMMA", false))
-            throw new ParseException("Error: Tree/network with multiple roots found.");
+            throw new ParseException("Tree/network with multiple roots found.");
 
         return node;
     }

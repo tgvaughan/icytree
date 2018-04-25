@@ -691,18 +691,31 @@ function loadFile() {
 
 //Load tree data from URL
 function loadURL(url) {
+    function displayTreeLoadingError() {
+        displayError("Tree loading error",
+                     "Error loading from URL '" + url + "'");
+    }
+
     $.get(url, null, function(data) {
         treeData = data;
         reloadTreeData();
-    }, "text").fail(function() {
-        proxyurl = "https://cors.io/?" + url;
-        $.get(proxyurl, null, function(data) {
-            treeData = data;
-            reloadTreeData();
-        }, "text").fail(function() {
-            displayError("Tree loading error",
-                         "Error loading from URL '" + url + "'");
-        });
+    }, "text").fail(function(jqXHR) {
+        console.log(jqXHR);
+        if (jqXHR.status == 404) {
+            displayTreeLoadingError();
+        } else {
+            proxyurl = "https://cors.io/?" + url;
+            $.get(proxyurl, null, function(data) {
+                if (data == "nope") {
+                    displayTreeLoadingError();
+                } else {
+                    treeData = data;
+                    reloadTreeData();
+                }
+            }, "text").fail(function() {
+                displayTreeLoadingError();
+            });
+        }
     });
 }
 

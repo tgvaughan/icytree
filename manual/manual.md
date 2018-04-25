@@ -183,21 +183,22 @@ Example tree files
 
 The following list contains tree files of various formats that can be displayed
 using IcyTree. To display these examples you will need to download them first
-(for example by right-clicking on the link and selecting "Save link as").
+(for example by right-clicking on the link and selecting "Save link as"). Alternatively,
+choose the "open directly" link to open each link in a new IcyTree window.
 
-* [primates.newick](../examples/primates.newick): Primate phylogeny in
+* [primates.newick](../examples/primates.newick) [[open directly](https://icytree.org?url=https://icytree.org/examples/primates.newick)]: Primate phylogeny in
   Newick format.
-* [SIRTree.newick](../examples/SIRTrees.newick): Collection of simulated SIR
+* [SIRTrees.newick](../examples/SIRTrees.newick) [[open directly](https://icytree.org?url=https://icytree.org/examples/SIRTrees.newick)]: Collection of simulated SIR
   transmission trees in Newick format.
-* [SEISTree.nexus](../examples/SEISTree.nexus): Simulated SEIS
+* [SEISTree.nexus](../examples/SEISTree.nexus) [[open directly](https://icytree.org?url=https://icytree.org/examples/SEISTree.nexus)]: Simulated SEIS
   transmission tree in Nexus format (which permits annotations).
-* [h3n2.nexus](../examples/h3n2.nexus): Inferred Influenza tree in Nexus format
+* [h3n2.nexus](../examples/h3n2.nexus) [[open directly](https://icytree.org?url=https://icytree.org/examples/h3n2.nexus)]: Inferred Influenza tree in Nexus format
 including internal nodes and annotations representing ancestral spatial dynamics.
-* [ARG.newick](../examples/ARG.newick): Simulated ancestral recombination graph in Extended Newick format.
-* [ARG.nexus](../examples/ARG.nexus): The same ARG as in the previous example but in Nexus format (to support
+* [ARG.newick](../examples/ARG.newick) [[open directly](https://icytree.org?url=https://icytree.org/examples/ARG.newick)]: Simulated ancestral recombination graph in Extended Newick format.
+* [ARG.nexus](../examples/ARG.nexus) [[open directly](https://icytree.org?url=https://icytree.org/examples/ARG.nexus)]: The same ARG as in the previous example but in Nexus format (to support
 additional node/edge annotations).
-* [PhyloXML_example](../examples/PhyloXML_example.xml): Example PhyloXML time tree.
-* [NeXML_example](../examples/NeXML_example.xml): Example NeXML time tree.
+* [PhyloXML_example](../examples/PhyloXML_example.xml) [[open directly](https://icytree.org?url=https://icytree.org/examples/PhyloXML_example.xml)]: Example PhyloXML time tree.
+* [NeXML_example](../examples/NeXML_example.xml) [[open directly](https://icytree.org?url=https://icytree.org/examples/NeXML_example.xml)]: Example NeXML time tree.
 
 
 Exploring trees

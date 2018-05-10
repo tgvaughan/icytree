@@ -328,7 +328,7 @@ TreeFromNewick.prototype.doParse = function(tokenList, newick) {
         }
     }
 
-    // B -> :num A | eps
+    // B -> :num R A | eps
     function ruleB(node) {
         if (acceptToken("COLON", false)) {
             acceptToken("STRING", true);
@@ -342,7 +342,20 @@ TreeFromNewick.prototype.doParse = function(tokenList, newick) {
 
             //indentLog(":"+tokenList[idx-1][1]);
 
+            ruleR();
+
             ruleA(node);
+        }
+    }
+
+    // R -> :num R | eps
+    // (This rule strips out additional colon-delimited attributes from
+    // phylonet output.)
+    function ruleS() {
+        if (acceptToken("COLON", false)) {
+            acceptToken("STRING", false);
+
+            ruleR();
         }
     }
 };

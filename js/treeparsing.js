@@ -351,7 +351,7 @@ TreeFromNewick.prototype.doParse = function(tokenList, newick) {
     // R -> :num R | eps
     // (This rule strips out additional colon-delimited attributes from
     // phylonet output.)
-    function ruleS() {
+    function ruleR() {
         if (acceptToken("COLON", false)) {
             acceptToken("STRING", false);
 

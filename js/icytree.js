@@ -51,8 +51,24 @@ $(document).ready(function() {
     });
     $("#output").on("drop", function (event) {
         event.preventDefault();
-        treeFile = event.originalEvent.dataTransfer.files[0];
-        loadFile();
+
+        var dataTransfer = event.originalEvent.dataTransfer;
+
+        if (dataTransfer.files.length > 0) {
+            // Load from file:
+
+            treeFile = dataTransfer.files[0];
+            loadFile();
+
+        } else if (dataTransfer.items.length > 0) {
+            // Load from string:
+
+            dataTransfer.items[0].getAsString(function(s) {
+                treeData = s;
+                treeFile = null;
+                reloadTreeData();
+            });
+        }
     });
 
     // Set up keyboard handler:

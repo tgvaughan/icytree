@@ -542,10 +542,11 @@ var Display = (function() {
     // Draw internal node marker
     function newNodeMark(pos, colourTrait) {
         var bullet = document.createElementNS(NS, "ellipse");
+        var radius = 0.0; // Will be set appropriately by ZoomControl
         bullet.setAttribute("cx", pos[0]);
         bullet.setAttribute("cy", pos[1]);
-        bullet.setAttribute("rx", 2*TreeStyle.lineWidth);
-        bullet.setAttribute("ry", 2*TreeStyle.lineWidth);
+        bullet.setAttribute("rx", radius);
+        bullet.setAttribute("ry", radius);
         bullet.setAttribute("shape-rendering", "auto");
 
         var classes = "nodeMark";
@@ -1394,8 +1395,9 @@ var ZoomControl = {
         for (var i=0; i<nodeMarkElements.length; i++) {
             var dash = nodeMarkElements[i];
 
-            var w = 2*TreeStyle.lineWidth/this.zoomFactorX*this.xDilation;
-            var h = 2*TreeStyle.lineWidth/this.zoomFactorY*this.yDilation;
+            var radius = 0.5*TreeStyle.lineWidth + Math.sqrt(1.5*TreeStyle.lineWidth);
+            var w = radius/this.zoomFactorX*this.xDilation;
+            var h = radius/this.zoomFactorY*this.yDilation;
 
             dash.setAttribute("rx", w);
             dash.setAttribute("ry", h);

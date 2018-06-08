@@ -77,6 +77,7 @@ var TreeStyle = {
     logScaleRelOffset: 0.001,
 
     markSingletonNodes: false,
+    collapseZeroLengthEdges: true,
 
     displayRecomb: true,
     inlineRecomb: true,

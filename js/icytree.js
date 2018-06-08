@@ -163,6 +163,7 @@ $(document).ready(function() {
     $("#styleMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
             case "styleMarkSingletons":
+            case "styleCollapseZeroLengthEdges":
             case "styleDisplayRecomb":
             case "styleInlineRecomb":
             case "styleMinRecombLength":
@@ -837,7 +838,7 @@ function displayNotification(str, ms) {
 // Retrieve element text content
 function getItemDescription(el) {
     return el.contents().filter(function() {
-        return this.nodeType == 3;
+        return this.nodeType == 3 && this.nodeValue.trim().length>0;
     })[0].nodeValue.trim();
 }
 
@@ -1464,6 +1465,7 @@ function update() {
     TreeStyle.marginRight = 20;
 
     TreeStyle.markSingletonNodes = itemToggledOn($("#styleMarkSingletons"));
+    TreeStyle.collapseZeroLengthEdges = itemToggledOn($("#styleCollapseZeroLengthEdges"));
     TreeStyle.displayRecomb = itemToggledOn($("#styleDisplayRecomb"));
     TreeStyle.legend = itemToggledOn($("#styleDisplayLegend"));
 

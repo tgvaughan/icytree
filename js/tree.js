@@ -334,6 +334,22 @@ Tree.prototype.minimizeHybridSeparation = function() {
     }
 };
 
+// Collapse zero-length edges:
+Tree.prototype.collapseZeroLengthEdges = function() {
+    var leaves = this.getLeafList().slice();
+
+    for (var i=0; i<leaves.length; i++) {
+        if (leaves[i].parent !== undefined && leaves[i].height == leaves[i].parent.height) {
+            leaves[i].parent.label = leaves[i].label;
+
+            leaves[i].parent.removeChild(leaves[i]);
+        }
+    }
+
+    // Invalidate cached leaf and node lists
+    this.clearCaches();
+};
+
 // Re-root tree:
 Tree.prototype.reroot = function(edgeBaseNode) {
 

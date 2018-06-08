@@ -412,6 +412,17 @@ invisible.  IcyTree thus allows such nodes to be explicitly marked with solid
 black circles.  This marking can be toggled using the Style-&gt;"Mark singleton
 nodes" option.
 
+Collapsing zero-length edges
+----------------------------
+
+Some BEAST 2 packages (e.g. those that work with "sampled ancestor" nodes) produce
+trees with leaf nodes that are connected to the rest of the tree by an edge of
+length zero.  Such leaf nodes are intended to be interpreted as internal nodes.
+The option Style-&gt;"Collapse zero-length edges", which is enabled by default,
+causes these "dummy" edges to be ommitted from the tree when it is drawn.
+(To make such nodes visible, use the Style-&gt;"Mark singleton nodes" option described
+above.)
+
 Error bars
 ----------
 

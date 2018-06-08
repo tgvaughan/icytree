@@ -30,6 +30,7 @@ function TreeLayout(tree) {
 
     this.tree = tree.copy();
     this.sortTree();
+    this.collapseZeroLengthEdges();
 
     this.nodePositions = {};
     this.leafGroups = [];
@@ -73,6 +74,13 @@ TreeLayout.prototype.sortTree = function() {
     if (TreeStyle.minRecombEdgeLength)
         this.tree.minimizeHybridSeparation();
 };
+
+TreeLayout.prototype.collapseZeroLengthEdges = function() {
+    if (TreeStyle.collapseZeroLengthEdges) {
+        this.tree.collapseZeroLengthEdges();
+    }
+};
+
 
 TreeLayout.prototype.groupLeaves = function() {
 

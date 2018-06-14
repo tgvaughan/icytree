@@ -595,6 +595,11 @@ function browserIsFF() {
     return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
 }
 
+// Test for use of Chrome
+function browserIsChrome() {
+    return navigator.userAgent.toLowerCase().indexOf("chrome") > -1;
+}
+
 // Checks for URL as parameter in HREF and, if present, loads tree file from URL
 // and returns true.  Otherwise returns false.
 function maybeLoadFromHrefURL() {

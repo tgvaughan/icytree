@@ -1327,7 +1327,6 @@ var ZoomControl = {
         // Ensure displayed axis is up to date.
         Display.updateAxis(this.svg, this.layout);
         this.updateAxisTextScaling();
-
     },
 
     updateAxisTextScaling: function() {
@@ -1453,6 +1452,10 @@ var ZoomControl = {
         this.updateNodeMarkScaling();
 
         this.zeroPanOrigin(event.layerX, event.layerY);
+
+        // Temporary work-around for bug in Chrome SVG rendering
+        if (browserIsChrome())
+            update();
     },
 
     zeroPanOrigin: function(x, y) {

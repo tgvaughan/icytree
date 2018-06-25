@@ -296,7 +296,7 @@ TreeFromNewick.prototype.doParse = function(tokenList, newick) {
         //indentLog(key + "=" + value);
     }
 
-    // Q -> num|string|[&QW]
+    // Q -> num|string|QW|eps
     function ruleQ() {
         if (acceptToken("STRING", false))
             value = tokenList[idx-1][1];
@@ -305,8 +305,7 @@ TreeFromNewick.prototype.doParse = function(tokenList, newick) {
             value = [ruleQ()].concat(ruleW());
             acceptToken("CLOSEV", true);
         } else
-            throw new ParseException("Expected number, string or vector in annotation. Found " +
-                tokenList[idx][0] + " instead.");
+            value = null;
 
         return value;
     }

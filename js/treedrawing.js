@@ -499,7 +499,10 @@ var Display = (function() {
         path.setAttribute("class", classes);
 
         path.setAttribute("vector-effect", "non-scaling-stroke");
-        path.setAttribute("stroke-dasharray", "5, 2");
+
+        var dashLength = 3*TreeStyle.lineWidth;
+        var gapLength = 1*TreeStyle.lineWidth;
+        path.setAttribute("stroke-dasharray", dashLength + ", " + gapLength);
 
         return(path);
     }

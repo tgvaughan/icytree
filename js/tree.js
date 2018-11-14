@@ -339,15 +339,18 @@ Tree.prototype.collapseZeroLengthEdges = function() {
 
     this.root.applyPreOrder(function(node) {
 
-        var children = node.children.slice();
-        for (var i=0; i<children.length; i++) {
-            var child = children[i];
+        var childrenToConsider = node.children.slice();
+        while (childrenToConsider.length > 0) {
+            var child = childrenToConsider.pop();
 
             if (child.height == node.height) {
                 node.removeChild(child);
 
-                for (var j=0; j<child.children.length; j++)
-                    node.addChild(child.children[j]);
+                for (var j=0; j<child.children.length; j++) {
+                    var grandChild = child.children[j];
+                    node.addChild(grandChild);
+                    childrenToConsider.push(grandChild);
+                }
             }
         }
 

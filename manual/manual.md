@@ -415,13 +415,14 @@ nodes" option.
 Collapsing zero-length edges
 ----------------------------
 
-Some BEAST 2 packages (e.g. those that work with "sampled ancestor" nodes) produce
-trees with leaf nodes that are connected to the rest of the tree by an edge of
-length zero.  Such leaf nodes are intended to be interpreted as internal nodes.
-The option Style-&gt;"Collapse zero-length edges", which is enabled by default,
-causes these "dummy" edges to be ommitted from the tree when it is drawn.
-(To make such nodes visible, use the Style-&gt;"Mark singleton nodes" option described
-above.)
+Some phylogenetic software packages produce time trees in which with a subset
+of the edges have a zero length.  Such edges may be used to encode
+non-binary time tree elements (sampled ancestors, polytomies) within a
+binary tree.  The option Style-&gt;"Collapse zero-length edges", which
+is enabled by default, causes these "dummy" edges to be ommitted from
+the tree when it is drawn.  (To make the resulting sampled ancestor
+nodes visible, use the Style-&gt;"Mark singleton nodes" option
+described above.)
 
 Error bars
 ----------

@@ -29,8 +29,8 @@ function TreeLayout(tree) {
     this.origTree = tree; // Need this for tree modifications
 
     this.tree = tree.copy();
-    this.sortTree();
     this.collapseZeroLengthEdges();
+    this.sortTree();
 
     this.nodePositions = {};
     this.leafGroups = [];

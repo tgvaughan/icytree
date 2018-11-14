@@ -336,15 +336,22 @@ Tree.prototype.minimizeHybridSeparation = function() {
 
 // Collapse zero-length edges:
 Tree.prototype.collapseZeroLengthEdges = function() {
-    var leaves = this.getLeafList().slice();
 
-    for (var i=0; i<leaves.length; i++) {
-        if (leaves[i].parent !== undefined && leaves[i].height == leaves[i].parent.height) {
-            leaves[i].parent.label = leaves[i].label;
+    this.root.applyPreOrder(function(node) {
 
-            leaves[i].parent.removeChild(leaves[i]);
+        var children = node.children.slice();
+        for (var i=0; i<children.length; i++) {
+            var child = children[i];
+
+            if (child.height == node.height) {
+                node.removeChild(child);
+
+                for (var j=0; j<child.children.length; j++)
+                    node.addChild(child.children[j]);
+            }
         }
-    }
+
+    });
 
     // Invalidate cached leaf and node lists
     this.clearCaches();

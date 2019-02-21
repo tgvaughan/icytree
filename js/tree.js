@@ -368,6 +368,10 @@ Tree.prototype.collapseZeroLengthEdges = function() {
             if (child.height == node.height) {
                 node.removeChild(child);
 
+                // Does this do the right thing for polytomy dummy nodes?
+                node.annotation = child.annotation;
+                node.label = child.label;
+
                 for (var j=0; j<child.children.length; j++) {
                     var grandChild = child.children[j];
                     node.addChild(grandChild);

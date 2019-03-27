@@ -756,8 +756,14 @@ var Display = (function() {
                     branch.id = recombDest;
                     svg.appendChild(branch);
 
+                    // Get colour trait value if available
+                    var colourTraitValue;
+                    if (nodeColourAssignment !== undefined)
+                        colourTraitValue = getColourTraitValue(recombSrc, nodeColourAssignment);
+
                     // Add end markers
-                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombSrc])));
+                    svg.appendChild(newNodeMark(posXform(layout.nodePositions[recombSrc]),
+                                               colourTraitValue));
 
                     if (TreeStyle.inlineRecomb && !(recombDest.parent in layout.collapsedCladeRoots ||
                         recombDest.parent in layout.collapsedCladeNodes))
@@ -786,15 +792,14 @@ var Display = (function() {
 
             // Get colour trait value if available
             var colourTraitValue;
-            if (nodeColourAssignment !== undefined) {
+            if (nodeColourAssignment !== undefined)
                 colourTraitValue = getColourTraitValue(thisNode, nodeColourAssignment);
-            }
                 
             // Mark coloured and/or singleton nodes if requested:
             if (colourTraitValue !== undefined ||
                 (TreeStyle.markSingletonNodes && thisNode.children.length == 1)) {
                 svg.appendChild(newNodeMark(posXform(layout.nodePositions[thisNode]),
-                                            getColourTraitValue(thisNode, nodeColourAssignment)));
+                                            colourTraitValue));
             }
         }
 

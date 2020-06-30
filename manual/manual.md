@@ -106,13 +106,6 @@ you can choose a file to load.
 Alternatively, simply use a mouse to drag and drop a tree file directly onto
 the IcyTree window.
 
-Once a file has been successfully loaded, it can be reloaded by selecting
-"Reload file" from the File menu. If any rerooting or clade collapsing
-operations have been performed on the tree, this will return it to its original
-state. Also, if the file has changed since it was originally loaded, this will
-load the new version. (Unfortunately, due to a long-standing Firefox bug, this
-currently only works in Google Chrome.)
-
 Entering trees directly
 -----------------------
 

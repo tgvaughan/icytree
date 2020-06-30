@@ -122,11 +122,6 @@ $(document).ready(function() {
             $("#loadURL").dialog("open");
             break;
 
-        case "fileReload":
-            reloadWarning();
-            loadFile();
-            break;
-
         case "fileExportSVG":
             exportSVG();
             break;
@@ -590,11 +585,6 @@ $(document).ready(function() {
 
 });
 
-// Test for use of FF
-function browserIsFF() {
-    return navigator.userAgent.toLowerCase().indexOf("firefox") > -1;
-}
-
 // Test for use of Chrome
 function browserIsChrome() {
     return navigator.userAgent.toLowerCase().indexOf("chrome") > -1;
@@ -614,17 +604,6 @@ function maybeLoadFromHrefURL() {
     }
 }
 
-function reloadWarning() {
-    // Display warning when using FF until bug is fixed.
-    // (Uses cookie to ensure warning only displayed once.)
-    if (browserIsFF()) {
-        if (document.cookie.indexOf("ffWarning") == -1) {
-            $("#FFwarning").dialog("open");
-            document.cookie = "ffWarning=seen";
-        }
-    }
-}
-
 // Tests for the presence of required browser functionality
 function browserValid() {
     if (typeof FileReader === "undefined") {
@@ -638,12 +617,6 @@ function browserValid() {
 
 // Ensure menu items are appropriately blurred/unblurred.
 function updateMenuItems() {
-    if (treeFile === undefined) {
-        $("#fileReload").addClass("ui-state-disabled");
-    } else {
-        $("#fileReload").removeClass("ui-state-disabled");
-    }
-
     if (trees.length>0) {
         $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
@@ -1551,12 +1524,6 @@ function keyPressHandler(event) {
         // Load trees from file
         $("#fileLoad").trigger("click");
         event.preventDefault();
-        return;
-
-    case "r":
-        // Reload:
-        reloadWarning();
-        loadFile();
         return;
 
     case "u":

@@ -140,6 +140,15 @@ the file is hosted allow cross-origin access. In the case that the
 request fails, IcyTree attempts to use a CORS proxy to access the
 file, but this may fail if the availability of the proxy changes.
 
+Attaching Metadata
+------------------
+
+To load additional metadata corresponding to the tips of a tree, open
+the File menu and select "Attach metadata from CSV". The following delimiters
+are supported: ",", ";", "\t", and "|". The imported metadata will appear as
+attribute of the tips and can, for example, be used to colour the nodes by selecting
+an attribute in the Style menu under "Colour nodes by".
+
 Saving images
 -------------
 

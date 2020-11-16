@@ -127,6 +127,12 @@ body {
     left: -9999px;  /* So ugly! */
 }
 
+#metadataInput {
+    /* display: none; (Causes problems in Safari.) */
+    position: absolute;
+    left: -9999px;  /* So ugly! */
+}
+
 /* Load URL */
 #urlToLoad {
     width: 95%;

@@ -28,6 +28,9 @@ var treeFile;
 var treeData = "";
 var trees = [];
 var currentTreeIdx = 0;
+var metadataFile;
+var metadataParsed;
+var metadataMap;
 
 var layout;
 
@@ -120,6 +123,16 @@ $(document).ready(function() {
 
         case "fileURLLoad":
             $("#loadURL").dialog("open");
+            break;
+
+        case "fileAttachMetadata":
+            // Clear file input (otherwise can't reload same file)
+            $("#metadataInput").replaceWith($("#metadataInput").clone(true));
+
+            // Trigger click on file input
+            if (!$(this).parent().hasClass("ui-state-disabled")) {
+                $("#metadataInput").trigger("click");
+            }
             break;
 
         case "fileExportSVG":
@@ -285,12 +298,42 @@ $(document).ready(function() {
         loadFile();
     });
 
+    $("#metadataInput").change(function() {
+        metadataFile = $("#metadataInput").prop("files")[0];
+        loadMetadata();
+    });
+
     $("#loadURL").dialog({
         autoOpen: false,
         modal: true,
         buttons: {
             Load: function() {
                 loadURL($("#urlToLoad").val());
+                $(this).dialog("close");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }}
+    });
+
+
+    $("#metadataImportDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 600,
+        open: function(){$(this).parent().focus();},
+        buttons: {
+            Ok: function() {
+                if (metadataParsed.errors.length === 0) {
+                    var labelFieldName = $("#metadataImportDialogLabelSelection select option:selected").val();
+                    metadataMap = new Map();
+                    metadataParsed.data.forEach((line) => {
+                        metadataMap.set(line[labelFieldName], line);
+                    })
+                    joinMetadata(labelFieldName);
+                    update();
+                }
+
                 $(this).dialog("close");
             },
             Cancel: function() {
@@ -621,6 +664,7 @@ function updateMenuItems() {
         $("#styleMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
         $("#statsMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
+        $("#fileAttachMetadata").removeClass("ui-state-disabled")
         $("#fileExport").removeClass("ui-state-disabled");
 
         if ($("#styleLayout span").parent().text() === "Transmission Tree") {
@@ -651,6 +695,7 @@ function updateMenuItems() {
             $("#styleLayout").closest("li").removeClass("ui-state-disabled");
         }
     } else {
+        $("#fileAttachMetadata").addClass("ui-state-disabled");
         $("#fileExport").addClass("ui-state-disabled");
         $("#styleMenu").closest("li").find("button").first().addClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
@@ -712,6 +757,39 @@ function loadURL(url) {
             });
         }
     });
+}
+
+//Load metadata from CSV file
+function loadMetadata() {
+    // 1. Read file
+    var reader = new FileReader();
+    reader.onload = fileLoaded;
+    reader.readAsText(metadataFile);
+
+    function fileLoaded(evt) {
+        var csv = evt.target.result;
+
+        // 2. Try parsing the CSV
+        metadataParsed = Papa.parse(csv, {
+            header: true,
+            skipEmptyLines: true
+        });
+
+        // 3. Display the import dialog
+        if (metadataParsed.errors.length > 0) {
+            $("#metadataImportDialogError").show();
+            $("#metadataImportDialogLabelSelection").hide();
+        } else {
+            $("#metadataImportDialogError").hide();
+            $("#metadataImportDialogLabelSelection").show();
+
+            var select = $("#metadataImportDialogLabelSelection select");
+            metadataParsed.meta.fields.forEach((field) => {
+               select.append(new Option(field, field, field === 'label'));
+            });
+        }
+        $("#metadataImportDialog").dialog("open");
+    }
 }
 
 // Display space-filling frame with big text
@@ -1134,6 +1212,7 @@ function reloadTreeData() {
             }
 
             console.log("Successfully parsed " + trees.length + " trees.");
+            joinMetadata()
             update();
         }, 300);
     } else {
@@ -1149,7 +1228,31 @@ function reloadTreeData() {
         }
 
         console.log("Successfully parsed " + trees.length + " trees.");
+        joinMetadata();
         update();
+    }
+}
+
+
+function joinMetadata(labelFieldName) {
+    if (metadataMap) {
+        for (var tree of trees) {
+            for (var node of tree.nodeList) {
+                if (!node.label) {
+                    continue;
+                }
+                var metadata = metadataMap.get(node.label);
+                if (!metadata) {
+                    continue;
+                }
+                for (var property in metadata) {
+                    if (property === labelFieldName) {
+                        continue;
+                    }
+                    node.annotation[property] = metadata[property];
+                }
+            }
+        }
     }
 }
 

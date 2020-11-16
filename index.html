@@ -16,6 +16,9 @@
         <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.11.1/themes/start/jquery-ui.css"/>
         <script src="https://code.jquery.com/ui/1.11.1/jquery-ui.min.js"></script>
 
+        <!-- PapaParse (for CSV parsing) -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+
         <!-- FileSaver -->
         <script src="js/FileSaver.js"></script>
 
@@ -54,6 +57,11 @@
                     <li title="Load a file from a specified URL."
                         id="fileURLLoad"><span class="ui-icon ui-icon-link"></span>Load from URL...
                       <span class="ks">u</span></li>
+                    <li>---</li>
+                    <li title="Load metadata from a csv file and attach it to the tree."
+                        id="fileAttachMetadata" class="ui-state-disabled"><span class="ui-icon ui-icon-script"></span>
+                        Attach metadata from CSV
+                    </li>
                     <li>---</li>
                     <li title="Export currently-displayed tree."
                         id="fileExport" class="ui-state-disabled"><span class="ui-icon ui-icon-disk"></span>Export tree as...
@@ -299,6 +307,24 @@
 
         <!-- File input element -->
         <input id="fileInput" type="file"/>
+
+        <!-- Metadata file input element -->
+        <input id="metadataInput" type="file"/>
+
+        <!-- Metadata import dialog -->
+        <div id="metadataImportDialog" title="Metadata Import">
+            <div id="metadataImportDialogError" style="font-weight: bold; display: none;">
+                The file could not be parsed. Please check if the selected file is a valid CSV file. More details
+                can be found in the browser console.
+            </div>
+            <div id="metadataImportDialogLabelSelection" style="display: none;">
+                <label>
+                    Please select the column that contains the label. <br /><br />
+                    <select>
+                    </select>
+                </label>
+            </div>
+        </div>
 
         <!-- Axis offset dialog-->
         <div id="axisOffsetDialog" title="Set axis offset">

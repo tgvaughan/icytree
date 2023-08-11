@@ -588,6 +588,25 @@ The final set of Style options apply more generally. It includes the following o
     yields a crisper image.  However, when the number of leaves approaches or exceeds
     the number of pixels in the vertical portion of the display occupied by IcyTree,
     this can lead to artifacts.  Enabling this option can make such images clearer.
+    
+Saving and Restoring Styles
+---------------------------
+
+IcyTree can save a particular set of style options for later use.
+Simply select Style-&gt;"Save current style", enter a name in the
+displayed dialog box, and click Ok.  The Style-&gt;"Apply saved style"
+menu should now contain an entry with the name you selected.  Choosing
+this option will restore those saved style elements.
+
+There are a couple of things to note about this feature.
+
+1. Styles are saved using the WebStorage system implemented by modern
+browsers.  Your saved styles will therefore persist between browser sessions.
+However, clearing this storage from the browser settings will cause your saved
+styles to be lost.
+
+2. Not all style options are currently saved; the tree layout and node
+   sorting in particular.
 	
 Searching taxa
 ==============

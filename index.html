@@ -177,7 +177,7 @@
                         <ul id="styleAxis" class="subsub">
                             <li title="Don't display an axis."><span class="ui-icon ui-icon-check"></span>None</li>
                             <li title="Display axis for node ages (times before youngest sample).">Age</li>
-                            <li title="Display forward-time axis">Forwards time</li>
+                            <li title="Display forward-time axis">Forward time</li>
                         </ul>
                         <span class="ks">a</span>
                     </li>
@@ -223,6 +223,14 @@
                     </li>
                     <li title="Use anti-aliased lines for drawing tree edges.  (Can make densely-packed tree edges easier to resolve.)"
                         id="styleAntiAlias">Anti-alias</li>
+                    <li>--</li>
+                    <li title="Apply a saved style.">Apply saved style
+                      <ul id="stylePredefined" class="subsub">
+                        <li>Default Style</li>
+                      </ul>
+                    </li>
+                    <li id="styleSaveStyle" title="Save current style.">Save current style</li>
+                    <li id="styleClearSavedStyles" title="Clear saved styles.">Clear saved styles</li>
                 </ul>
             </li>
 
@@ -333,6 +341,21 @@
 
             <input type="text" id="axisOffsetInput" value="0"></input>
         </div>
+
+        <!-- Style save dialog-->
+        <div id="styleSaveDialog" title="Save current style" class="dialog">
+          <p>Choose a name under which to save the current style.  (Choosing an existing name will cause that style to be overwritten.)</p>
+
+          <input type="text" id="styleSaveNameInput" value="my style"></input>
+        </div>
+
+        <!-- Clear saved styles confirmation dialog -->
+        <div id="styleClearDialog" title="Confirmation" class="warning dialog">
+          <img src="images/alert.png"/>
+          <p>Really clear all existing saved styles?</p>
+        </div>
+
+
 
         <!-- Node search dialog -->
         <div id="nodeSearchDialog" title="Search leaf node attributes">

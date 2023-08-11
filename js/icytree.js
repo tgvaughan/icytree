@@ -170,58 +170,74 @@ $(document).ready(function() {
 
     $("#styleMenu").on("menuselect", function(event, ui) {
         switch(ui.item.attr("id")) {
-            case "styleMarkSingletons":
-            case "styleCollapseZeroLengthEdges":
-            case "styleDisplayRecomb":
-            case "styleInlineRecomb":
-            case "styleMinRecombLength":
-            case "styleDisplayLegend":
-            case "styleAngleText":
-            case "styleLogScale":
-            case "styleAntiAlias":
-                toggleItem(ui.item);
+        case "styleMarkSingletons":
+        case "styleCollapseZeroLengthEdges":
+        case "styleDisplayRecomb":
+        case "styleInlineRecomb":
+        case "styleMinRecombLength":
+        case "styleDisplayLegend":
+        case "styleAngleText":
+        case "styleLogScale":
+        case "styleAntiAlias":
+            toggleItem(ui.item);
+            break;
+
+        case "styleSetAxisOffset":
+            $("#axisOffsetDialog").dialog("open");
+            var inputBox = $("#axisOffsetInput");
+            inputBox.val(TreeStyle.axisOffset);
+            inputBox.focus();
+            inputBox.select();
+            break;
+
+        case "styleSaveStyle":
+            $("#styleSaveDialog").dialog("open");
+            var inputBox = $("#styleSaveNameInput")
+            inputBox.focus();
+            inputBox.select();
+            break;
+
+        case "styleClearSavedStyles":
+            $("#styleClearDialog").dialog("open");
+            break;
+
+        default:
+            switch(ui.item.parent().attr("id")) {
+            case "styleSort":
+            case "styleLayout":
+            case "styleEdgeColourTrait":
+            case "styleNodeColourTrait":
+            case "styleTipTextTrait":
+            case "styleNodeTextTrait":
+            case "styleRecombTextTrait":
+            case "styleNodeBarTrait":
+            case "styleEdgeWidthTrait":
+            case "styleRecombWidthTrait":
+            case "styleLabelPrec":
+            case "styleAxis":
+                selectListItem(ui.item);
                 break;
 
-            case "styleSetAxisOffset":
-                $("#axisOffsetDialog").dialog("open");
-                var inputBox = $("#axisOffsetInput");
-                inputBox.val(TreeStyle.axisOffset);
-                inputBox.focus();
-                inputBox.select();
+            case "styleFontSize":
+                if (ui.item.text().indexOf("Increase")>=0)
+                    fontSizeChange(2);
+                else
+                    fontSizeChange(-2);
                 break;
 
-            default:
-                switch(ui.item.parent().attr("id")) {
-                    case "styleSort":
-                    case "styleLayout":
-                    case "styleEdgeColourTrait":
-                    case "styleNodeColourTrait":
-                    case "styleTipTextTrait":
-                    case "styleNodeTextTrait":
-                    case "styleRecombTextTrait":
-                    case "styleNodeBarTrait":
-                    case "styleEdgeWidthTrait":
-                    case "styleRecombWidthTrait":
-                    case "styleLabelPrec":
-                    case "styleAxis":
-                        selectListItem(ui.item);
-                        break;
-
-                    case "styleFontSize":
-                        if (ui.item.text().indexOf("Increase")>=0)
-                            fontSizeChange(2);
-                        else
-                            fontSizeChange(-2);
-                        break;
-
-                    case "styleEdgeWidth":
-                        if (ui.item.text().indexOf("Increase")>=0)
-                            edgeWidthChange(1);
-                        else
-                            edgeWidthChange(-1);
-                        break;
-                }
+            case "styleEdgeWidth":
+                if (ui.item.text().indexOf("Increase")>=0)
+                    edgeWidthChange(1);
+                else
+                    edgeWidthChange(-1);
                 break;
+
+            case "stylePredefined":
+                restoreNamedTreeStyle(ui.item.text());
+                break;
+            }
+
+            break;
         }
     });
 
@@ -357,6 +373,37 @@ $(document).ready(function() {
                 $(this).dialog("close");
             }}
     });
+
+    $("#styleSaveDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 400,
+        open: function(){$(this).parent().focus();},
+        buttons: {
+            Ok: function() {
+                saveCurrentTreeStyle($("#styleSaveNameInput").val())
+                $(this).dialog("close");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }}
+    });
+
+    $("#styleClearDialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: 400,
+        open: function(){$(this).parent().focus();},
+        buttons: {
+            Clear: function() {
+                clearSavedTreeStyles();
+                $(this).dialog("close");
+            },
+            Cancel: function() {
+                $(this).dialog("close");
+            }}
+    });
+
 
     $("#nodeSearchDialog").dialog({
         autoOpen: false,
@@ -621,11 +668,13 @@ $(document).ready(function() {
     if (!maybeLoadFromHrefURL())
         update();
 
+    // Save default style:
+    saveCurrentTreeStyle("Default Style", false);
+
     // Display warning if required functions unavailable.
     if (!browserValid()) {
         $("#warning").dialog("open");
     }
-
 });
 
 // Test for use of Chrome
@@ -666,6 +715,8 @@ function updateMenuItems() {
         $("#statsMenu").closest("li").find("button").first().removeClass("ui-state-disabled");
         $("#fileAttachMetadata").removeClass("ui-state-disabled")
         $("#fileExport").removeClass("ui-state-disabled");
+        $("#fileExportStyle").removeClass("ui-state-disabled");
+        $("#fileImportStyle").removeClass("ui-state-disabled");
 
         if ($("#styleLayout span").parent().text() === "Transmission Tree") {
             $("#styleSort").closest("li").addClass("ui-state-disabled");
@@ -697,6 +748,8 @@ function updateMenuItems() {
     } else {
         $("#fileAttachMetadata").addClass("ui-state-disabled");
         $("#fileExport").addClass("ui-state-disabled");
+        $("#fileExportStyle").removeClass("ui-state-disabled");
+        $("#fileImportStyle").removeClass("ui-state-disabled");
         $("#styleMenu").closest("li").find("button").first().addClass("ui-state-disabled");
         $("#searchMenu").closest("li").find("button").first().addClass("ui-state-disabled");
         $("#statsMenu").closest("li").find("button").first().addClass("ui-state-disabled");
@@ -936,6 +989,12 @@ function selectListItem(el, doUpdate, notify) {
         update();
 }
 
+function selectListItemByName(listSelector, elementName) {
+    selectListItem($(listSelector + ">li:contains('" +
+                     (elementName || "None") +
+                     "')"), false, false);
+}
+
 // Cycle checked item in list:
 function cycleListItem(el) {
     if (el.closest("li").hasClass("ui-state-disabled"))
@@ -968,24 +1027,30 @@ function reverseCycleListItem(el) {
     selectListItem(nextItem);
 }
 
+function itemToggledOn(el) {
+    return el.find("span.ui-icon-check").length>0;
+}
+
+function setToggleItem(el, value) {
+    if (value) {
+        if (!itemToggledOn(el))
+            el.prepend($("<span/>").addClass("ui-icon ui-icon-check"));
+    } else {
+        if (itemToggledOn(el))
+            el.find("span.ui-icon-check").remove();
+    }
+}
+
 function toggleItem (el) {
     if (el.hasClass("ui-state-disabled"))
         return;
 
-    if (el.find("span.ui-icon-check").length === 0) {
-        el.prepend($("<span/>").addClass("ui-icon ui-icon-check"));
-        displayNotification(getItemDescription(el) + ": ON");
-    } else {
-        el.find("span.ui-icon-check").remove();
-        displayNotification(getItemDescription(el) + ": OFF");
-    }
-
+    setToggleItem(el, !itemToggledOn(el));
+    displayNotification(getItemDescription(el) + ": " + (itemToggledOn(el) ? "ON" : "OFF"))
+    
     update();
 }
 
-function itemToggledOn(el) {
-    return el.find("span.ui-icon-check").length>0;
-}
 
 // Update submenus containing trait selectors
 function updateTraitSelectors() {
@@ -1380,6 +1445,118 @@ function exportTreeFile(format) {
     saveAs(blob, "tree." + extension);
 }
 
+function saveCurrentTreeStyle(name, noUpdate) {
+
+    var styleObject = {
+        edgeColourTrait: TreeStyle.edgeColourTrait || "NODEF",
+        nodeColourTrait: TreeStyle.nodeColourTrait || "NODEF",
+
+        tipTextTrait: TreeStyle.tipTextTrait || "NODEF",
+        nodeTextTrait: TreeStyle.nodeTextTrait || "NODEF",
+        recombTextTrait: TreeStyle.recombTextTrait || "NODEF",
+        labelPrec: TreeStyle.labelPrec,
+        angleText: TreeStyle.angleText,
+
+        edgeWidthTrait: TreeStyle.edgeWidthTrait || "NODEF",
+        recombWidthTrait: TreeStyle.recombWidthTrait || "NODEF",
+
+        nodeBarTrait: TreeStyle.nodeBarTrait || "NODEF",
+
+        axis: TreeStyle.axis,
+        axisOffset: TreeStyle.axisOffset,
+        maxAxisTicks: TreeStyle.maxAxisTicks,
+
+        legend: TreeStyle.legend,
+
+        logScale: TreeStyle.logScale,
+        logScaleRelOffset: TreeStyle.logScaleRelOffset,
+
+        markSingletonNodes: TreeStyle.markSingletonNodes,
+        collapseZeroLengthEdges: TreeStyle.collapseZeroLengthEdges,
+
+        displayRecomb: TreeStyle.displayRecomb,
+        inlineRecomb: TreeStyle.inlineRecomb,
+        minRecombEdgeLength: TreeStyle.minRecombEdgeLength,
+
+        lineWidth: TreeStyle.lineWidth,
+        minLineWidth: TreeStyle.minLineWidth,
+        fontSize: TreeStyle.fontSize,
+
+        sortNodes: TreeStyle.sortNodes,
+        sortNodesDecending: TreeStyle.sortNodesDecending
+    }
+
+    window.localStorage.setItem(name, JSON.stringify(styleObject));
+
+    console.log("Saved named style '" + name + "'.");
+
+    if(!noUpdate)
+        update();
+}
+
+function restoreNamedTreeStyle(name, noUpdate) {
+
+    var jsonString = window.localStorage.getItem(name);
+    
+    if (!jsonString) {
+        console.error("Named style not found.");
+        return;
+    }
+
+    Object.assign(TreeStyle, JSON.parse(jsonString));
+    for (const prop in TreeStyle) {
+        if (TreeStyle[prop] === "NODEF")
+            TreeStyle[prop] = undefined;
+    }
+
+    setToggleItem($("#styleMarkSingletons"), TreeStyle.markSingletonNodes);
+    setToggleItem($("#styleCollapseZeroLengthEdges"), TreeStyle.collapseZeroLengthEdges);
+    setToggleItem($("#styleDisplayRecomb"), TreeStyle.displayRecomb);
+    setToggleItem($("#styleInlineRecomb"), TreeStyle.inlineRecomb);
+    setToggleItem($("#styleMinRecombLength"), TreeStyle.minRecombEdgeLength);
+    setToggleItem($("#styleDisplayLegend"), TreeStyle.legend);
+    setToggleItem($("#styleLogScale"), TreeStyle.logScale);
+
+    selectListItemByName("#styleAxis", TreeStyle.axis);
+
+    selectListItemByName("#styleEdgeColourTrait", TreeStyle.edgeColourTrait);
+    selectListItemByName("#styleNodeColourTrait", TreeStyle.nodeColourTrait);
+    
+    selectListItemByName("#styleTipTextTrait", TreeStyle.tipTextTrait);
+    selectListItemByName("#styleNodeTextTrait", TreeStyle.nodeTextTrait);
+
+    selectListItemByName("#styleRecombTextTrait", TreeStyle.recombTextTrait);
+    selectListItemByName("#styleEdgeWidthTrait", TreeStyle.edgeWidthTrait);
+    selectListItemByName("#styleRecombWidthTrait", TreeStyle.recombWidthTrait);
+
+    console.log("Applied named style '" + name + "'.");
+
+    if (!noUpdate)
+        update();
+}
+
+function clearSavedTreeStyles(noUpdate) {
+    var defaultStyle = window.localStorage.getItem("Default Style");
+    window.localStorage.clear();
+    window.localStorage.setItem("Default Style", defaultStyle);
+
+    if (!noUpdate)
+        update();
+}
+
+function updateSavedStylesMenu() {
+    var ul = $("#stylePredefined");
+    ul.html("<li>Default Style</li>");
+
+    for (var i=0; i<window.localStorage.length; i++) {
+        var name = window.localStorage.key(i);
+        if (name != "Default Style")
+            ul.append($("<li/>").text(name));
+    }
+
+    $("#styleMenu").menu("refresh");
+}
+
 
 // Update display according to current tree model and display settings
 function update() {
@@ -1514,20 +1691,9 @@ function update() {
 
     // Determine which kind of axis (if any) should be displayed
     if (itemToggledOn($("#styleLayoutCladogram")))
-        TreeStyle.axis = false;
+        TreeStyle.axis = "None";
     else {
-        switch ($("#styleAxis span").parent().text()) {
-            case "Age":
-                TreeStyle.axis = true;
-                TreeStyle.axisForwards = false;
-                break;
-            case "Forwards time":
-                TreeStyle.axis = true;
-                TreeStyle.axisForwards = true;
-                break;
-            default:
-                TreeStyle.axis = false;
-        }
+        TreeStyle.axis = $("#styleAxis span").parent().text();
     }
 
 
@@ -1549,6 +1715,9 @@ function update() {
     TreeStyle.collapseZeroLengthEdges = itemToggledOn($("#styleCollapseZeroLengthEdges"));
     TreeStyle.displayRecomb = itemToggledOn($("#styleDisplayRecomb"));
     TreeStyle.legend = itemToggledOn($("#styleDisplayLegend"));
+
+    // Update saved styles menu:
+    updateSavedStylesMenu();
 
     // Position internal nodes
     //var layout;

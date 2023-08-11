@@ -66,8 +66,7 @@ var TreeStyle = {
 
     nodeBarTrait: undefined,
 
-    axis: false,
-    axisForwards: false,
+    axis: "None",
     axisOffset: 0,
     maxAxisTicks: 20,
 
@@ -341,7 +340,7 @@ var Display = (function() {
 
         var label, title, coord, dot;
 
-        if (TreeStyle.axis) {
+        if (TreeStyle.axis !== "None") {
 
             // Select tick number and spacing
             var treeHeight = layout.getTotalTreeHeight();
@@ -365,7 +364,7 @@ var Display = (function() {
                 var minDelta = (axisEnd-axisStart)/(TreeStyle.maxAxisTicks-1);
                 delta = Math.pow(10,Math.ceil(Math.log(minDelta)/Math.log(10)));
 
-                if (TreeStyle.axisForwards)
+                if (TreeStyle.axis === "Forward time")
                     axisStart = TreeStyle.axisOffset - delta*Math.floor((TreeStyle.axisOffset - axisStart)/delta);
                 else
                     axisStart = delta*Math.ceil((axisStart + TreeStyle.axisOffset)/delta) - TreeStyle.axisOffset;
@@ -381,14 +380,14 @@ var Display = (function() {
             while (h <= axisEnd) {
                 label = "";
                 if (!TreeStyle.logScale) {
-                    if (TreeStyle.axisForwards)
+                    if (TreeStyle.axis === "Forward time")
                         label = parseFloat((TreeStyle.axisOffset - h).toPrecision(10));
                     else
                         label = parseFloat((h + TreeStyle.axisOffset).toPrecision(10));
                     axisLine(svg, h/treeHeight, label, bottomRight[0], topLeft[0]);
                 } else {
                     var trueHeight = lso*Math.pow(treeHeight/lso + 1, h) - lso;
-                    if (TreeStyle.axisForwards)
+                    if (TreeStyle.axis === "Forward time")
                         label = Number((TreeStyle.axisOffset - trueHeight).toPrecision(5)).toExponential();
                     else
                         label =  Number((trueHeight + TreeStyle.axisOffset).toPrecision(5)).toExponential();

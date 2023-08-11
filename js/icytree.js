@@ -669,7 +669,7 @@ $(document).ready(function() {
         update();
 
     // Save default style:
-    saveCurrentTreeStyle("Default Style", false);
+    saveCurrentTreeStyle("Default Style", true);
 
     // Display warning if required functions unavailable.
     if (!browserValid()) {
@@ -1490,8 +1490,10 @@ function saveCurrentTreeStyle(name, noUpdate) {
 
     console.log("Saved named style '" + name + "'.");
 
-    if(!noUpdate)
+    if(!noUpdate) {
+        displayNotification("Saved named style '" + name + "'.");
         update();
+    }
 }
 
 function restoreNamedTreeStyle(name, noUpdate) {
@@ -1531,8 +1533,10 @@ function restoreNamedTreeStyle(name, noUpdate) {
 
     console.log("Applied named style '" + name + "'.");
 
-    if (!noUpdate)
+    if (!noUpdate) {
+        displayNotification("Applied named style '" + name + "'.");
         update();
+    }
 }
 
 function clearSavedTreeStyles(noUpdate) {

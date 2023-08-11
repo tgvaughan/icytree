@@ -1561,6 +1561,27 @@ function updateSavedStylesMenu() {
     $("#styleMenu").menu("refresh");
 }
 
+// Hacky way to cycle through named styles.
+var styleCounter = 0;
+function loadNextStyle() {
+    var lis = $("#stylePredefined>li")
+    styleCounter += 1;
+    if (styleCounter>=lis.length)
+        styleCounter = 0;
+    
+    restoreNamedTreeStyle(lis.eq(styleCounter).text());
+}
+
+function loadPreviousStyle() {
+    var lis = $("#stylePredefined>li")
+    styleCounter -= 1;
+    if (styleCounter<0)
+        styleCounter = lis.length-1;
+    
+    restoreNamedTreeStyle(lis.eq(styleCounter).text());
+}
+
+
 
 // Update display according to current tree model and display settings
 function update() {
@@ -2039,6 +2060,17 @@ function keyPressHandler(event) {
             event.preventDefault();
             return;
 
+        case "{":
+            // Load previous style
+            loadPreviousStyle();
+            event.preventDefault();
+            return;
+
+        case "}":
+            // Load next style
+            loadNextStyle();
+            event.preventDefault();
+            return;
 
         default:
             break;

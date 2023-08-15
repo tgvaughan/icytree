@@ -990,6 +990,10 @@ function selectListItem(el, doUpdate, notify) {
 }
 
 function selectListItemByName(listSelector, elementName) {
+    // In element list, pseudo-trait "label" is written "Label".
+    if (elementName === "label")
+        elementName = "Label";
+
     selectListItem($(listSelector + ">li:contains('" +
                      (elementName || "None") +
                      "')"), false, false);

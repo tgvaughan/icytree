@@ -229,7 +229,6 @@ body {
     overflow: hidden;
 }
 
-
 #skylinePlotOutput {
     width: 100%;
     height: calc(100% - 3em);

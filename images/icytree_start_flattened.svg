@@ -65,7 +65,7 @@
            id="g4254"
            transform="translate(-5.7142857,-12.857143)">
           <g
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:'FreeSans, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:'FreeSans, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#6E7B8B;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
              id="text4190">
             <path
                d="m 252.53373,-232.62373 9.835,0 c 6.44,0 10.395,-4.83 10.395,-12.775 0,-7.91 -3.92,-12.74 -10.395,-12.74 l -9.835,0 0,25.515 z m 3.255,-2.87 0,-19.775 6.02,0 c 5.04,0 7.7,3.395 7.7,9.905 0,6.44 -2.66,9.87 -7.7,9.87 l -6.02,0 z"
@@ -145,7 +145,7 @@
                id="path4615" />
           </g>
           <g
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:'FreeSans, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:35px;line-height:125%;font-family:FreeSans;-inkscape-font-specification:'FreeSans, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#6E7B8B;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
              id="text4242">
             <path
                d="m 237.6854,-157.70373 c -5.145,0 -8.26,3.675 -8.26,9.835 0,6.16 3.08,9.835 8.295,9.835 5.145,0 8.295,-3.675 8.295,-9.695 0,-6.335 -3.045,-9.975 -8.33,-9.975 z m 0.035,2.695 c 3.29,0 5.25,2.695 5.25,7.245 0,4.305 -2.03,7.035 -5.25,7.035 -3.255,0 -5.25,-2.695 -5.25,-7.14 0,-4.41 1.995,-7.14 5.25,-7.14 z"

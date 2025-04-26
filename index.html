@@ -39,6 +39,8 @@
         <script src="js/icytree.js"></script>
         <link rel="stylesheet" type="text/css" href="css/icytree.css"></link>
 
+        <link rel="stylesheet" href="css/darkmode.css"></link>
+
         <link rel="shortcut icon" href="images/icytree.ico"></link>
     </head>
 
@@ -246,7 +248,7 @@
             </li>
 
             <li><button>Statistics</button>
-              <ul id="statsMenu">
+              <ul id="statsMenu" class="dropdown-menu">
                 <li title="Display lineages-through-time plot for current tree."
                     id="statsLTT">Lineages-through-time plot...</li>
                 <li title="Display classic skyline population function estimate from current tree."
@@ -267,6 +269,11 @@
                     <li title="What is IcyTree?"
                         id="helpAbout">About IcyTree...</li>
                 </ul>
+            </li>
+            <li>
+                <button id="darkModeToggle" title="Dark Mode Toggle">
+                    <span class="ui-icon ui-icon-lightbulb"></span>
+                </button>
             </li>
         </ul>
         </ul>
@@ -460,6 +467,7 @@
                 <tr><td>[ ]</td> <td>Increase/decrease font size</td></tr>
                 <tr><td>{ }</td> <td>Cycle through predefined styles</td></tr>
                 <tr><td>/</td> <td>Find nodes</td></tr>
+                <tr><td>x</td> <td>Dark Mode Toggle</td></tr>
                 <tr><td>?</td> <td>Keyboard shortcut help</td></tr>
             </table>
         </div>

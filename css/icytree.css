@@ -224,6 +224,12 @@ body {
     height: 100%;
 }
 
+/* Removing scollbar from skyline plot window */
+#skylineDialog {
+    overflow: hidden;
+}
+
+
 #skylinePlotOutput {
     width: 100%;
     height: calc(100% - 3em);

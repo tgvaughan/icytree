@@ -1,0 +1,137 @@
+/* darkmode.css */
+/* Some default colors */
+:root {
+    --defaultBackCol: #1e1e1e;
+    --defaultTextCol: #b0b0b0;
+    --contrastBackCol: #2a2a2a;
+}
+
+/* General background and odd list items in the keyboard shortcut table */
+.dark-mode,
+.dark-mode #shortcutHelp tr:nth-of-type(odd) {
+    background-color: var(--defaultBackCol);
+}
+/* Tree entry console, background color */
+.dark-mode .ui-widget-content  {
+    background: var(--defaultBackCol);
+}
+
+/* Setting the keyboard shortcut and tree stat table color */
+/* Changing color for about icytree popup: text and links */
+.dark-mode #shortcutHelp th,
+.dark-mode #shortcutHelp td,
+.dark-mode #treeStatsDialog th,
+.dark-mode #treeStatsDialog td,
+.dark-mode .ui-widget-content,
+.dark-mode .ui-widget-content a
+{
+    color: var(--defaultTextCol);
+}
+
+/* Color for light and dark mode of the hover over edges tree stat table
+    Something else in dark-mode changed the originally white text to be black... */
+#phyloStat table {
+    color: var(--defaultTextCol);
+}
+
+/*even list items in the keyboard shortcut and treestats table*/
+.dark-mode #shortcutHelp tr:nth-of-type(even),
+.dark-mode #treeStatsDialog tr:nth-of-type(even)
+{
+    background-color: #444; /* Dark background for even rows */
+}
+
+/* Setting the text color of menu buttons */
+/* Hover dropdown items change text to be black for readability */
+.dark-mode .ui-menu,
+.dark-mode .ui-button,
+.dark-mode .ui-widget-header,
+.dark-mode #fileMenu li:hover:not(.ui-state-disabled),
+.dark-mode #helpMenu li:hover:not(.ui-state-disabled),
+.dark-mode #searchMenu:hover:not(.ui-state-disabled),
+.dark-mode #searchMenu li:hover:not(.ui-state-disabled),
+.dark-mode #styleMenu li:hover:not(.ui-state-disabled),
+.dark-mode #statsMenu li:hover:not(.ui-state-disabled)
+{
+    color: black;
+}
+
+ /* General dropdown background and text in dark mode */
+.dark-mode #fileMenu,
+.dark-mode #fileMenu ul,
+.dark-mode #fileMenu li,
+.dark-mode #helpMenu,
+.dark-mode #helpMenu ul,
+.dark-mode #helpMenu li,
+.dark-mode #searchMenu,
+.dark-mode #searchMenu ul,
+.dark-mode #searchMenu li,
+.dark-mode #styleMenu,
+.dark-mode #styleMenu ul,
+.dark-mode #styleMenu li,
+.dark-mode #statsMenu,
+.dark-mode #statsMenu ul,
+.dark-mode #statsMenu li
+{
+    background-color: var(--contrastBackCol);
+    color: var(--defaultTextCol);
+    border: none;
+}
+
+/*Shortcut text color in menu items */
+.dark-mode .ks {
+    color: #4d4dd2;
+}
+
+/*Tree entry console colors */
+.dark-mode #directEntry textarea {
+    background-color: var(--contrastBackCol);
+    color: #888;
+}
+
+/* Tree text entry placeholder text color*/
+.dark-mode #directEntry textarea::placeholder {
+    color: #888;
+}
+
+/* Changes the menu list separator background color for dark-mode... */
+.dark-mode .ui-menu .ui-menu-divider {
+    background: transparent !important;
+    height: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    width: 100% !important;
+    display: block !important;
+    box-sizing: border-box !important;
+    color: transparent !important;
+}
+
+/* Colors for node search selector */
+.dark-mode .ui-widget select,
+.dark-mode .ui-widget input {
+    background-color: lightgrey;
+    color: black;
+}
+
+/* Change the color of the light bulb icon for light and dark mode */
+.ui-icon-lightbulb {
+    filter: invert(15%) sepia(98%) saturate(4439%) hue-rotate(308deg) brightness(100%) contrast(101%);
+}
+.dark-mode .ui-icon-lightbulb {
+    filter: invert(15%) sepia(98%) saturate(4439%) hue-rotate(308deg) brightness(75%) contrast(101%);
+}
+
+/* Keeping this for future ref if needed
+    Color of scroll bar in keyboard shortcuts,
+    could be improved by setting the style to be same as in light mode...
+     This is just be overkill :D */
+/*.dark-mode #shortcutHelp::-webkit-scrollbar {*/
+/*    background-color: lightgrey;*/
+/*}*/
+/*.dark-mode #shortcutHelp::-webkit-scrollbar-thumb {*/
+/*    background-color: lightblue;*/
+/*}*/
+/*.dark-mode #shortcutHelp::-webkit-scrollbar-thumb:hover {*/
+/*    background-color: #87cefa; !* lighter blue on hover *!*/
+/*}*/

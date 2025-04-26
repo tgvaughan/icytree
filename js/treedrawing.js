@@ -274,6 +274,11 @@ var Display = (function() {
         title.setAttribute("x",  coord.x);
         title.setAttribute("y",  coord.y);
 
+        if (document.body.classList.contains("dark-mode")) {
+            // Legend title color for dark mode
+            title.setAttribute("fill", "#b0b0b0");
+        }
+
         var titleText;
         if (colourAssignment.type == "edge")
             titleText = "Edge colour: ";
@@ -441,7 +446,11 @@ var Display = (function() {
         bar.setAttribute("x2", maxPos[0]);
         bar.setAttribute("y2", maxPos[1]);
         bar.setAttribute("vector-effect", "non-scaling-stroke");
-        bar.setAttribute("stroke", "black");
+        if (document.body.classList.contains("dark-mode")) {
+            bar.setAttribute("stroke", "lightgrey");
+        } else {
+            bar.setAttribute("stroke", "black");
+        }
         bar.setAttribute("stroke-opacity", "0.4");
         bar.setAttribute("stroke-width", TreeStyle.lineWidth*3);
         bar.setAttribute("class", "errorBar");
@@ -462,8 +471,12 @@ var Display = (function() {
         if (colourTrait !== undefined)
             classes += " edgetrait_" + window.btoa(colourTrait);
         else
-            path.setAttribute("stroke", "black");
-
+            if (document.body.classList.contains("dark-mode")) {
+                // Dark mode edges default
+                path.setAttribute("stroke", "lightgrey");
+            } else {
+                path.setAttribute("stroke", "black");
+            }
         path.setAttribute("stroke-width", TreeStyle.minLineWidth +
                           edgeWidthFactor*(TreeStyle.lineWidth - TreeStyle.minLineWidth));
 
@@ -487,11 +500,16 @@ var Display = (function() {
         path.setAttribute("fill", "none");
 
         var classes = "treeEdge";
-        if (colourTrait !== undefined)
+        if (colourTrait !== undefined) {
             classes += " edgetrait_" + window.btoa(colourTrait);
-        else
-            path.setAttribute("stroke", "black");
-
+        } else {
+            if (document.body.classList.contains("dark-mode")) {
+                // Dark mode edges default to lightgrey
+                path.setAttribute("stroke", "lightgrey");
+            } else {
+                path.setAttribute("stroke", "black");
+            }
+        }
         path.setAttribute("stroke-width", TreeStyle.minLineWidth +
                           recombWidthFactor*(TreeStyle.lineWidth - TreeStyle.minLineWidth));
 
@@ -539,6 +557,10 @@ var Display = (function() {
             text.textContent = string;
         }
 
+        if (document.body.classList.contains("dark-mode")) {
+            // Dark mode for leaf labels
+            text.setAttribute("fill", "lightgrey");
+        }
         return(text);
     }
 
@@ -556,8 +578,12 @@ var Display = (function() {
         if (colourTrait !== undefined)
             classes += " nodetrait_" + window.btoa(colourTrait);
         else
-            bullet.setAttribute("fill", "black");
-
+            if (document.body.classList.contains("dark-mode")) {
+                // Dark mode color for internal nodes
+                bullet.setAttribute("fill", "lightgrey");
+            } else {
+                bullet.setAttribute("fill", "black");
+            }
         bullet.setAttribute("class", classes);
         return(bullet);
     }
@@ -575,7 +601,12 @@ var Display = (function() {
 
         polygon.setAttribute("points", vertexString);
         polygon.setAttribute("fill", "gray");
-        polygon.setAttribute("stroke", "black");
+        if (document.body.classList.contains("dark-mode")) {
+            // Dark mode outline for collapsed clade
+            polygon.setAttribute("stroke", "lightgrey");
+        } else {
+            polygon.setAttribute("stroke", "black");
+        }
         polygon.setAttribute("vector-effect", "non-scaling-stroke");
         polygon.setAttribute("shape-rendering", "auto");
 

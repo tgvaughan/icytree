@@ -41,6 +41,11 @@ $.ui.dialog.prototype._focusTabbable = $.noop;
 // Page initialisation code:
 $(document).ready(function() {
 
+    // Apply saved dark mode preference on page load
+    if (localStorage.getItem("Dark Mode") === "on") {
+        $("body").addClass("dark-mode");
+    }
+
     $(window).on("resize", update);
 
     // Set up drag and drop event listeners:
@@ -285,6 +290,11 @@ $(document).ready(function() {
         }
     });
 
+    $("#darkModeToggle").on("click", function () {
+        $("body").toggleClass("dark-mode");
+        const mode = $("body").hasClass("dark-mode") ? "on" : "off";
+        localStorage.setItem("Dark Mode", mode);
+    });
 
     // Set up dialogs:
 
@@ -1558,7 +1568,7 @@ function updateSavedStylesMenu() {
 
     for (var i=0; i<window.localStorage.length; i++) {
         var name = window.localStorage.key(i);
-        if (name != "Default Style")
+        if (name !== "Default Style" && name !== "Dark Mode")
             ul.append($("<li/>").text(name));
     }
 
@@ -1809,29 +1819,39 @@ function keyPressHandler(event) {
     // Presses valid at all times:
 
     switch (eventChar) {
-    case "?":
-        // Keyboard shortcut help
-        $("#shortcutHelp").dialog("open");
-        event.preventDefault();
-        return;
+        case "?":
+            // Keyboard shortcut help
+            $("#shortcutHelp").dialog("open");
+            event.preventDefault();
+            return;
 
-    case "e":
-        // Enter trees directly
-        $("#fileEnter").trigger("click");
-        event.preventDefault();
-        return;
+        case "e":
+            // Enter trees directly
+            $("#fileEnter").trigger("click");
+            event.preventDefault();
+            return;
 
-    case "l":
-        // Load trees from file
-        $("#fileLoad").trigger("click");
-        event.preventDefault();
-        return;
+        case "l":
+            // Load trees from file
+            $("#fileLoad").trigger("click");
+            event.preventDefault();
+            return;
 
-    case "u":
-        // Load from URL
-        $("#loadURL").dialog("open");
-        event.preventDefault();
-        return;
+        case "u":
+            // Load from URL
+            $("#loadURL").dialog("open");
+            event.preventDefault();
+            return;
+
+        case "x":
+            // Toggle dark mode
+            $("body").toggleClass("dark-mode");
+            const mode = $("body").hasClass("dark-mode") ? "on" : "off";
+            localStorage.setItem("Dark Mode", mode);
+            event.preventDefault();
+            // Update tree display to switch to darkMode colors
+            update()
+            return;
     }
 
     if (trees.length === 0)

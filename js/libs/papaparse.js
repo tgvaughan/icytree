@@ -1,6 +1,6 @@
 /* @license
 Papa Parse
-v5.4.1
+v5.0.2
 https://github.com/mholt/PapaParse
 License: MIT
 */
@@ -49,12 +49,11 @@ License: MIT
 	function getWorkerBlob() {
 		var URL = global.URL || global.webkitURL || null;
 		var code = moduleFactory.toString();
-		return Papa.BLOB_URL || (Papa.BLOB_URL = URL.createObjectURL(new Blob(["var global = (function() { if (typeof self !== 'undefined') { return self; } if (typeof window !== 'undefined') { return window; } if (typeof global !== 'undefined') { return global; } return {}; })(); global.IS_PAPA_WORKER=true; ", '(', code, ')();'], {type: 'text/javascript'})));
+		return Papa.BLOB_URL || (Papa.BLOB_URL = URL.createObjectURL(new Blob(['(', code, ')();'], {type: 'text/javascript'})));
 	}
 
 	var IS_WORKER = !global.document && !!global.postMessage,
-		IS_PAPA_WORKER = global.IS_PAPA_WORKER || false;
-
+		IS_PAPA_WORKER = IS_WORKER && /blob:/i.test((global.location || {}).protocol);
 	var workers = {}, workerIdCounter = 0;
 
 	var Papa = {};
@@ -235,7 +234,6 @@ License: MIT
 		}
 		else if (typeof _input === 'string')
 		{
-			_input = stripBom(_input);
 			if (_config.download)
 				streamer = new NetworkStreamer(_config);
 			else
@@ -249,14 +247,6 @@ License: MIT
 			streamer = new FileStreamer(_config);
 
 		return streamer.stream(_input);
-
-		// Strip character from UTF-8 BOM encoded files that cause issue parsing the file
-		function stripBom(string) {
-			if (string.charCodeAt(0) === 0xfeff) {
-				return string.slice(1);
-			}
-			return string;
-		}
 	}
 
 
@@ -292,9 +282,6 @@ License: MIT
 		/** the columns (keys) we expect when we unparse objects */
 		var _columns = null;
 
-		/** whether to prevent outputting cells that can be parsed as formulae by spreadsheet software (Excel and LibreOffice) */
-		var _escapeFormulae = false;
-
 		unpackConfig();
 
 		var quoteCharRegex = new RegExp(escapeRegExp(_quoteChar), 'g');
@@ -307,7 +294,7 @@ License: MIT
 			if (!_input.length || Array.isArray(_input[0]))
 				return serialize(null, _input, _skipEmptyLines);
 			else if (typeof _input[0] === 'object')
-				return serialize(_columns || Object.keys(_input[0]), _input, _skipEmptyLines);
+				return serialize(_columns || objectKeys(_input[0]), _input, _skipEmptyLines);
 		}
 		else if (typeof _input === 'object')
 		{
@@ -317,14 +304,12 @@ License: MIT
 			if (Array.isArray(_input.data))
 			{
 				if (!_input.fields)
-					_input.fields = _input.meta && _input.meta.fields || _columns;
+					_input.fields =  _input.meta && _input.meta.fields;
 
 				if (!_input.fields)
 					_input.fields =  Array.isArray(_input.data[0])
 						? _input.fields
-						: typeof _input.data[0] === 'object'
-							? Object.keys(_input.data[0])
-							: [];
+						: objectKeys(_input.data[0]);
 
 				if (!(Array.isArray(_input.data[0])) && typeof _input.data[0] !== 'object')
 					_input.data = [_input.data];	// handles input like [1,2,3] or ['asdf']
@@ -349,7 +334,6 @@ License: MIT
 			}
 
 			if (typeof _config.quotes === 'boolean'
-				|| typeof _config.quotes === 'function'
 				|| Array.isArray(_config.quotes))
 				_quotes = _config.quotes;
 
@@ -376,10 +360,18 @@ License: MIT
 			if (_config.escapeChar !== undefined) {
 				_escapedQuote = _config.escapeChar + _quoteChar;
 			}
+		}
 
-			if (typeof _config.escapeFormulae === 'boolean' || _config.escapeFormulae instanceof RegExp) {
-				_escapeFormulae = _config.escapeFormulae instanceof RegExp ? _config.escapeFormulae : /^[=+\-@\t\r].*$/;
-			}
+
+		/** Turns an object's keys into an array */
+		function objectKeys(obj)
+		{
+			if (typeof obj !== 'object')
+				return [];
+			var keys = [];
+			for (var key in obj)
+				keys.push(key);
+			return keys;
 		}
 
 		/** The double for loop that iterates the data and writes out a CSV string including header row */
@@ -454,25 +446,16 @@ License: MIT
 			if (str.constructor === Date)
 				return JSON.stringify(str).slice(1, 25);
 
-			var needsQuotes = false;
+			str = str.toString().replace(quoteCharRegex, _escapedQuote);
 
-			if (_escapeFormulae && typeof str === "string" && _escapeFormulae.test(str)) {
-				str = "'" + str;
-				needsQuotes = true;
-			}
-
-			var escapedQuoteStr = str.toString().replace(quoteCharRegex, _escapedQuote);
-
-			needsQuotes = needsQuotes
-							|| _quotes === true
-							|| (typeof _quotes === 'function' && _quotes(str, col))
+			var needsQuotes = (typeof _quotes === 'boolean' && _quotes)
 							|| (Array.isArray(_quotes) && _quotes[col])
-							|| hasAny(escapedQuoteStr, Papa.BAD_DELIMITERS)
-							|| escapedQuoteStr.indexOf(_delimiter) > -1
-							|| escapedQuoteStr.charAt(0) === ' '
-							|| escapedQuoteStr.charAt(escapedQuoteStr.length - 1) === ' ';
+							|| hasAny(str, Papa.BAD_DELIMITERS)
+							|| str.indexOf(_delimiter) > -1
+							|| str.charAt(0) === ' '
+							|| str.charAt(str.length - 1) === ' ';
 
-			return needsQuotes ? _quoteChar + escapedQuoteStr + _quoteChar : escapedQuoteStr;
+			return needsQuotes ? _quoteChar + str + _quoteChar : str;
 		}
 
 		function hasAny(str, substrings)
@@ -657,7 +640,7 @@ License: MIT
 				xhr.onerror = bindFunction(this._chunkError, this);
 			}
 
-			xhr.open(this._config.downloadRequestBody ? 'POST' : 'GET', this._input, !IS_WORKER);
+			xhr.open('GET', this._input, !IS_WORKER);
 			// Headers can only be set when once the request state is OPENED
 			if (this._config.downloadRequestHeaders)
 			{
@@ -676,7 +659,7 @@ License: MIT
 			}
 
 			try {
-				xhr.send(this._config.downloadRequestBody);
+				xhr.send();
 			}
 			catch (err) {
 				this._chunkError(err.message);
@@ -684,6 +667,8 @@ License: MIT
 
 			if (IS_WORKER && xhr.status === 0)
 				this._chunkError();
+			else
+				this._start += this._config.chunkSize;
 		};
 
 		this._chunkLoaded = function()
@@ -697,9 +682,7 @@ License: MIT
 				return;
 			}
 
-			// Use chunckSize as it may be a diference on reponse lentgh due to characters with more than 1 byte
-			this._start += this._config.chunkSize ? this._config.chunkSize : xhr.responseText.length;
-			this._finished = !this._config.chunkSize || this._start >= getFileSize(xhr);
+			this._finished = !this._config.chunkSize || this._start > getFileSize(xhr);
 			this.parseChunk(xhr.responseText);
 		};
 
@@ -715,7 +698,7 @@ License: MIT
 			if (contentRange === null) { // no content range, then finish!
 				return -1;
 			}
-			return parseInt(contentRange.substring(contentRange.lastIndexOf('/') + 1));
+			return parseInt(contentRange.substr(contentRange.lastIndexOf('/') + 1));
 		}
 	}
 	NetworkStreamer.prototype = Object.create(ChunkStreamer.prototype);
@@ -804,14 +787,8 @@ License: MIT
 		{
 			if (this._finished) return;
 			var size = this._config.chunkSize;
-			var chunk;
-			if(size) {
-				chunk = remaining.substring(0, size);
-				remaining = remaining.substring(size);
-			} else {
-				chunk = remaining;
-				remaining = '';
-			}
+			var chunk = size ? remaining.substr(0, size) : remaining;
+			remaining = size ? remaining.substr(size) : '';
 			this._finished = !remaining;
 			return this.parseChunk(chunk);
 		};
@@ -1021,8 +998,8 @@ License: MIT
 		// One goal is to minimize the use of regular expressions...
 		var MAX_FLOAT = Math.pow(2, 53);
 		var MIN_FLOAT = -MAX_FLOAT;
-		var FLOAT = /^\s*-?(\d+\.?|\.\d+|\d+\.\d+)([eE][-+]?\d+)?\s*$/;
-		var ISO_DATE = /^((\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)))$/;
+		var FLOAT = /^\s*-?(\d*\.?\d+|\d+\.?\d*)(e[-+]?\d+)?\s*$/i;
+		var ISO_DATE = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/;
 		var self = this;
 		var _stepCounter = 0;	// Number of times step was called (number of rows parsed)
 		var _rowCounter = 0;	// Number of rows that have been parsed so far
@@ -1058,10 +1035,8 @@ License: MIT
 					_stepCounter += results.data.length;
 					if (_config.preview && _stepCounter > _config.preview)
 						_parser.abort();
-					else {
-						_results.data = _results.data[0];
+					else
 						userStep(_results, self);
-					}
 				}
 			};
 		}
@@ -1116,10 +1091,7 @@ License: MIT
 		{
 			_paused = true;
 			_parser.abort();
-
-			// If it is streaming via "chunking", the reader will start appending correctly already so no need to substring,
-			// otherwise we can get duplicate content within a row
-			_input = isFunction(_config.chunk) ? "" : _input.substring(_parser.getCharIndex());
+			_input = _input.substr(_parser.getCharIndex());
 		};
 
 		this.resume = function()
@@ -1130,7 +1102,7 @@ License: MIT
 			} else {
 				// Bugfix: #636 In case the processing hasn't halted yet
 				// wait for it to halt in order to resume
-				setTimeout(self.resume, 3);
+				setTimeout(this.resume, 3);
 			}
 		};
 
@@ -1173,9 +1145,9 @@ License: MIT
 
 			if (_config.skipEmptyLines)
 			{
-				_results.data = _results.data.filter(function(d) {
-					return !testEmptyLine(d);
-				});
+				for (var i = 0; i < _results.data.length; i++)
+					if (testEmptyLine(_results.data[i]))
+						_results.data.splice(i--, 1);
 			}
 
 			if (needsHeaderRow())
@@ -1194,10 +1166,10 @@ License: MIT
 			if (!_results)
 				return;
 
-			function addHeader(header, i)
+			function addHeder(header)
 			{
 				if (isFunction(_config.transformHeader))
-					header = _config.transformHeader(header, i);
+					header = _config.transformHeader(header);
 
 				_fields.push(header);
 			}
@@ -1205,13 +1177,13 @@ License: MIT
 			if (Array.isArray(_results.data[0]))
 			{
 				for (var i = 0; needsHeaderRow() && i < _results.data.length; i++)
-					_results.data[i].forEach(addHeader);
+					_results.data[i].forEach(addHeder);
 
 				_results.data.splice(0, 1);
 			}
 			// if _results.data[0] is not an array, we are in a step where _results.data is the row.
 			else
-				_results.data.forEach(addHeader);
+				_results.data.forEach(addHeder);
 		}
 
 		function shouldApplyDynamicTyping(field) {
@@ -1285,7 +1257,7 @@ License: MIT
 			}
 
 			var incrementBy = 1;
-			if (!_results.data.length || Array.isArray(_results.data[0]))
+			if (!_results.data[0] || Array.isArray(_results.data[0]))
 			{
 				_results.data = _results.data.map(processRow);
 				incrementBy = _results.data.length;
@@ -1357,7 +1329,7 @@ License: MIT
 
 		function guessLineEndings(input, quoteChar)
 		{
-			input = input.substring(0, 1024 * 1024);	// max length 1 MB
+			input = input.substr(0, 1024 * 1024);	// max length 1 MB
 			// Replace all the text inside quotes
 			var re = new RegExp(escapeRegExp(quoteChar) + '([^]*?)' + escapeRegExp(quoteChar), 'gm');
 			input = input.replace(re, '');
@@ -1383,15 +1355,12 @@ License: MIT
 
 		function addError(type, code, msg, row)
 		{
-			var error = {
+			_results.errors.push({
 				type: type,
 				code: code,
-				message: msg
-			};
-			if(row !== undefined) {
-				error.row = row;
-			}
-			_results.errors.push(error);
+				message: msg,
+				row: row
+			});
 		}
 	}
 
@@ -1413,9 +1382,8 @@ License: MIT
 		var preview = config.preview;
 		var fastMode = config.fastMode;
 		var quoteChar;
-		var renamedHeaders = null;
-
-		if (config.quoteChar === undefined || config.quoteChar === null) {
+		/** Allows for no quoteChar by setting quoteChar to undefined in config */
+		if (config.quoteChar === undefined) {
 			quoteChar = '"';
 		} else {
 			quoteChar = config.quoteChar;
@@ -1468,66 +1436,18 @@ License: MIT
 			if (!input)
 				return returnable();
 
-			// Rename headers if there are duplicates
-			var firstLine;
-			if (config.header && !baseIndex)
-			{
-				firstLine = input.split(newline)[0];
-				var headers = firstLine.split(delim);
-				var separator = '_';
-				var headerMap = new Set();
-				var headerCount = {};
-				var duplicateHeaders = false;
-
-				// Using old-style 'for' loop to avoid prototype pollution that would be picked up with 'var j in headers'
-				for (var j = 0; j < headers.length; j++) {
-					var header = headers[j];
-					if (isFunction(config.transformHeader))
-						header = config.transformHeader(header, j);
-					var headerName = header;
-
-					var count = headerCount[header] || 0;
-					if (count > 0) {
-						duplicateHeaders = true;
-						headerName = header + separator + count;
-						// Initialise the variable if it hasn't been.
-						if (renamedHeaders === null) {
-							renamedHeaders = {};
-						}
-					}
-					headerCount[header] = count + 1;
-					// In case it already exists, we add more separators
-					while (headerMap.has(headerName)) {
-						headerName = headerName + separator + count;
-					}
-					headerMap.add(headerName);
-					if (count > 0) {
-						renamedHeaders[headerName] = header;
-					}
-				}
-				if (duplicateHeaders) {
-					var editedInput = input.split(newline);
-					editedInput[0] = Array.from(headerMap).join(delim);
-					input = editedInput.join(newline);
-				}
-			}
 			if (fastMode || (fastMode !== false && input.indexOf(quoteChar) === -1))
 			{
 				var rows = input.split(newline);
 				for (var i = 0; i < rows.length; i++)
 				{
 					row = rows[i];
-					// use firstline as row length may be changed due to duplicated headers
-					if (i === 0 && firstLine !== undefined) {
-						cursor += firstLine.length;
-					}else{
-						cursor += row.length;
-					}
+					cursor += row.length;
 					if (i !== rows.length - 1)
 						cursor += newline.length;
 					else if (ignoreLastRow)
 						return returnable();
-					if (comments && row.substring(0, commentsLen) === comments)
+					if (comments && row.substr(0, commentsLen) === comments)
 						continue;
 					if (stepIsFunction)
 					{
@@ -1607,18 +1527,12 @@ License: MIT
 							continue;
 						}
 
-						if(nextDelim !== -1 && nextDelim < (quoteSearch + 1)) {
-							nextDelim = input.indexOf(delim, (quoteSearch + 1));
-						}
-						if(nextNewline !== -1 && nextNewline < (quoteSearch + 1)) {
-							nextNewline = input.indexOf(newline, (quoteSearch + 1));
-						}
 						// Check up to nextDelim or nextNewline, whichever is closest
 						var checkUpTo = nextNewline === -1 ? nextDelim : Math.min(nextDelim, nextNewline);
 						var spacesBetweenQuoteAndDelimiter = extraSpaces(checkUpTo);
 
 						// Closing quote followed by delimiter or 'unnecessary spaces + delimiter'
-						if (input.substr(quoteSearch + 1 + spacesBetweenQuoteAndDelimiter, delimLen) === delim)
+						if (input[quoteSearch + 1 + spacesBetweenQuoteAndDelimiter] === delim)
 						{
 							row.push(input.substring(cursor, quoteSearch).replace(quoteCharRegex, quoteChar));
 							cursor = quoteSearch + 1 + spacesBetweenQuoteAndDelimiter + delimLen;
@@ -1636,7 +1550,7 @@ License: MIT
 						var spacesBetweenQuoteAndNewLine = extraSpaces(nextNewline);
 
 						// Closing quote followed by newline or 'unnecessary spaces + newLine'
-						if (input.substring(quoteSearch + 1 + spacesBetweenQuoteAndNewLine, quoteSearch + 1 + spacesBetweenQuoteAndNewLine + newlineLen) === newline)
+						if (input.substr(quoteSearch + 1 + spacesBetweenQuoteAndNewLine, newlineLen) === newline)
 						{
 							row.push(input.substring(cursor, quoteSearch).replace(quoteCharRegex, quoteChar));
 							saveRow(quoteSearch + 1 + spacesBetweenQuoteAndNewLine + newlineLen);
@@ -1675,7 +1589,7 @@ License: MIT
 				}
 
 				// Comment found at start of new line
-				if (comments && row.length === 0 && input.substring(cursor, cursor + commentsLen) === comments)
+				if (comments && row.length === 0 && input.substr(cursor, commentsLen) === comments)
 				{
 					if (nextNewline === -1)	// Comment ends at EOF
 						return returnable();
@@ -1688,11 +1602,27 @@ License: MIT
 				// Next delimiter comes before next newline, so we've reached end of field
 				if (nextDelim !== -1 && (nextDelim < nextNewline || nextNewline === -1))
 				{
-					row.push(input.substring(cursor, nextDelim));
-					cursor = nextDelim + delimLen;
-					// we look for next delimiter char
-					nextDelim = input.indexOf(delim, cursor);
-					continue;
+					// we check, if we have quotes, because delimiter char may be part of field enclosed in quotes
+					if (quoteSearch !== -1) {
+						// we have quotes, so we try to find the next delimiter not enclosed in quotes and also next starting quote char
+						var nextDelimObj = getNextUnqotedDelimiter(nextDelim, quoteSearch, nextNewline);
+
+						// if we have next delimiter char which is not enclosed in quotes
+						if (nextDelimObj && typeof nextDelimObj.nextDelim !== 'undefined') {
+							nextDelim = nextDelimObj.nextDelim;
+							quoteSearch = nextDelimObj.quoteSearch;
+							row.push(input.substring(cursor, nextDelim));
+							cursor = nextDelim + delimLen;
+							// we look for next delimiter char
+							nextDelim = input.indexOf(delim, cursor);
+							continue;
+						}
+					} else {
+						row.push(input.substring(cursor, nextDelim));
+						cursor = nextDelim + delimLen;
+						nextDelim = input.indexOf(delim, cursor);
+						continue;
+					}
 				}
 
 				// End of row
@@ -1751,7 +1681,7 @@ License: MIT
 				if (ignoreLastRow)
 					return returnable();
 				if (typeof value === 'undefined')
-					value = input.substring(cursor);
+					value = input.substr(cursor);
 				row.push(value);
 				cursor = inputLen;	// important in case parsing is paused
 				pushRow(row);
@@ -1775,18 +1705,18 @@ License: MIT
 			}
 
 			/** Returns an object with the results, errors, and meta. */
-			function returnable(stopped)
+			function returnable(stopped, step)
 			{
+				var isStep = step || false;
 				return {
-					data: data,
+					data: isStep ? data[0]  : data,
 					errors: errors,
 					meta: {
 						delimiter: delim,
 						linebreak: newline,
 						aborted: aborted,
 						truncated: !!stopped,
-						cursor: lastCursor + (baseIndex || 0),
-						renamedHeaders: renamedHeaders
+						cursor: lastCursor + (baseIndex || 0)
 					}
 				};
 			}
@@ -1794,9 +1724,43 @@ License: MIT
 			/** Executes the user's step function and resets data & errors. */
 			function doStep()
 			{
-				step(returnable());
+				step(returnable(undefined, true));
 				data = [];
 				errors = [];
+			}
+
+			/** Gets the delimiter character, which is not inside the quoted field */
+			function getNextUnqotedDelimiter(nextDelim, quoteSearch, newLine) {
+				var result = {
+					nextDelim: undefined,
+					quoteSearch: undefined
+				};
+				// get the next closing quote character
+				var nextQuoteSearch = input.indexOf(quoteChar, quoteSearch + 1);
+
+				// if next delimiter is part of a field enclosed in quotes
+				if (nextDelim > quoteSearch && nextDelim < nextQuoteSearch && (nextQuoteSearch < newLine || newLine === -1)) {
+					// get the next delimiter character after this one
+					var nextNextDelim = input.indexOf(delim, nextQuoteSearch);
+
+					// if there is no next delimiter, return default result
+					if (nextNextDelim === -1) {
+						return result;
+					}
+					// find the next opening quote char position
+					if (nextNextDelim > nextQuoteSearch) {
+						nextQuoteSearch = input.indexOf(quoteChar, nextQuoteSearch + 1);
+					}
+					// try to get the next delimiter position
+					result = getNextUnqotedDelimiter(nextNextDelim, nextQuoteSearch, newLine);
+				} else {
+					result = {
+						nextDelim: nextDelim,
+						quoteSearch: quoteSearch
+					};
+				}
+
+				return result;
 			}
 		};
 

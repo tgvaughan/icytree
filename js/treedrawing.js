@@ -187,10 +187,14 @@ var Display = (function() {
         colourAssignment.colourPallet = [];
         var N = colourAssignment.seenColourTraitValues.length;
         var delta = Math.min(0.33, 1/N);
+        // Check if dark mode is enabled
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        // If dark mode, desaturate (reduce saturation to 50%), otherwise keep full saturation
+        const saturation = isDarkMode ? 0.5 : 1;
         for (var idx=0; idx<N; idx++) {
             var hue = 1 - idx*delta;
             var lightness = (hue>0.1 && hue<0.5) ? 0.30 : 0.45;
-            colourAssignment.colourPallet[idx] = hslToRgb(hue, 1, lightness);
+            colourAssignment.colourPallet[idx] = hslToRgb(hue, saturation, lightness);
         }
     }
 
@@ -286,7 +290,7 @@ var Display = (function() {
             titleText = "Node colour: ";
 
         var trait = colourAssignment.colourTrait;
-        titleText += trait[0].toUpperCase() + trait.substr(1).toLowerCase();
+        titleText += trait[0].toUpperCase() + trait.substring(1).toLowerCase();
 
         title.textContent = titleText;
         svg.appendChild(title);
@@ -468,15 +472,16 @@ var Display = (function() {
 
         var classes = "treeEdge";
 
-        if (colourTrait !== undefined)
+        if (colourTrait !== undefined) {
             classes += " edgetrait_" + window.btoa(colourTrait);
-        else
+        } else {
             if (document.body.classList.contains("dark-mode")) {
                 // Dark mode edges default
                 path.setAttribute("stroke", "lightgrey");
             } else {
                 path.setAttribute("stroke", "black");
             }
+        }
         path.setAttribute("stroke-width", TreeStyle.minLineWidth +
                           edgeWidthFactor*(TreeStyle.lineWidth - TreeStyle.minLineWidth));
 
@@ -533,7 +538,7 @@ var Display = (function() {
             pos[1] += offset[1]*TreeStyle.lineWidth;
         }
 
-        text.setAttribute("x", pos[0]);
+        text.setAttribute("x", pos[0]+5);
         text.setAttribute("y", pos[1]);
 
         if (TreeStyle.angleText) {

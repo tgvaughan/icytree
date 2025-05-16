@@ -294,6 +294,7 @@ $(document).ready(function() {
         $("body").toggleClass("dark-mode");
         const mode = $("body").hasClass("dark-mode") ? "on" : "off";
         localStorage.setItem("Dark Mode", mode);
+        update()
     });
 
     // Set up dialogs:

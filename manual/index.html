@@ -19,10 +19,9 @@
 
         <link rel="stylesheet" href="{{site.baseurl}}/css/manual.css">
     </head>
-    <body>
-
+    <body style="background-color: #1e1e1e; color: #b0b0b0;">
         <div class="container">
-            <div class="jumbotron">
+            <div class="jumbotron" style="background-color: #2a2a2a;">
                 <h1> IcyTree Manual </h1>
             </div>
 
@@ -35,5 +34,21 @@
 
                 </div>
         </div>
+        <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    let isDark = false;
+                    try {
+                        isDark = window.opener?.document.body.classList.contains("dark-mode");
+                    } catch (e) {
+                        // cross-origin error
+                    }
+                    if (!isDark) {
+                        // If not dark mode remove loading style for body and jumbotron again
+                        // setting the style to dark-mode by default avoids white flash on load
+                        document.body.removeAttribute("style");
+                        document.querySelector(".jumbotron").removeAttribute("style");
+                    }
+                });
+        </script>
     </body>
 </html>

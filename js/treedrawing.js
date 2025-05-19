@@ -2,7 +2,9 @@
  * @licstart  The following is the entire license notice for the
  *  JavaScript code in this page.
  *
- * Copyright (C) 2014  Tim Vaughan
+ * Copyright (C) 2014-2017 Tim Vaughan
+ * Copyright (C) 2025  Lars Berling
+ * Copyright (C) 2017-2025 ETH Zurich
  *
  *
  * The JavaScript code in this page is free software: you can
@@ -187,10 +189,14 @@ var Display = (function() {
         colourAssignment.colourPallet = [];
         var N = colourAssignment.seenColourTraitValues.length;
         var delta = Math.min(0.33, 1/N);
+        // Check if dark mode is enabled
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        // If dark mode, desaturate (reduce saturation to 50%), otherwise keep full saturation
+        const saturation = isDarkMode ? 0.5 : 1;
         for (var idx=0; idx<N; idx++) {
             var hue = 1 - idx*delta;
             var lightness = (hue>0.1 && hue<0.5) ? 0.30 : 0.45;
-            colourAssignment.colourPallet[idx] = hslToRgb(hue, 1, lightness);
+            colourAssignment.colourPallet[idx] = hslToRgb(hue, saturation, lightness);
         }
     }
 
@@ -274,6 +280,11 @@ var Display = (function() {
         title.setAttribute("x",  coord.x);
         title.setAttribute("y",  coord.y);
 
+        if (document.body.classList.contains("dark-mode")) {
+            // Legend title color for dark mode
+            title.setAttribute("fill", "#b0b0b0");
+        }
+
         var titleText;
         if (colourAssignment.type == "edge")
             titleText = "Edge colour: ";
@@ -281,7 +292,7 @@ var Display = (function() {
             titleText = "Node colour: ";
 
         var trait = colourAssignment.colourTrait;
-        titleText += trait[0].toUpperCase() + trait.substr(1).toLowerCase();
+        titleText += trait[0].toUpperCase() + trait.substring(1).toLowerCase();
 
         title.textContent = titleText;
         svg.appendChild(title);
@@ -441,7 +452,11 @@ var Display = (function() {
         bar.setAttribute("x2", maxPos[0]);
         bar.setAttribute("y2", maxPos[1]);
         bar.setAttribute("vector-effect", "non-scaling-stroke");
-        bar.setAttribute("stroke", "black");
+        if (document.body.classList.contains("dark-mode")) {
+            bar.setAttribute("stroke", "lightgrey");
+        } else {
+            bar.setAttribute("stroke", "black");
+        }
         bar.setAttribute("stroke-opacity", "0.4");
         bar.setAttribute("stroke-width", TreeStyle.lineWidth*3);
         bar.setAttribute("class", "errorBar");
@@ -459,11 +474,16 @@ var Display = (function() {
 
         var classes = "treeEdge";
 
-        if (colourTrait !== undefined)
+        if (colourTrait !== undefined) {
             classes += " edgetrait_" + window.btoa(colourTrait);
-        else
-            path.setAttribute("stroke", "black");
-
+        } else {
+            if (document.body.classList.contains("dark-mode")) {
+                // Dark mode edges default
+                path.setAttribute("stroke", "lightgrey");
+            } else {
+                path.setAttribute("stroke", "black");
+            }
+        }
         path.setAttribute("stroke-width", TreeStyle.minLineWidth +
                           edgeWidthFactor*(TreeStyle.lineWidth - TreeStyle.minLineWidth));
 
@@ -487,11 +507,16 @@ var Display = (function() {
         path.setAttribute("fill", "none");
 
         var classes = "treeEdge";
-        if (colourTrait !== undefined)
+        if (colourTrait !== undefined) {
             classes += " edgetrait_" + window.btoa(colourTrait);
-        else
-            path.setAttribute("stroke", "black");
-
+        } else {
+            if (document.body.classList.contains("dark-mode")) {
+                // Dark mode edges default to lightgrey
+                path.setAttribute("stroke", "lightgrey");
+            } else {
+                path.setAttribute("stroke", "black");
+            }
+        }
         path.setAttribute("stroke-width", TreeStyle.minLineWidth +
                           recombWidthFactor*(TreeStyle.lineWidth - TreeStyle.minLineWidth));
 
@@ -515,7 +540,7 @@ var Display = (function() {
             pos[1] += offset[1]*TreeStyle.lineWidth;
         }
 
-        text.setAttribute("x", pos[0]);
+        text.setAttribute("x", pos[0]+5);
         text.setAttribute("y", pos[1]);
 
         if (TreeStyle.angleText) {
@@ -539,6 +564,10 @@ var Display = (function() {
             text.textContent = string;
         }
 
+        if (document.body.classList.contains("dark-mode")) {
+            // Dark mode for leaf labels
+            text.setAttribute("fill", "lightgrey");
+        }
         return(text);
     }
 
@@ -556,8 +585,12 @@ var Display = (function() {
         if (colourTrait !== undefined)
             classes += " nodetrait_" + window.btoa(colourTrait);
         else
-            bullet.setAttribute("fill", "black");
-
+            if (document.body.classList.contains("dark-mode")) {
+                // Dark mode color for internal nodes
+                bullet.setAttribute("fill", "lightgrey");
+            } else {
+                bullet.setAttribute("fill", "black");
+            }
         bullet.setAttribute("class", classes);
         return(bullet);
     }
@@ -575,7 +608,12 @@ var Display = (function() {
 
         polygon.setAttribute("points", vertexString);
         polygon.setAttribute("fill", "gray");
-        polygon.setAttribute("stroke", "black");
+        if (document.body.classList.contains("dark-mode")) {
+            // Dark mode outline for collapsed clade
+            polygon.setAttribute("stroke", "lightgrey");
+        } else {
+            polygon.setAttribute("stroke", "black");
+        }
         polygon.setAttribute("vector-effect", "non-scaling-stroke");
         polygon.setAttribute("shape-rendering", "auto");
 

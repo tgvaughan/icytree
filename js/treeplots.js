@@ -2,7 +2,9 @@
  * @licstart  The following is the entire license notice for the
  *  JavaScript code in this page.
  *
- * Copyright (C) 2014  Tim Vaughan
+ * Copyright (C) 2014-2017 Tim Vaughan
+ * Copyright (C) 2025  Lars Berling
+ * Copyright (C) 2017-2025 ETH Zurich
  *
  *
  * The JavaScript code in this page is free software: you can
@@ -45,6 +47,10 @@ var TreePlots = (function () {
             }
         }
 
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        if (isDarkMode) {
+            layout = dark_mode_update(layout)
+        }
         Plotly.newPlot(divName, [trace], layout);
     }
 
@@ -76,7 +82,7 @@ var TreePlots = (function () {
 
                 dk = data.lineages[treeIntervalIdx+1] - data.lineages[treeIntervalIdx];
                 if (dk<0) {
-                    logL += Math.log(coalRate); 
+                    logL += Math.log(coalRate);
                 }
 
                 treeIntervalIdx += 1;
@@ -188,12 +194,39 @@ var TreePlots = (function () {
             }
         }
 
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        if (isDarkMode) {
+            layout = dark_mode_update(layout)
+        }
         Plotly.newPlot(divName, [trace], layout);
     }
-
 
     return {
         drawLTT: drawLTT,
         drawSkyline: drawSkyline
+    }
+
+    function dark_mode_update(layout) {
+        let updatedLayout = { ...layout };
+
+        updatedLayout.plot_bgcolor = '#2e2e2e';  // Dark background for the plot area
+        updatedLayout.paper_bgcolor = '#1e1e1e';  // Dark background for the paper area (around the plot)
+        updatedLayout.font = {
+            color: '#e0e0e0'  // Light color for text in dark mode
+        };
+        updatedLayout.xaxis = {
+            ...layout.xaxis,
+            tickcolor: '#e0e0e0',  // Light color for x-axis ticks
+            showgrid: true,
+            gridcolor: '#444444'  // Dark grid lines
+        };
+        updatedLayout.yaxis = {
+            ...layout.yaxis,
+            tickcolor: '#e0e0e0',  // Light color for y-axis ticks
+            showgrid: true,
+            gridcolor: '#444444'  // Dark grid lines
+        };
+
+        return updatedLayout;
     }
 }) ();

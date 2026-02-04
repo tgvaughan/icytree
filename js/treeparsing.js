@@ -327,9 +327,14 @@ TreeFromNewick.prototype.doParse = function(tokenList, newick) {
         }
     }
 
-    // B -> :num R A | eps
+    // B -> : A num R A | eps
+    // (The two A rules handle edge annotations which are sometimes included
+    // immediately after the colon (MrBayes) and sometimes after the edge
+    // length (BEAST).)
     function ruleB(node) {
         if (acceptToken("COLON", false)) {
+            ruleA(node);
+
             acceptToken("STRING", true);
 
             var length = Number(tokenList[idx-1][1]);

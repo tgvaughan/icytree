@@ -87,6 +87,7 @@ var TreeStyle = {
     lineWidth: 2,
     minLineWidth: 1,
     fontSize: 11,
+    legendFontSize: 11,
 
     sortNodes: true,
     sortNodesDecending: true
@@ -265,10 +266,22 @@ var Display = (function() {
         if (colourAssignment.seenColourTraitValues.length == 0)
             return 0;
 
+        // Scaling for font size
+        const legendFontSize = TreeStyle.legendFontSize;
+        const lineHeight = legendFontSize * 1.6;   // spacing between rows
+        const titleHeight = legendFontSize * 2;    // space for title
+
         if (offset === undefined)
             offset = 0;
-        
-        var legendHeight = colourAssignment.seenColourTraitValues.length*20 + 45;
+
+        var legendHeight = colourAssignment.seenColourTraitValues.length * lineHeight + titleHeight;
+
+        // Scaling the legend symbols with the fontsize
+        const symbolSize = legendFontSize * 0.6;
+        const rectWidth = symbolSize * 2;
+        const rectHeight = symbolSize * 0.6;
+        // Label offset to its symbol
+        const labelOffset = symbolSize * 2;
 
         coord = svg.createSVGPoint();
         coord.x = 10;
@@ -279,6 +292,9 @@ var Display = (function() {
         title.setAttribute("class", "axisComponent");
         title.setAttribute("x",  coord.x);
         title.setAttribute("y",  coord.y);
+
+        title.setAttribute("font-size", legendFontSize);
+        title.setAttribute("dominant-baseline", "hanging");
 
         if (document.body.classList.contains("dark-mode")) {
             // Legend title color for dark mode
@@ -303,24 +319,24 @@ var Display = (function() {
 
             coord = svg.createSVGPoint();
             coord.x = 20;
-            coord.y = TreeStyle.height - legendHeight + 15 + i*20 - offset;
+            coord.y = TreeStyle.height - legendHeight + titleHeight + i * lineHeight - offset;
 
             transformToSVG(svg, coord);
 
             var dot;
             if (colourAssignment.type == "edge") {
                 dot = document.createElementNS(NS, "rect");
-                dot.setAttribute("x", coord.x - getSVGWidth(svg, 5));
-                dot.setAttribute("y", coord.y - getSVGHeight(svg, 2));
-                dot.setAttribute("width", getSVGWidth(svg, 10));
-                dot.setAttribute("height", getSVGHeight(svg, 4));
+                dot.setAttribute("x", coord.x - getSVGWidth(svg, rectWidth / 2));
+                dot.setAttribute("y", coord.y - getSVGHeight(svg, rectHeight / 2));
+                dot.setAttribute("width", getSVGWidth(svg, rectWidth));
+                dot.setAttribute("height", getSVGHeight(svg, rectHeight));
                 dot.setAttribute("class", "axisComponent");
             } else {
                 dot = document.createElementNS(NS, "ellipse");
                 dot.setAttribute("cx", coord.x);
                 dot.setAttribute("cy", coord.y);
-                dot.setAttribute("rx", getSVGWidth(svg, 5));
-                dot.setAttribute("ry", getSVGHeight(svg, 5));
+                dot.setAttribute("rx", getSVGWidth(svg, symbolSize));
+                dot.setAttribute("ry", getSVGHeight(svg, symbolSize));
                 dot.setAttribute("shape-rendering", "auto");
             }
             dot.setAttribute("fill", colourAssignment.colourPallet[i]);
@@ -330,10 +346,13 @@ var Display = (function() {
             label = document.createElementNS(NS, "text");
             label.setAttribute("dominant-baseline", "central");
             label.setAttribute("class", "axisComponent");
-            label.setAttribute("x", coord.x + getSVGWidth(svg, 15));
+            label.setAttribute("x", coord.x + getSVGWidth(svg, labelOffset));
             label.setAttribute("y", coord.y);
             label.setAttribute("fill", colourAssignment.colourPallet[i]);
             label.textContent = colourAssignment.seenColourTraitValues[i];
+
+            label.setAttribute("font-size", legendFontSize);
+
             svgFragment.appendChild(label);
         }
 

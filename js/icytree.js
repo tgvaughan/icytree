@@ -232,6 +232,13 @@ $(document).ready(function() {
                     fontSizeChange(-2);
                 break;
 
+            case "styleLegendFontSize":
+                if (ui.item.text().indexOf("Increase")>=0)
+                    legendFontSizeChange(2);
+                else
+                    legendFontSizeChange(-2);
+                break;
+
             case "styleEdgeWidth":
                 if (ui.item.text().indexOf("Increase")>=0)
                     edgeWidthChange(1);
@@ -1185,10 +1192,17 @@ function edgeWidthChange(inc) {
     update();
 }
 
-// Alter font size used in visualisation.
+// Alter font size used in visualisation. -- This only changes the tree label font size
 function fontSizeChange(inc) {
     TreeStyle.fontSize = Math.max(5, TreeStyle.fontSize + inc);
     displayNotification("Font size: " + TreeStyle.fontSize);
+    update();
+}
+
+// Alter font size of legend
+function legendFontSizeChange(inc) {
+    TreeStyle.legendFontSize = Math.max(5, TreeStyle.legendFontSize + inc);
+    displayNotification("Legend font size: " + TreeStyle.legendFontSize);
     update();
 }
 
@@ -2078,6 +2092,18 @@ function keyPressHandler(event) {
         case "[":
             // Decrease font size
             fontSizeChange(-2);
+            event.preventDefault();
+            return;
+
+        case ")":
+            // Increase Legend font size
+            legendFontSizeChange(2);
+            event.preventDefault();
+            return;
+
+        case "(":
+            // Decrease Legend font size
+            legendFontSizeChange(-2);
             event.preventDefault();
             return;
 

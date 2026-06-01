@@ -269,9 +269,9 @@ while holding down the SHIFT key.  This produces a new root node exactly in the 
 selected edge.
 
 Be aware that **re-rooting trees with node annotations that actually apply to immediately ancestral edges
-can produce meaningless annotations**. See
+or to the subtree immediately above or below the node can produce meaningless annotations**. (See
 [this article](http://biorxiv.org/content/early/2016/09/07/035360)
-for more details.
+for more details.)  Importantly, this caveat applies to clade support annotations.
 
 The re-rooting can also be applied to networks.  However, in the case of timed
 networks the lengths of the recombinant edges cannot in general be preserved
